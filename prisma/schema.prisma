@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Users {
+  id       String      @id 
+  name     String
+  email    String      @unique
+  avatar   String      @default("https://gcqzkhtzxxchrzuvgfwx.supabase.co/storage/v1/object/public/uploads/avatars/default-avatar.jpg?t=2024-09-27T10%3A18%3A57.813Z")
+  videos   Videos[]    
+  likes    Likes[]     
+  comments Comments[] 
+
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model Videos {
+  id       Int         @id @default(autoincrement())
+  title    String
+  url      String?
+  userId   String
+  user     Users       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  likes    Likes[]     
+  comments Comments[] 
+
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model Likes {
+  id     Int    @id @default(autoincrement())
+  userId String
+  postId Int
+  user   Users   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post   Videos   @relation(fields: [postId], references: [id], onDelete: Cascade)  
+
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model Comments {
+  id     Int     @id @default(autoincrement())
+  text   String
+  userId String
+  postId Int
+  user   Users   @relation(fields: [userId], references: [id], onDelete: Cascade) 
+  post   Videos   @relation(fields: [postId], references: [id], onDelete: Cascade) 
+
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
