@@ -40,7 +40,7 @@ useSeoMeta({
 	description: `Podvodni-Tok · ${video.value?.title}`,
 	ogDescription: `Podvodni-Tok · ${video.value?.title}`,
 	ogImage:
-		"https://gcqzkhtzxxchrzuvgfwx.supabase.co/storage/v1/object/public/uploads/avatars/default-avatar.jpg",
+		"https://gcqzkhtzxxchrzuvgfwx.supabase.co/storage/v1/object/public/uploads/avatars/1732128056099",
 	ogImageHeight: 300,
 	ogUrl: `https://podvodni-tok.com/video/${video.value?.id}`,
 })
@@ -216,8 +216,6 @@ const toggleMute = () => {
 		</div>
 	</div>
 </template>
-
-
 
 <style scoped>
 @media (max-width: 600px) {
