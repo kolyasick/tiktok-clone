@@ -13,7 +13,7 @@ export default defineNuxtConfig({
 		redirect: false,
 	},
 	image: {
-		domains: ["https://cnftqjluuyftofvirwbb.supabase.co"],
+		domains: ["https://gcqzkhtzxxchrzuvgfwx.supabase.co"],
 	},
 	pages: true,
 	app: {
