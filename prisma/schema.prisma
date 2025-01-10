@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Users {
+  id        String        @id
+  name      String
+  email     String        @unique
+  avatar    String        @default("https://gcqzkhtzxxchrzuvgfwx.supabase.co/storage/v1/object/public/uploads/avatars/default-avatar.jpg?t=2024-09-27T10%3A18%3A57.813Z")
+  videos    Videos[]
+  likes     Likes[]
+  comments  Comments[]
+
+  friendRequestsSent     Friendships[] @relation("User1Friends")
+  friendRequestsReceived Friendships[] @relation("User2Friends")
+
+  chatRoomsCreated       ChatRooms[]   @relation("User1Chat")
+  chatRoomsJoined        ChatRooms[]   @relation("User2Chat")
+
+  messages               Messages[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Videos {
+  id       Int         @id @default(autoincrement())
+  title    String
+  url      String?
+  userId   String
+  user     Users       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  likes    Likes[]
+  comments Comments[]
+
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model Likes {
+  id     Int    @id @default(autoincrement())
+  userId String
+  postId Int
+  user   Users   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post   Videos  @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model Comments {
+  id     Int     @id @default(autoincrement())
+  text   String
+  userId String
+  postId Int
+  user   Users   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post   Videos  @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model Friendships {
+  id          Int      @id @default(autoincrement())
+  user1Id     String
+  user2Id     String
+  isConfirmed Boolean
+
+  user1       Users    @relation("User1Friends", fields: [user1Id], references: [id], onDelete: Cascade)
+  user2       Users    @relation("User2Friends", fields: [user2Id], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ChatRooms {
+  id          String @id 
+  user1Id     String
+  user2Id     String
+
+  user1       Users    @relation("User1Chat", fields: [user1Id], references: [id], onDelete: Cascade)
+  user2       Users    @relation("User2Chat", fields: [user2Id], references: [id], onDelete: Cascade)
+
+  messages    Messages[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Messages {
+  id          Int      @id @default(autoincrement())
+  text        String
+  senderId    String
+  chatName    String
+
+  sender      Users      @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  chatRoom    ChatRooms  @relation(fields: [chatName], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
