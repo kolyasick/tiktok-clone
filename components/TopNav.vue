@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const { $generalStore, $authStore } = useNuxtApp()
+const { user, loggedIn, clear } = useUserSession()
 
 const route = useRoute()
 const router = useRouter()
@@ -7,17 +8,15 @@ const router = useRouter()
 let showMenu = ref(false)
 
 const isLoggedIn = () => {
-	if ($authStore.isAuth) {
-		router.push("/upload")
+	if (loggedIn.value) {
+		return router.push("/upload")
 	} else {
 		$generalStore.isLoginOpen = true
 	}
 }
 </script>
 <template>
-	<div
-		id="TopNav"
-		class="fixed bg-[#121212] z-30 flex items-center w-full h-[61px]">
+	<div id="TopNav" class="fixed bg-[#121212] z-30 flex items-center w-full h-[61px]">
 		<div class="flex items-center justify-between w-full px-2 mx-auto max-w-[1260px]">
 			<div :class="route.fullPath === '/' ? 'w-[80%]' : 'lg:w-[20%] w-[70%]'">
 				<NuxtLink to="/">
@@ -33,7 +32,7 @@ const isLoggedIn = () => {
 					<span class="px-2 font-medium text-[15px]">Upload</span>
 				</button>
 
-				<div v-if="!$authStore.isAuth" class="flex items-center">
+				<div v-if="!loggedIn" class="flex items-center">
 					<button
 						@click="$generalStore.isLoginOpen = true"
 						class="flex items-center bg-[#F02C56] text-white rounded-sm px-3 py-[6px]">
@@ -51,7 +50,7 @@ const isLoggedIn = () => {
 								format="webp"
 								class="rounded-full"
 								width="33"
-								:src="$authStore.user?.avatar" />
+								src="/tiktok-logo.png" />
 						</button>
 
 						<div
@@ -66,7 +65,7 @@ const isLoggedIn = () => {
 								<span class="pl-2 font-semibold text-sm">Profile</span>
 							</NuxtLink>
 							<div
-								@click="$authStore.logout()"
+								@click="clear"
 								class="flex items-center justify-start py-3 px-1.5 hover:bg-[#303030] border-t cursor-pointer">
 								<Icon name="ic:outline-login" size="20" />
 								<span class="pl-2 font-semibold text-sm">Log out</span>

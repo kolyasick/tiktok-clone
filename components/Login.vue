@@ -1,3 +1,9 @@
+<script setup>
+const { $authStore } = useNuxtApp()
+
+let email = ref(null)
+let password = ref(null)
+</script>
 <template>
 	<div class="text-center text-[28px] mb-4 font-bold">Log in</div>
 
@@ -36,10 +42,3 @@
 		{{ $authStore.errors.other }}
 	</span>
 </template>
-
-<script setup>
-const { $authStore } = useNuxtApp()
-
-let email = ref(null)
-let password = ref(null)
-</script>

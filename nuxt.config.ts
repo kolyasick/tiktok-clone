@@ -1,21 +1,9 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-	compatibilityDate: "2024-04-03",
 	devtools: { enabled: false },
-	modules: [
-		"@nuxtjs/supabase",
-		"@pinia/nuxt",
-		"@nuxtjs/tailwindcss",
-		"@nuxt/icon",
-		"@nuxt/image",
-	],
-	supabase: {
-		redirect: false,
-	},
-	image: {
-		domains: ["https://gcqzkhtzxxchrzuvgfwx.supabase.co"],
-	},
+	modules: ["@pinia/nuxt", "@nuxtjs/tailwindcss", "@nuxt/image", "@nuxt/icon", "nuxt-auth-utils"],
 	pages: true,
+
 	app: {
 		head: {
 			charset: "utf-8",
@@ -29,4 +17,6 @@ export default defineNuxtConfig({
 			],
 		},
 	},
+
+	compatibilityDate: "2025-02-22",
 })

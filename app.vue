@@ -1,17 +1,15 @@
+<script setup lang="ts">
+const { $generalStore, $authStore, $videosStore } = useNuxtApp()
+
+</script>
 <template>
 	<NuxtLoadingIndicator color="#F02C56" />
 	<NuxtPage />
 
-	<AuthOverlay v-if="$generalStore.isLoginOpen" />
+	<AuthOverlay />
+
 	<EditProfileOverlay v-if="$generalStore.isEditProfileOpen" />
 </template>
-
-<script setup lang="ts">
-const { $generalStore, $authStore, $videosStore } = useNuxtApp()
-
-$authStore.getUser()
-$videosStore.getVideos()
-</script>
 
 <style>
 body {
@@ -36,5 +34,15 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
 	background-color: #777;
+}
+
+.modal-fadeenter-active,
+.modal-fade-leave-active {
+	transition: opacity 0.5s ease;
+}
+
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+	opacity: 0;
 }
 </style>

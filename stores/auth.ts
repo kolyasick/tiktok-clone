@@ -1,7 +1,6 @@
+import type { UserSession } from "#auth-utils"
 import type { IUser } from "./../types/user.type"
 import { defineStore } from "pinia"
-import { useGeneralStore } from "~/stores/general"
-import { useVideosStore } from "~/stores/videos"
 import { validateEmail, validatePassword, validateName } from "~/utils/validationUtils"
 
 interface IErrors {
@@ -35,100 +34,23 @@ export const useAuthStore = defineStore("auth", {
 			})
 		},
 
-		async register(email: string, password: string, name: string) {
-			if (
-				!validateName(name, this.errors) ||
-				!validateEmail(email, this.errors) ||
-				!validatePassword(password, this.errors)
-			) {
-				return
-			}
+		async register(name: string, email: string, password: string) {
+			if (!name || !email || !password) return
 
-			try {
-				this.clearErrors()
-				this.isLoading = true
-
-				const { data, error } = await useSupabaseClient().auth.signUp({
+			const res = await $fetch<UserSession>("/api/auth/register", {
+				method: "POST",
+				body: {
+					name,
 					email,
 					password,
-				})
+				},
+			})
 
-				if (error) {
-					this.errors.other = error.message
-					return
-				}
+			if (res) {
+				console.log("login...")
 
-				const { data: user } = await useFetch<IUser>("/api/create-user", {
-					method: "POST",
-					body: {
-						id: data.user?.id,
-						email,
-						name,
-					},
-				})
-
-				this.set(true, user.value)
-				email = ""
-				password = ""
-				name = ""
-
-				window.location.reload()
-				useGeneralStore().isLoginOpen = false
-			} catch (error: any) {
-				this.errors.other = error.message
-			} finally {
-				this.isLoading = false
+				await useUserSession().fetch()
 			}
-		},
-		async login(email: string, password: string) {
-			if (!validateEmail(email, this.errors) || !validatePassword(password, this.errors)) {
-				return
-			}
-
-			try {
-				this.clearErrors()
-				this.isLoading = true
-
-				const { data, error } = await useSupabaseClient().auth.signInWithPassword({
-					email,
-					password,
-				})
-				if (error) {
-					this.errors.other = error.message
-					return
-				}
-
-				const { data: user } = await useFetch<IUser>(`/api/get-user/${data.user?.id}`)
-
-				this.set(true, user.value)
-				email = ""
-				password = ""
-
-				window.location.reload()
-				useGeneralStore().isLoginOpen = false
-			} catch (error: any) {
-				this.errors.other = error.message
-			} finally {
-				this.isLoading = false
-			}
-		},
-		async getUser() {
-			const user = useSupabaseUser()
-
-			if (!user.value) return
-
-			try {
-				const { data } = await useFetch<IUser>(`/api/get-user/${user.value?.id}`)
-				this.set(true, data.value)
-			} catch (error) {
-				throw error
-			}
-		},
-
-		async logout() {
-			await useSupabaseClient().auth.signOut()
-			this.set(false, null)
-			window.location.reload()
 		},
 	},
 })

@@ -1,3 +1,11 @@
+<script setup lang="ts">
+const { $authStore } = useNuxtApp()
+
+let name = ref("")
+let email = ref("")
+let password = ref("")
+</script>
+
 <template>
 	<div class="text-center text-[28px] mb-4 font-bold">Sign up</div>
 
@@ -35,7 +43,7 @@
 		<button
 			:disabled="!name || !email || !password || $authStore.isLoading"
 			:class="!name || !email || !password ? 'bg-gray-200' : 'bg-[#F02C56]'"
-			@click="$authStore.register(email, password, name)"
+			@click="$authStore.register(name, email, password)"
 			class="w-full text-[17px] font-semibold text-white bg-[#F02C56] py-3 rounded-sm disabled:bg-gray-400">
 			{{ $authStore.isLoading ? "Loading..." : "Register" }}
 		</button>
@@ -44,12 +52,3 @@
 		{{ $authStore.errors.other }}
 	</span>
 </template>
-
-<script setup>
-const { $authStore } = useNuxtApp()
-
-let name = ref("")
-let email = ref("")
-let password = ref("")
-
-</script>

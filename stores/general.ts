@@ -22,24 +22,5 @@ export const useGeneralStore = defineStore("gen", {
 		setBackUrl(url: string) {
 			this.isBackUrl = url
 		},
-		async uploadFile(file: File | Blob, path: string, errors: string | null) {
-			const supabase = useSupabaseClient()
-
-			if (!file) {
-				errors = "Please upload a video"
-				return
-			}
-
-			const { data, error } = await supabase.storage
-				.from("uploads")
-				.upload(`${path}${Date.now()}`, file)
-
-			if (error) {
-				errors = "Something went wrong"
-				return
-			}
-
-			return data.fullPath
-		},
 	},
 })
