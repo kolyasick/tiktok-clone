@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { Cropper, CircleStencil } from "vue-advanced-cropper"
 import type { CropperResult } from "vue-advanced-cropper"
-import type { IUser } from "~/types/user.type"
 import "vue-advanced-cropper/dist/style.css"
 
-const { $generalStore, $authStore } = useNuxtApp()
+const { $generalStore } = useNuxtApp()
+const { user } = useUserSession()
 
 const cropper = ref<CropperResult | null>(null)
 
 const file = ref<File | null>(null)
 const uploadedImage = ref<string | null>(null)
-const userName = ref<string | null>($authStore.user?.name || null)
+const userName = ref<string | null>(user.value?.name || null)
 const isUpdated = ref<boolean>(false)
 
 const errors = ref<string | null>(null)
@@ -39,8 +39,8 @@ const cropAndUpdateImage = async () => {
 				errors.value = null
 				loading.value = true
 
-				const path = await $generalStore.uploadFile(blob, "avatars/", errors.value)
-				await updateUser(path)
+				// const path = await $generalStore.uploadFile(blob, "avatars/", errors.value)
+				// await updateUser(path)
 
 				loading.value = false
 			} else {
@@ -57,23 +57,21 @@ const updateUser = async (path?: string) => {
 		errors.value = null
 		loading.value = true
 
-		const url = `https://gcqzkhtzxxchrzuvgfwx.supabase.co/storage/v1/object/public/${path}`
+		// const user = await $fetch<IUser>(`/api/update-user/${$authStore.user?.id}`, {
+		// 	method: "POST",
+		// 	body: {
+		// 		name: userName.value,
+		// 		avatar: path ? url : $authStore.user?.avatar,
+		// 	},
+		// })
 
-		const user = await $fetch<IUser>(`/api/update-user/${$authStore.user?.id}`, {
-			method: "POST",
-			body: {
-				name: userName.value,
-				avatar: path ? url : $authStore.user?.avatar,
-			},
-		})
+		// if (!user) {
+		// 	errors.value = "Failed to update user"
+		// 	return
+		// }
 
-		if (!user) {
-			errors.value = "Failed to update user"
-			return
-		}
-
-		$authStore.set(true, user)
-		$generalStore.isEditProfileOpen = false
+		// $authStore.set(true, user)
+		// $generalStore.isEditProfileOpen = false
 	} catch (error) {
 		errors.value = "Failed to update user"
 	} finally {
@@ -84,7 +82,7 @@ const updateUser = async (path?: string) => {
 watch(
 	() => userName.value,
 	() => {
-		if (!userName.value || userName.value === $authStore.user?.name) {
+		if (!userName.value || userName.value === user.value?.name) {
 			isUpdated.value = false
 		} else {
 			isUpdated.value = true
@@ -128,7 +126,7 @@ watch(
 									format="webp"
 									class="rounded-full"
 									width="95"
-									:src="$authStore.user?.avatar" />
+									:src="'/avatars/' + user?.avatar" />
 								<div
 									class="absolute bottom-0 right-0 rounded-full bg-white shadow-xl border p-1 border-gray-300 inline-block w-[32px]">
 									<Icon

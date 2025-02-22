@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { $generalStore, $authStore, $videosStore } = useNuxtApp()
+const { $generalStore } = useNuxtApp()
 
 </script>
 <template>

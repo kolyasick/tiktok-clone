@@ -1,4 +1,5 @@
 import { prisma } from "~/server/composables/prisma"
+import { validateEmail, validateName, validatePassword } from "~/server/composables/validators"
 
 type Body = {
 	name: string
@@ -9,12 +10,9 @@ type Body = {
 export default defineEventHandler(async (event) => {
 	const { name, email, password } = await readBody<Body>(event)
 
-	if (!name || !email || !password) {
-		throw createError({
-			statusCode: 400,
-			statusMessage: "All fields are required",
-		})
-	}
+	validateName(name)
+	validateEmail(email)
+	validatePassword(password)
 
 	const candidate = await prisma.users.findUnique({
 		where: {
@@ -28,12 +26,13 @@ export default defineEventHandler(async (event) => {
 			statusMessage: "User with this email already exist",
 		})
 	}
+	const hashedPassword = await hashPassword(password)
 
 	const user = await prisma.users.create({
 		data: {
 			name,
 			email,
-			password,
+			password: hashedPassword,
 			roleId: 1,
 		},
 	})

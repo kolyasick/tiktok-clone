@@ -1,4 +1,5 @@
-import type { UserSession } from "#auth-utils"
+import type { User, UserSession } from "#auth-utils"
+import type { Error } from "~/types/error.type"
 import type { IUser } from "./../types/user.type"
 import { defineStore } from "pinia"
 import { validateEmail, validatePassword, validateName } from "~/utils/validationUtils"
@@ -12,7 +13,6 @@ interface IErrors {
 
 export const useAuthStore = defineStore("auth", {
 	state: () => ({
-		user: <IUser | null>{},
 		status: false as boolean,
 		errors: <IErrors>{},
 		isLoading: false,
@@ -21,13 +21,6 @@ export const useAuthStore = defineStore("auth", {
 		isAuth: (state) => state.status,
 	},
 	actions: {
-		set(status: boolean, user: IUser | null) {
-			this.$patch({
-				status,
-				user,
-			})
-		},
-
 		clearErrors() {
 			this.$patch({
 				errors: { email: null, password: null, name: null, other: null },
@@ -35,21 +28,62 @@ export const useAuthStore = defineStore("auth", {
 		},
 
 		async register(name: string, email: string, password: string) {
-			if (!name || !email || !password) return
+			if (
+				!validateName(name, this.errors) ||
+				!validateEmail(email, this.errors) ||
+				!validatePassword(password, this.errors)
+			)
+				return
 
-			const res = await $fetch<UserSession>("/api/auth/register", {
-				method: "POST",
-				body: {
-					name,
-					email,
-					password,
-				},
-			})
+			try {
+				this.isLoading = true
+				await $fetch<UserSession>("/api/auth/register", {
+					method: "POST",
+					body: {
+						name,
+						email,
+						password,
+					},
+				})
 
-			if (res) {
-				console.log("login...")
+				const { $generalStore } = useNuxtApp()
 
-				await useUserSession().fetch()
+				await useUserSession()
+					.fetch()
+					.then(() => {
+						this.isLoading = false
+						$generalStore.isLoginOpen = false
+					})
+			} catch (error: any) {
+				this.errors.other = error.statusMessage
+			} finally {
+				this.isLoading = false
+			}
+		},
+
+		async login(email: string, password: string) {
+			if (!email || !password) return
+
+			try {
+				this.isLoading = true
+				await $fetch<UserSession>("/api/auth/login", {
+					method: "POST",
+					body: {
+						email,
+						password,
+					},
+				})
+
+				const { $generalStore } = useNuxtApp()
+				await useUserSession()
+					.fetch()
+					.then(() => {
+						$generalStore.isLoginOpen = false
+					})
+			} catch (error: any) {
+				this.errors.other = error.statusMessage
+			} finally {
+				this.isLoading = false
 			}
 		},
 	},

@@ -1,7 +1,14 @@
 <script setup>
-const { $generalStore } = useNuxtApp()
+const { $generalStore, $authStore } = useNuxtApp()
 let isRegister = ref(true)
+
+const switchForm = () => {
+	isRegister.value = !isRegister.value
+	$authStore.clearErrors()
+}
+
 </script>
+
 <template>
 	<div
 		v-if="$generalStore.isLoginOpen"
@@ -27,9 +34,7 @@ let isRegister = ref(true)
 			<div
 				class="absolute flex items-center justify-center py-5 left-0 bottom-0 border-t w-full">
 				<span class="text-[14px] text-gray-500">Don’t have an account?</span>
-				<button
-					@click="isRegister = !isRegister"
-					class="text-[14px] text-[#F02C56] font-semibold pl-1">
+				<button @click="switchForm" class="text-[14px] text-[#F02C56] font-semibold pl-1">
 					<span v-if="isRegister">Sign up</span>
 					<span v-else>Log in</span>
 				</button>

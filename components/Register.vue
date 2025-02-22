@@ -4,6 +4,7 @@ const { $authStore } = useNuxtApp()
 let name = ref("")
 let email = ref("")
 let password = ref("")
+
 </script>
 
 <template>
