@@ -1,23 +1,23 @@
-import type { Users, Videos, Likes, Comments } from "@prisma/client"
+import type { User, Video, Like, Comment, Profile } from "@prisma/client"
 
-export interface IUser extends Users {
-	videos?: Videos[]
+export interface IUser extends User {
+	videos?: Video[]
 	likes?: ILike[]
 	comments?: IComment[]
 }
 
-export interface IVideo extends Videos {
-	user?: Users
+export interface IVideo extends Video {
+	profile?: Profile
 	likes?: ILike[]
 	comments?: IComment[]
 
 	liked?: boolean
 }
 
-export interface ILike extends Likes {
-	user?: Users
+export interface ILike extends Like {
+	profile?: Profile
 }
 
-export interface IComment extends Comments {
-	user?: Users
+export interface IComment extends Comment {
+	profile?: Profile
 }

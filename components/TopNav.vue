@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const { $generalStore, $authStore } = useNuxtApp()
-const { user, loggedIn, clear } = useUserSession()
+const { loggedIn, clear } = useUserSession()
 
 const route = useRoute()
 const router = useRouter()
@@ -50,7 +50,7 @@ const isLoggedIn = () => {
 								format="webp"
 								class="rounded-full"
 								width="33"
-								:src="'/avatars/' + user?.avatar" />
+								:src="'/upload/avatars/' + $authStore.profile?.avatar" />
 						</button>
 
 						<div
@@ -58,7 +58,7 @@ const isLoggedIn = () => {
 							id="PopupMenu"
 							class="absolute bg-[#3a3a3a] rounded-lg py-1.5 w-[200px] shadow-xl top-[43px] -right-2">
 							<NuxtLink
-								:to="`/profile/${user?.id}`"
+								:to="`/profile/${$authStore.profile?.userId}`"
 								@click="showMenu = false"
 								class="flex items-center justify-start py-3 px-2 hover:bg-[#303030] cursor-pointer">
 								<Icon name="ph:user" size="20" />

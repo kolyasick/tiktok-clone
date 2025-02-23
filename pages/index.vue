@@ -5,6 +5,8 @@ definePageMeta({
 	layout: "main-layout",
 })
 
+
+
 useSeoMeta({
 	title: "Podvodni-Tok",
 	ogTitle: "Podvodni-Tok",
@@ -19,36 +21,36 @@ useSeoMeta({
 const scrollContainer = ref(null)
 const loadMoreTrigger = ref(null)
 
-const handleIntersection = (
-	entries: IntersectionObserverEntry[],
-	observer: IntersectionObserver
-) => {
-	const [entry] = entries
-	if (entry.isIntersecting) {
-		$videosStore.getVideos()
-		observer.unobserve(entry.target)
-	}
-}
+// const handleIntersection = (
+// 	entries: IntersectionObserverEntry[],
+// 	observer: IntersectionObserver
+// ) => {
+// 	const [entry] = entries
+// 	if (entry.isIntersecting) {
+// 		$videosStore.getVideos()
+// 		observer.unobserve(entry.target)
+// 	}
+// }
 
-onMounted(() => {
-	const observer = new IntersectionObserver(handleIntersection, {
-		root: null,
-		threshold: 1.0,
-	})
+// onMounted(() => {
+// 	const observer = new IntersectionObserver(handleIntersection, {
+// 		root: null,
+// 		threshold: 1.0,
+// 	})
 
-	if (loadMoreTrigger.value) {
-		observer.observe(loadMoreTrigger.value)
-	}
+// 	if (loadMoreTrigger.value) {
+// 		observer.observe(loadMoreTrigger.value)
+// 	}
 
-	watch(
-		() => $videosStore.isLoading,
-		(newValue) => {
-			if (!newValue && loadMoreTrigger.value) {
-				observer.observe(loadMoreTrigger.value)
-			}
-		}
-	)
-})
+// 	watch(
+// 		() => $videosStore.isLoading,
+// 		(newValue) => {
+// 			if (!newValue && loadMoreTrigger.value) {
+// 				observer.observe(loadMoreTrigger.value)
+// 			}
+// 		}
+// 	)
+// })
 </script>
 <template>
 	<NuxtLayout>

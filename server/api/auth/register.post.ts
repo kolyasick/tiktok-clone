@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
 	validateEmail(email)
 	validatePassword(password)
 
-	const candidate = await prisma.users.findUnique({
+	const candidate = await prisma.user.findUnique({
 		where: {
 			email,
 		},
@@ -28,12 +28,18 @@ export default defineEventHandler(async (event) => {
 	}
 	const hashedPassword = await hashPassword(password)
 
-	const user = await prisma.users.create({
+	const user = await prisma.user.create({
 		data: {
-			name,
 			email,
 			password: hashedPassword,
 			roleId: 1,
+		},
+	})
+
+	const profile = await prisma.profile.create({
+		data: {
+			name,
+			userId: user.id,
 		},
 	})
 
@@ -41,8 +47,6 @@ export default defineEventHandler(async (event) => {
 		user: {
 			id: user.id,
 			email: user.email,
-			name: user.name,
-			avatar: user.avatar,
 			role: user.roleId,
 		},
 		loggedInAt: new Date(),
@@ -55,5 +59,5 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	return session
+	return profile
 })

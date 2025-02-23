@@ -1,6 +1,4 @@
-import type { User, UserSession } from "#auth-utils"
-import type { Error } from "~/types/error.type"
-import type { IUser } from "./../types/user.type"
+import type { Profile } from "@prisma/client"
 import { defineStore } from "pinia"
 import { validateEmail, validatePassword, validateName } from "~/utils/validationUtils"
 
@@ -13,13 +11,10 @@ interface IErrors {
 
 export const useAuthStore = defineStore("auth", {
 	state: () => ({
-		status: false as boolean,
+		profile: null as Profile | null,
 		errors: <IErrors>{},
 		isLoading: false,
 	}),
-	getters: {
-		isAuth: (state) => state.status,
-	},
 	actions: {
 		clearErrors() {
 			this.$patch({
@@ -37,7 +32,7 @@ export const useAuthStore = defineStore("auth", {
 
 			try {
 				this.isLoading = true
-				await $fetch<UserSession>("/api/auth/register", {
+				const user = await $fetch<Profile>("/api/auth/register", {
 					method: "POST",
 					body: {
 						name,
@@ -45,6 +40,7 @@ export const useAuthStore = defineStore("auth", {
 						password,
 					},
 				})
+				this.$patch({ profile: user })
 
 				const { $generalStore } = useNuxtApp()
 
@@ -66,13 +62,14 @@ export const useAuthStore = defineStore("auth", {
 
 			try {
 				this.isLoading = true
-				await $fetch<UserSession>("/api/auth/login", {
+				const user = await $fetch<Profile>("/api/auth/login", {
 					method: "POST",
 					body: {
 						email,
 						password,
 					},
 				})
+				this.$patch({ profile: user })
 
 				const { $generalStore } = useNuxtApp()
 				await useUserSession()
@@ -85,6 +82,10 @@ export const useAuthStore = defineStore("auth", {
 			} finally {
 				this.isLoading = false
 			}
+		},
+
+		async getProfile(userId: number): Promise<Profile> {
+			return $fetch<Profile>(`/api/profile/${userId}`)
 		},
 	},
 })

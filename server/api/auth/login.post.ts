@@ -15,9 +15,15 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	const user = await prisma.users.findUnique({
+	const user = await prisma.user.findUnique({
 		where: {
 			email,
+		},
+	})
+
+	const profile = await prisma.profile.findUnique({
+		where: {
+			userId: user?.id,
 		},
 	})
 
@@ -32,8 +38,6 @@ export default defineEventHandler(async (event) => {
 		user: {
 			id: user.id,
 			email: user.email,
-			name: user.name,
-			avatar: user.avatar,
 			role: user.roleId,
 		},
 		loggedInAt: new Date(),
@@ -46,5 +50,5 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	return session
+	return profile
 })

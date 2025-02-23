@@ -12,18 +12,27 @@ export default defineEventHandler(async (event) => {
 
 	const parsedId = parseInt(id, 10)
 
-	const profile = await prisma.profile.findUnique({
+	const video = await prisma.video.findUnique({
 		where: {
-			userId: parsedId,
+			id: parsedId,
+		},
+		include: {
+			profile: true,
+			comments: {
+				include: {
+					profile: true,
+				},
+			},
+			likes: true,
 		},
 	})
 
-	if (!profile) {
+	if (!video) {
 		throw createError({
 			status: 404,
-			statusMessage: "User not found",
+			statusMessage: "Video not found",
 		})
 	}
 
-	return profile
+	return video
 })

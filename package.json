@@ -15,6 +15,7 @@
     "@prisma/client": "^5.20.0",
     "nuxt": "^3.6.0",
     "nuxt-auth-utils": "^0.5.16",
+    "nuxt-file-storage": "^0.2.9",
     "pinia": "^2.2.2",
     "prisma": "^5.20.0",
     "vue": "latest",

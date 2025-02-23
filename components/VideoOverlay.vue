@@ -3,10 +3,12 @@ import type { IVideo } from "~/types/user.type"
 import { formatDate } from "~/utils/formatDate"
 
 const { $videosStore, $authStore, $generalStore } = useNuxtApp()
+const { loggedIn } = useUserSession()
 interface Props {
 	video: IVideo
 }
 const props = defineProps<Props>()
+
 const route = useRoute()
 const videoUrl = "https://podvodni-tok.netlify.app" + route.fullPath
 
@@ -14,33 +16,32 @@ const isModalVisible = ref<boolean>(false)
 let commentText = ref("")
 
 const createComment = async () => {
-	if (!$authStore.isAuth) {
+	if (!$authStore.profile) {
 		$generalStore.isLoginOpen = true
 		return
 	} else if (!commentText.value.trim()) {
 		return
 	}
-	if (!$authStore.user) return
 
 	const commentData = {
 		id: new Date().getTime(),
 		text: commentText.value,
-		userId: $authStore.user?.id as string,
-		user: $authStore.user,
+		profileId: $authStore.profile?.id,
+		user: $authStore.profile,
 		createdAt: new Date(),
 		updatedAt: new Date(),
-		postId: props.video.id,
+		videoId: props.video.id,
 	}
 	props.video.comments?.push(commentData)
 	$videosStore.videos?.find((video) => video.id === props.video.id)?.comments?.push(commentData)
 	let comment = commentText.value
 	commentText.value = ""
 
-	try {
-		await $videosStore.createComment(props.video, comment)
-	} catch (error) {
-		console.error("Error creating comment:", error)
-	}
+	// try {
+	// 	await $videosStore.createComment(props.video, comment)
+	// } catch (error) {
+	// 	console.error("Error creating comment:", error)
+	// }
 }
 
 const shareVideo = async () => {
@@ -63,18 +64,18 @@ const shareVideo = async () => {
 		<div class="comment-header sticky top-0 bg-[#161616] p-3 rounded-xl z-10">
 			<div
 				class="flex items-center justify-between gap-4 max-[540px]:flex-col max-[540px]:items-stretch">
-				<NuxtLink class="flex gap-5 items-center" :to="`/profile/${video.user?.id}`">
+				<NuxtLink class="flex gap-5 items-center" :to="`/profile/${video.profile?.id}`">
 					<NuxtImg
 						format="webp"
 						class="rounded-full w-12 h-12"
-						:src="video.user?.avatar"
+						:src="'/upload/avatars/' + video.profile?.avatar"
 						alt="" />
 					<span>
 						<h2 class="text-lg font-bold">
-							{{ video.user?.name }}
+							{{ video.profile?.name }}
 						</h2>
 						<p class="text-sm font-light">
-							{{ video.user?.name }} ·
+							{{ video.profile?.name }} ·
 							{{ formatDate(video.createdAt) }}
 						</p>
 					</span>
@@ -104,7 +105,7 @@ const shareVideo = async () => {
 		<div class="flex justify-center gap-10 mb-6 border-b pb-5 max-[330px]:gap-6">
 			<div class="text-center flex items-center gap-2">
 				<button
-					@click="$videosStore.toggleLike(video)"
+					@click="$videosStore.toggleLike(props.video)"
 					class="rounded-full transition flex items-center bg-[#3a3a3a] p-2 cursor-pointer disabled:bg-gray-300"
 					:class="video.liked ? 'text-[#F02C56]' : 'text-[#EBEBEB]'">
 					<Icon name="mdi:heart" size="25" />
@@ -140,25 +141,27 @@ const shareVideo = async () => {
 				:key="comment.id">
 				<NuxtLink
 					class="absolute top-2 left-2 w-10 h-10"
-					:href="`/profile/${comment.user?.id}`">
+					:href="`/profile/${comment.profile?.id}`">
 					<NuxtImg
 						format="webp"
 						class="rounded-full"
 						width="40"
 						height="40"
-						:src="comment.user?.avatar" />
+						:src="comment.profile?.avatar" />
 				</NuxtLink>
 
 				<div class="ml-12">
-					<NuxtLink :href="`/profile/${comment.user?.id}`" class="font-semibold">
+					<NuxtLink :href="`/profile/${comment.profile?.id}`" class="font-semibold">
 						<p class="text-sm">
 							{{
-								comment.user?.name === $authStore.user?.name
+								comment.profile?.name === $authStore.profile?.name
 									? "you"
-									: comment.user?.name
+									: comment.profile?.name
 							}}
 							<span class="text-gray-500 text-sm">
-								{{ comment.user?.name === video.user?.name ? "· author" : "" }}
+								{{
+									comment.profile?.name === video.profile?.name ? "· profile" : ""
+								}}
 							</span>
 						</p>
 					</NuxtLink>

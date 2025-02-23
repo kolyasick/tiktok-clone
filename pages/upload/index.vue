@@ -1,5 +1,6 @@
 <script setup lang="ts">
-const { $generalStore, $authStore } = useNuxtApp()
+const { $authStore } = useNuxtApp()
+const { handleFileInput, files: video } = useFileStorage()
 
 definePageMeta({
 	layout: "upload-layout",
@@ -22,34 +23,7 @@ const fileName = ref<string>("")
 const fileToUpload = ref<File | null>(null)
 const loading = ref<boolean>(false)
 
-const onChange = async (event: Event) => {
-	if (!$authStore.isAuth) {
-		$generalStore.isLoginOpen = true
-		return
-	}
-	errors.video = null
-	const input = event.target as HTMLInputElement
-
-	if (input.files && input.files.length > 0) {
-		fileToUpload.value = input.files[0]
-
-		if (fileToUpload.value.size > 50 * 1024 * 1024) {
-			errors.video = "File size should be less than 50MB"
-			return
-		}
-
-		const file = input.files[0]
-		fileName.value = file.name
-		fileDisplay.value = URL.createObjectURL(file)
-	}
-}
-
 const createVideo = async () => {
-	if (!$authStore.isAuth) {
-		$generalStore.isLoginOpen = true
-		return
-	}
-
 	errors.video = null
 	errors.caption = null
 	succes.value = null
@@ -59,30 +33,26 @@ const createVideo = async () => {
 		return
 	}
 
-	if (!fileToUpload.value) {
+	if (!video.value) {
 		errors.video = "Please upload a video"
 		return
 	}
 
 	try {
 		loading.value = true
-		const fullPath = await $generalStore.uploadFile(fileToUpload.value, "videos/", errors.video)
 
-		if (!fullPath) {
-			errors.video = "Something went wrong"
-			return
-		}
-		const url = `https://gcqzkhtzxxchrzuvgfwx.supabase.co/storage/v1/object/public/${fullPath}`
-		const { data } = await useFetch("/api/create-video", {
+		const res = await $fetch("/api/video/add", {
 			method: "POST",
 			body: {
 				title: caption.value,
-				url: url,
-				userId: $authStore.user?.id,
+				file: video.value[0],
+				userId: $authStore.profile?.id,
 			},
 		})
 		discard()
-		succes.value = "Video uploaded successfully"
+		if (res.id) {
+			succes.value = "Video uploaded successfully"
+		}
 	} catch (error) {
 		console.log(error)
 	} finally {
@@ -91,7 +61,7 @@ const createVideo = async () => {
 }
 
 const discard = () => {
-	fileDisplay.value = null
+	video.value = []
 	caption.value = ""
 	fileName.value = ""
 }
@@ -118,7 +88,7 @@ const clearVideo = () => {
 
 			<div class="mt-8 md:flex gap-6">
 				<label
-					v-if="!fileDisplay"
+					v-if="!video[0]"
 					for="fileInput"
 					class="md:mx-0 mx-auto mt-4 mb-6 flex flex-col items-center justify-center w-full max-w-[260px] transition h-[470px] text-center p-3 border-2 border-dashed border-gray-300 rounded-lg hover:bg-[#161616] cursor-pointer">
 					<Icon name="majesticons:cloud-upload" size="40" color="#b3b3b1" />
@@ -135,7 +105,7 @@ const clearVideo = () => {
 						ref="file"
 						type="file"
 						id="fileInput"
-						@input="onChange"
+						@input="(e) => handleFileInput(e)"
 						hidden
 						accept=".mp4" />
 				</label>
@@ -155,7 +125,7 @@ const clearVideo = () => {
 						loop
 						muted
 						class="absolute rounded-xl object-cover z-10 p-[13px] w-full h-full"
-						:src="fileDisplay" />
+						:src="video[0].content" />
 
 					<div
 						class="absolute -bottom-12 flex items-center justify-between z-50 rounded-xl border w-full p-2 border-gray-300">

@@ -1,5 +1,13 @@
 <script setup lang="ts">
-const { $generalStore } = useNuxtApp()
+const { $generalStore, $authStore, $videosStore } = useNuxtApp()
+const { user } = useUserSession()
+
+if (user.value) {
+	const profile = await $authStore.getProfile(user.value.id)
+	$authStore.profile = profile
+}
+
+await $videosStore.getVideos()
 
 </script>
 <template>

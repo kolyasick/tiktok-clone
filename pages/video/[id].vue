@@ -12,31 +12,19 @@ let volume = ref<number>(5)
 let isMuted = ref<boolean>(true)
 let isPlaying = ref<boolean>(false)
 let isVideoLoading = ref<boolean>(true)
-const nuxt = useNuxtApp()
+let video = ref<IVideo | null>(null)
 
-const { data: video, error } = await useFetch<IVideo>(`/api/get-video/${route.params.id}`, {
-	key: `video-${route.params.id}`,
-	getCachedData: (key) => {
-		const data = nuxt.payload.data[key] || nuxt.static.data[key]
-		return data
-	},
-})
-if (error.value) {
-	throw createError({
-		statusCode: error.value.statusCode,
-		statusMessage: error.value.statusMessage,
-	})
-}
-if (video.value) {
+const getVideo = await $fetch<IVideo>(`/api/video/${route.params.id}`)
+if (getVideo) {
 	video.value = {
-		...video.value,
-		liked: video.value?.likes?.some((like) => like.userId === $authStore.user?.id),
+		...getVideo,
+		liked: getVideo?.likes?.some((like) => like.profileId === $authStore.profile?.id),
 	}
 }
 
 useSeoMeta({
-	title: `Podvodni-Tok · ${video.value?.user?.name}`,
-	ogTitle: `Podvodni-Tok · ${video.value?.user?.name}`,
+	title: `Podvodni-Tok · ${video.value?.profile?.name}`,
+	ogTitle: `Podvodni-Tok · ${video.value?.profile?.name}`,
 	description: `Podvodni-Tok · ${video.value?.title}`,
 	ogDescription: `Podvodni-Tok · ${video.value?.title}`,
 	ogImage:
@@ -68,51 +56,6 @@ const toggleVideo = () => {
 	}
 }
 
-const handleIntersection = (entries: IntersectionObserverEntry[]) => {
-	entries.forEach((entry) => {
-		if (!videoplay.value) return
-		if (entry.isIntersecting) {
-			videoplay.value.play()
-		} else {
-			videoplay.value.pause()
-			videoplay.value.currentTime = 0
-		}
-	})
-}
-
-onMounted(async () => {
-	if (videoplay.value) {
-		const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-
-		if (isMobile) {
-			videoplay.value.muted = true
-		}
-
-		videoplay.value.addEventListener("timeupdate", () => {
-			isVideoLoading.value = false
-		})
-
-		videoplay.value.volume = isMobile ? 0 : volume.value / 100
-
-		videoplay.value.addEventListener("play", () => {
-			isPlaying.value = true
-		})
-
-		videoplay.value.addEventListener("pause", () => {
-			isPlaying.value = false
-		})
-
-		const observer = new IntersectionObserver(handleIntersection, {
-			root: null,
-			threshold: 0.5,
-		})
-		if (!videoContainer.value) return
-		observer.observe(videoContainer.value)
-	} else {
-		console.log("videoplay element is null")
-	}
-})
-
 const toggleMute = () => {
 	if (!videoplay.value) return
 	isMuted.value = !isMuted.value
@@ -136,7 +79,7 @@ const toggleMute = () => {
 					class="w-[calc(100%-20px)] max-[1240px]:w-[calc(100%-50px)] max-w-[890px] text-white"
 					ref="scrollContainer">
 					<div
-						v-if="isVideoLoading"
+						v-if="false"
 						class="fixed flex items-center justify-center top-0 left-0 w-full h-screen bg-black z-50 bg-opacity-50">
 						<Icon
 							class="animate-spin ml-1"
@@ -154,7 +97,6 @@ const toggleMute = () => {
 							<div class="pl-3 px-6 max-[1240px]:p-0">
 								<div
 									class="video-wrapper relative w-[600px] max-[1240px]:w-full h-[calc(100vh-111px)] flex items-center bg-black rounded-xl cursor-pointer">
-									<!-- Учтем высоту навбара (61px) и добавим отступ -->
 									<div
 										v-if="false"
 										class="loader absolute inset-0 flex items-center justify-center text-white">
@@ -169,7 +111,7 @@ const toggleMute = () => {
 										muted
 										playsinline
 										class="rounded-xl object-cover mx-auto h-full w-full relative"
-										:src="video.url ? video.url : ''"></video>
+										:src="'/upload/videos/' + video.url"></video>
 
 									<div class="text-center absolute top-4 right-4">
 										<button

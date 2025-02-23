@@ -1,9 +1,18 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
 	devtools: { enabled: false },
-	modules: ["@pinia/nuxt", "@nuxtjs/tailwindcss", "@nuxt/image", "@nuxt/icon", "nuxt-auth-utils"],
+	modules: [
+		"@pinia/nuxt",
+		"@nuxtjs/tailwindcss",
+		"@nuxt/image",
+		"@nuxt/icon",
+		"nuxt-auth-utils",
+		"nuxt-file-storage",
+	],
 	pages: true,
-
+	fileStorage: {
+		mount: "public/upload",
+	},
 	app: {
 		head: {
 			charset: "utf-8",

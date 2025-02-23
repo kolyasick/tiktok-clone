@@ -3,14 +3,12 @@ import { Cropper, CircleStencil } from "vue-advanced-cropper"
 import type { CropperResult } from "vue-advanced-cropper"
 import "vue-advanced-cropper/dist/style.css"
 
-const { $generalStore } = useNuxtApp()
-const { user } = useUserSession()
-
+const { $generalStore, $authStore } = useNuxtApp()
 const cropper = ref<CropperResult | null>(null)
 
 const file = ref<File | null>(null)
 const uploadedImage = ref<string | null>(null)
-const userName = ref<string | null>(user.value?.name || null)
+const userName = ref<string | null>($authStore.profile?.name || null)
 const isUpdated = ref<boolean>(false)
 
 const errors = ref<string | null>(null)
@@ -82,7 +80,7 @@ const updateUser = async (path?: string) => {
 watch(
 	() => userName.value,
 	() => {
-		if (!userName.value || userName.value === user.value?.name) {
+		if (!userName.value || userName.value === $authStore.profile?.name) {
 			isUpdated.value = false
 		} else {
 			isUpdated.value = true
@@ -126,7 +124,7 @@ watch(
 									format="webp"
 									class="rounded-full"
 									width="95"
-									:src="'/avatars/' + user?.avatar" />
+									:src="'/upload/avatars/' + $authStore.profile?.avatar" />
 								<div
 									class="absolute bottom-0 right-0 rounded-full bg-white shadow-xl border p-1 border-gray-300 inline-block w-[32px]">
 									<Icon

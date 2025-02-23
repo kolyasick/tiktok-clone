@@ -3,64 +3,74 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./db.sqlite"
 }
-
-model Users {
+model User {
   id       Int      @id @default(autoincrement())
-  name     String
-  email    String      @unique
+  email    String   @unique
   password String
-  avatar   String      @default("default.jpg")
-  videos   Videos[]    
-  likes    Likes[]     
-  comments Comments[] 
-  roleId   Int
-  role     Roles        @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  roleId   Int 
+  role     Role    @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  profile  Profile?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-model Roles {
-  id      Int          @id @default(autoincrement())
-  title   String       
-  users   Users[]
+model Profile {
+  id      Int       @id @default(autoincrement())
+  userId  Int       @unique
+  user    User      @relation(fields: [userId], references: [id])
+  name    String
+  avatar  String    @default("default.jpg")
+
+  videos   Video[]
+  comments Comment[]
+  likes    Like[]
 }
 
-model Videos {
-  id       Int         @id @default(autoincrement())
+model Role {
+  id      Int    @id @default(autoincrement())
+  title   String
+  User    User[]
+}
+
+model Video {
+  id       Int      @id @default(autoincrement())
   title    String
   url      String?
-  userId   Int
-  user     Users       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  likes    Likes[]     
-  comments Comments[] 
+  profileId Int
+  profile  Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  likes    Like[]
+  comments Comment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-model Likes {
-  id     Int    @id @default(autoincrement())
-  userId Int
-  postId Int
-  user   Users   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  post   Videos   @relation(fields: [postId], references: [id], onDelete: Cascade)  
+model Like {
+  id        Int      @id @default(autoincrement())
+  profileId Int
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  videoId   Int
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-model Comments {
-  id     Int     @id @default(autoincrement())
-  text   String
-  userId Int
-  postId Int
-  user   Users   @relation(fields: [userId], references: [id], onDelete: Cascade) 
-  post   Videos   @relation(fields: [postId], references: [id], onDelete: Cascade) 
+model Comment {
+  id        Int      @id @default(autoincrement())
+  text      String
+  profileId Int
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  videoId   Int
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

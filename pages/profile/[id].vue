@@ -1,18 +1,22 @@
 <script setup lang="ts">
-import type { User } from "#auth-utils"
+import type { Profile } from "@prisma/client"
+import type { IVideo } from "~/types/user.type"
 
+const { $authStore } = useNuxtApp()
 const { user } = useUserSession()
-const profile = ref<User | null>(null)
+const profile = ref<Profile | null>(null)
 
 const route = useRoute()
 const { id } = route.params as Partial<{ id: number }>
 
-if (id == user.value?.id) {
-	profile.value = user.value
+if (id == $authStore.profile?.id) {
+	profile.value = $authStore.profile
 } else {
-	const userProfile = await $fetch(`/api/profile/${id}`)
+	const userProfile = await $authStore.getProfile(id || 0)
 	profile.value = userProfile
 }
+
+const videos = await $fetch<IVideo[]>("/api/video", { query: { userId: $authStore.profile?.id } })
 
 useSeoMeta({
 	title: `Podvodni-Tok - ${profile.value?.name}'s profile`,
@@ -33,7 +37,7 @@ useSeoMeta({
 			<NuxtImg
 				format="webp"
 				class="rounded-full w-[150px] max-[450px]:w-[90px] max-[450px]:h-[90px]"
-				:src="'/avatars/' + profile?.avatar" />
+				:src="'/upload/avatars/' + profile?.avatar" />
 			<div class="ml-5 w-full">
 				<div class="text-[30px] font-bold truncate">
 					{{ profile?.name }}
@@ -79,10 +83,10 @@ useSeoMeta({
 			</div>
 		</div>
 
-		<!-- <div
-				v-if="user?.videos && user?.videos.length > 0"
-				class="mt-4 grid 2xl:grid-cols-6 xl:grid-cols-5 lg:grid-cols-4 md:grid-cols-3 grid-cols-2 gap-3">
-				<PostUser v-for="video in user?.videos" :key="video.id" :video="video" />
-			</div> -->
+		<div
+			v-if="videos.length > 0"
+			class="mt-4 grid 2xl:grid-cols-6 xl:grid-cols-5 lg:grid-cols-4 md:grid-cols-3 grid-cols-2 gap-3">
+			<PostUser v-for="video in videos" :key="video.id" :video="video" />
+		</div>
 	</div>
 </template>

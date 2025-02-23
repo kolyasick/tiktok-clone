@@ -9,7 +9,7 @@ let password = ref("")
 
 <template>
 	<div class="text-center text-[28px] mb-4 font-bold">Sign up</div>
-
+	{{ $authStore.user }}
 	<div class="px-6 pb-2">
 		<TextInput
 			placeholder="Full name"

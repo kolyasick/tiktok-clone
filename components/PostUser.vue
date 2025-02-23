@@ -4,7 +4,7 @@ const { $generalStore } = useNuxtApp()
 interface Props {
 	video: IVideo
 }
-defineProps<Props>()
+const props = defineProps<Props>()
 
 const router = useRouter()
 
@@ -53,11 +53,10 @@ const displayPost = (video: IVideo) => {
 				ref="videoRef"
 				muted
 				autoplay
-				
 				playsinline
 				loop
 				class="aspect-[3/4] object-cover rounded-md"
-				:src="video.url || ''" />
+				:src="'/upload/videos/' + video.url || ''" />
 		</div>
 		<div class="px-1">
 			<div class="text-[15px] pt-1 break-words">

@@ -8,6 +8,7 @@ type Props = {
 }
 const props = defineProps<Props>()
 
+
 let videoplay = ref<HTMLVideoElement | null>(null)
 let videoContainer = ref(null)
 let isMuted = ref(true)
@@ -98,21 +99,21 @@ const onVideoLoaded = () => {
 						playsinline
 						class="rounded-xl object-cover mx-auto h-full w-full"
 						@timeupdate="onVideoLoaded"
-						:src="video.url || ''"></video>
+						:src="'/upload/videos/' + video.url || ''"></video>
 
 					<div
 						class="video-info absolute bottom-4 left-4 z-10 text-white w-[250px] md:w-[400px]">
 						<div class="flex items-center gap-2 mb-2">
 							<NuxtLink
-								:to="`/profile/${video.user?.id}`"
+								:to="`/profile/${video.profile?.id}`"
 								class="flex items-center gap-2">
 								<NuxtImg
 									format="webp"
 									class="rounded-full"
 									width="33"
-									:src="video.user?.avatar" />
+									:src="'/upload/avatars/' + video.profile?.avatar" />
 								<span class="font-bold hover:underline cursor-pointer">
-									{{ video.user?.name }}
+									{{ video.profile?.name }}
 								</span>
 							</NuxtLink>
 						</div>
@@ -121,7 +122,7 @@ const onVideoLoaded = () => {
 						<div class="text-[14px] text-gray-300 pb-1">#fun #cool #SuperAwesome</div>
 						<div class="text-[14px] flex items-center font-semibold">
 							<Icon name="mdi:music" size="17" />
-							<div class="px-1">{{ video.user?.name }}</div>
+							<div class="px-1">{{ video.profile?.name }}</div>
 						</div>
 					</div>
 				</div>
