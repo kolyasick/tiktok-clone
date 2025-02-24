@@ -13,6 +13,7 @@
     "@nuxt/image": "^1.8.0",
     "@pinia/nuxt": "^0.5.4",
     "@prisma/client": "^5.20.0",
+    "@vueuse/nuxt": "^12.7.0",
     "nuxt": "^3.6.0",
     "nuxt-auth-utils": "^0.5.16",
     "nuxt-file-storage": "^0.2.9",
