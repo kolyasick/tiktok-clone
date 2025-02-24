@@ -1,14 +1,12 @@
-import { PrismaClient } from "@prisma/client"
-
-const prisma = new PrismaClient()
+import { prisma } from "~/server/composables/prisma";
 
 export default defineEventHandler(async (event) => {
-	const messages = await prisma.messages.findMany({
-		include: {
-			sender: true,
-			chatRoom: true,
-		},
-	})
+  const messages = await prisma.message.findMany({
+    include: {
+      sender: true,
+      chat: true,
+    },
+  });
 
-	return messages
-})
+  return messages;
+});

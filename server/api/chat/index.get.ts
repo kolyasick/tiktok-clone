@@ -1,43 +1,44 @@
-import { PrismaClient } from "@prisma/client"
-import { getQuery } from "h3"
+import { prisma } from "~/server/composables/prisma";
 
-const prisma = new PrismaClient()
 interface IQuery {
-	user1: string
-	user2: string
+  user1Id: string;
+  user2Id: string;
 }
 
 export default defineEventHandler(async (event) => {
-	const { user1, user2 } = getQuery<IQuery>(event)
+  const { user1Id, user2Id } = getQuery<IQuery>(event);
 
-	if (!user1 || !user2) {
-		throw createError({
-			statusCode: 400,
-			message: "All parametres are required",
-		})
-	}
+  if (!user1Id || !user2Id) {
+    throw createError({
+      statusCode: 400,
+      message: "All parametres are required",
+    });
+  }
 
-	const room = await prisma.chatRooms.findFirst({
-		where: {
-			OR: [
-				{
-					user1Id: user1,
-					user2Id: user2,
-				},
-				{
-					user1Id: user2,
-					user2Id: user1,
-				},
-			],
-		},
-		include: {
-			messages: {
-				include: {
-					sender: true,
-				},
-			},
-		},
-	})
+  const parsedUserId = parseInt(user1Id, 10);
+  const parsedFriendId = parseInt(user2Id, 10);
 
-	return room ?? "no-room"
-})
+  const room = await prisma.chat.findFirst({
+    where: {
+      OR: [
+        {
+          user1Id: parsedUserId,
+          user2Id: parsedFriendId,
+        },
+        {
+          user1Id: parsedUserId,
+          user2Id: parsedFriendId,
+        },
+      ],
+    },
+    include: {
+      messages: {
+        include: {
+          sender: true,
+        },
+      },
+    },
+  });
+
+  return room ?? "no-room";
+});

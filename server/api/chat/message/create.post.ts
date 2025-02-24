@@ -1,29 +1,28 @@
-import { PrismaClient } from "@prisma/client"
-
-const prisma = new PrismaClient()
+import { PrismaClient } from "@prisma/client";
+import { prisma } from "~/server/composables/prisma";
 
 interface IBody {
-	senderId: string
-	chatName: string
-	text: string
+  senderId: number;
+  chatId: number;
+  text: string;
 }
 export default defineEventHandler(async (event) => {
-	const { chatName, senderId, text } = await readBody<IBody>(event)
+  const { chatId, senderId, text } = await readBody<IBody>(event);
 
-	if (!chatName || !senderId || !text) {
-		throw createError({
-			statusCode: 400,
-			statusMessage: "Chat id, senderId and text required",
-		})
-	}
+  if (!chatId || !senderId || !text) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Chat id, senderId and text required",
+    });
+  }
 
-	const message = await prisma.messages.create({
-		data: {
-			chatName,
-			senderId,
-			text,
-		},
-	})
+  const message = await prisma.message.create({
+    data: {
+      chatId,
+      senderId,
+      text,
+    },
+  });
 
-	return message
-})
+  return message;
+});

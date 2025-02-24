@@ -1,10 +1,8 @@
-import { PrismaClient } from "@prisma/client"
-
-const prisma = new PrismaClient()
+import { prisma } from "~/server/composables/prisma"
 
 interface IBody {
-	user1Id: string
-	user2Id: string
+	user1Id: number
+	user2Id: number
 }
 export default defineEventHandler(async (event) => {
 	const { user1Id, user2Id } = await readBody<IBody>(event)
@@ -16,7 +14,7 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	const isChatExist = await prisma.chatRooms.findFirst({
+	const isChatExist = await prisma.chat.findFirst({
 		where: {
 			OR: [
 				{
@@ -34,9 +32,8 @@ export default defineEventHandler(async (event) => {
 	if (!isChatExist) {
 		console.log("no room")
 
-		const chatRoom = await prisma.chatRooms.create({
+		const chatRoom = await prisma.chat.create({
 			data: {
-				id: `room-${user1Id}-${user2Id}`,
 				user1Id,
 				user2Id,
 			},
@@ -45,7 +42,7 @@ export default defineEventHandler(async (event) => {
 		return chatRoom
 	}
 
-	const chatRoom = await prisma.chatRooms.findFirst({
+	const chatRoom = await prisma.chat.findFirst({
 		where: {
 			OR: [
 				{

@@ -6,6 +6,7 @@ datasource db {
   provider = "sqlite"
   url      = "file:./db.sqlite"
 }
+
 model User {
   id       Int      @id @default(autoincrement())
   email    String   @unique
@@ -26,6 +27,13 @@ model Profile {
   user    User      @relation(fields: [userId], references: [id])
   name    String
   avatar  String    @default("default.jpg")
+
+  friendshipsAsUser Friendship[] @relation("userFriendships")
+  friendshipsAsFriend Friendship[] @relation("friendFriendships")
+
+  chatsAsUser1 Chat[] @relation("ChatUser1") 
+  chatsAsUser2 Chat[] @relation("ChatUser2") 
+  messages Message[]
 
   videos   Video[]
   comments Comment[]
@@ -73,4 +81,45 @@ model Comment {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Friendship {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  friendId  Int
+  status    String   @default("pending") // Статус дружбы: pending, accepted, rejected
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      Profile     @relation("userFriendships", fields: [userId], references: [id])
+  friend    Profile     @relation("friendFriendships", fields: [friendId], references: [id])
+
+  @@unique([userId, friendId]) // Уникальная пара пользователь-друг
+}
+
+model Chat {
+  id        Int      @id @default(autoincrement())
+  user1Id   Int      // ID первого пользователя
+  user2Id   Int      // ID второго пользователя
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user1     Profile     @relation("ChatUser1", fields: [user1Id], references: [id])
+  user2     Profile     @relation("ChatUser2", fields: [user2Id], references: [id])
+
+  messages  Message[]
+
+  @@unique([user1Id, user2Id]) // Уникальная пара пользователей для чата
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  text      String
+  chatId    Int
+  senderId  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  chat      Chat     @relation(fields: [chatId], references: [id])
+  sender    Profile     @relation(fields: [senderId], references: [id])
 }
