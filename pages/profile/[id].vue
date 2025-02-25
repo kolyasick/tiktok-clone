@@ -1,30 +1,37 @@
 <script setup lang="ts">
-import type { Friendship, Profile } from "@prisma/client";
-import type { IVideo } from "~/types/user.type";
+import type { Friendship, Like } from "@prisma/client";
+import type { IProfile, IVideo } from "~/types/user.type";
 
-const { $authStore } = useNuxtApp();
+const { $authStore, $generalStore, $profileStore } = useNuxtApp();
 const { user } = useUserSession();
-const profile = ref<Profile | null>(null);
-const videos = ref<IVideo[]>([]);
-const friend = ref<Friendship | null>(null);
+const profile = ref<IProfile>();
+
+const likes = ref<Like[]>([]);
 
 const route = useRoute();
 const { id } = route.params as Partial<{ id: number }>;
 
 const loadData = async () => {
   try {
-    if (id == $authStore.profile?.id) {
+    if ($authStore.profile && id == $authStore.profile?.id) {
       profile.value = $authStore.profile;
     } else {
       profile.value = await $authStore.getProfile(id || 0);
     }
 
-    videos.value = await $fetch<IVideo[]>("/api/video", {
-      query: { userId: $authStore.profile?.id },
+    $profileStore.videos = await $fetch<IVideo[]>("/api/video", {
+      query: { userId: profile.value?.id },
     });
+    $profileStore.currentVideos = $profileStore.videos;
 
-    if (profile.value?.id) {
-      friend.value = await $fetch<Friendship>("/api/friend", {
+    if ($profileStore.videos) {
+      $profileStore.videos.forEach((video) => {
+        likes.value.push(...(video?.likes || []));
+      });
+    }
+
+    if (profile.value?.id && $authStore.profile?.id) {
+      $profileStore.friend = await $fetch<Friendship>("/api/friend", {
         query: {
           userId: $authStore.profile?.id,
           friendId: profile.value.id,
@@ -37,34 +44,6 @@ const loadData = async () => {
 };
 
 await loadData();
-
-const handleFriendAction = async (action: "add" | "apply" | "reject") => {
-  try {
-    let endpoint = "/api/friend/add";
-    let body = {
-      userId: $authStore.profile?.id,
-      friendId: profile.value?.id,
-    };
-
-    if (action === "apply") {
-      endpoint = "/api/friend/apply";
-      body = {
-        userId: profile.value?.id || 0,
-        friendId: $authStore.profile?.id || 0,
-      };
-    } else if (action === "reject") {
-      endpoint = "/api/friend/reject";
-    }
-
-    friend.value = await $fetch<Friendship>(endpoint, {
-      method: "PATCH",
-      body,
-    });
-  } catch (error) {
-    console.error("Error handling friend action:", error);
-  }
-};
-
 
 useSeoMeta({
   title: `Podvodni-Tok - ${profile.value?.name}'s profile`,
@@ -79,7 +58,7 @@ useSeoMeta({
 
 <template>
   <TopNav />
-  <div class="pt-[90px] 2xl:pl-[185px] lg:pl-[160px] lg:pr-0 pr-2 w-[calc(100%-90px)] max-w-[1800px] 2xl:mx-auto">
+  <div v-if="profile" class="pt-[90px] 2xl:pl-[185px] lg:pl-[160px] lg:pr-0 pr-2 w-[calc(100%-90px)] max-w-[1800px] 2xl:mx-auto">
     <div class="flex w-full items-center">
       <NuxtImg format="webp" class="rounded-full w-[150px] max-[450px]:w-[90px] max-[450px]:h-[90px]" :src="'/upload/avatars/' + profile?.avatar" />
       <div class="ml-5 w-full">
@@ -97,8 +76,8 @@ useSeoMeta({
         </button>
 
         <button
-          v-else-if="!friend"
-          @click="handleFriendAction('add')"
+          v-else-if="!$profileStore.friend || !$authStore.profile"
+          @click="$profileStore.handleFriendAction('add', profile)"
           class="flex item-center rounded-md py-1.5 px-8 mt-3 text-[15px] text-white font-semibold bg-[#F02C56]"
         >
           Follow
@@ -106,53 +85,71 @@ useSeoMeta({
 
         <button
           disabled
-          v-else-if="friend.userId == $authStore.profile?.id && friend.status == 'pending'"
+          v-else-if="$profileStore.friend.userId == $authStore.profile?.id && $profileStore.friend.status == 'pending'"
           class="flex item-center rounded-md py-1.5 px-8 mt-3 text-[15px] text-white font-semibold bg-[#222222]"
         >
           Аpplication sent
         </button>
 
-        <div v-else-if="friend.friendId == $authStore.profile?.id && friend.status == 'pending'" class="flex items-center gap-2">
+        <div
+          v-else-if="$profileStore.friend.friendId == $authStore.profile?.id && $profileStore.friend.status == 'pending'"
+          class="flex items-center gap-2"
+        >
           <button
-            @click="handleFriendAction('apply')"
+            @click="$profileStore.handleFriendAction('apply', profile)"
             class="flex item-center rounded-md py-1.5 px-8 mt-3 text-[15px] text-white font-semibold bg-green-800"
           >
             Apply
           </button>
           <button
-            @click="handleFriendAction('reject')"
+            @click="$profileStore.handleFriendAction('reject', profile)"
             class="flex item-center rounded-md py-1.5 px-8 mt-3 text-[15px] text-white font-semibold bg-red-800"
           >
             Reject
           </button>
         </div>
 
-        <p v-else-if="friend.status == 'accepted'">Your friend</p>
+        <p v-else-if="$profileStore.friend.status == 'accepted'">Your friend</p>
       </div>
     </div>
 
     <div class="flex items-center pt-4">
       <div class="mr-4">
-        <span class="font-bold">10K</span>
+        <span class="font-bold">{{ profile?.following?.length ?? 0 }}</span>
         <span class="text-gray-500 font-light text-[15px] pl-1.5">Following</span>
       </div>
       <div class="mr-4">
-        <span class="font-bold">44K</span>
+        <span class="font-bold">{{ profile?.followers?.length ?? 0 }}</span>
         <span class="text-gray-500 font-light text-[15px] pl-1.5">Followers</span>
       </div>
       <div class="mr-4">
-        <span class="font-bold">111k</span>
+        <span class="font-bold">{{ likes.length }}</span>
         <span class="text-gray-500 font-light text-[15px] pl-1.5">Likes</span>
       </div>
     </div>
 
     <div class="w-full flex items-center pt-4 border-b">
-      <div class="w-60 text-center py-2 text-[17px] font-semibold border-b-2 border-b-black">Videos</div>
-      <div class="w-60 text-gray-500 text-center py-2 text-[17px] font-semibold"><Icon name="material-symbols:lock-open" class="mb-0.5" /> Liked</div>
+      <div @click="$profileStore.allVideos" class="w-60 text-center py-2 text-[17px] font-semibold border-b-2 border-b-black cursor-pointer">
+        Videos
+      </div>
+      <div
+        @click="$profileStore.liked(profile.id)"
+        class="w-60 text-gray-500 inline-flex items-center gap-2 py-2 text-[17px] font-semibold cursor-pointer"
+      >
+        <Icon name="material-symbols:lock-open" /> Liked
+      </div>
     </div>
 
-    <div v-if="videos.length > 0" class="mt-4 grid 2xl:grid-cols-6 xl:grid-cols-5 lg:grid-cols-4 md:grid-cols-3 grid-cols-2 gap-3">
-      <PostUser v-for="video in videos" :key="video.id" :video="video" />
+    <div
+      v-if="$profileStore.currentVideos.length > 0"
+      class="mt-4 grid 2xl:grid-cols-6 xl:grid-cols-5 lg:grid-cols-4 md:grid-cols-3 grid-cols-2 gap-3"
+    >
+      <Icon v-if="$profileStore.isLoading" class="animate-spin ml-1" name="mingcute:loading-line" size="100" color="#FFFFFF" />
+      <PostUser v-else v-for="video in $profileStore.currentVideos" :key="video.id" :video="video" />
+    </div>
+
+    <div v-else class="mt-4 text-[15px] text-gray-500">
+      No videos
     </div>
   </div>
 </template>

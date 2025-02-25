@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import UserOverlay from "~/components/chat/UserOverlay.vue";
 import type { IMessage, IRoom } from "~/types/user.type";
+const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
+console.log(protocol);
 
-const { status, data: socketData, send, open, close } = useWebSocket(`ws://${location.host}/api/websocket`);
+const { data: socketData, send } = useWebSocket(`${protocol}${location.host}/api/websocket`);
 const room = ref<IRoom | null>(null);
 const messages = ref<IMessage[]>([]);
 
@@ -11,13 +13,12 @@ let isLoading = ref<boolean>(false);
 const { $authStore } = useNuxtApp();
 
 const users = await $fetch("/api/friend/all", {
-	query: {
-		userId: $authStore.profile?.id,
-	}
+  query: {
+    userId: $authStore.profile?.id,
+  },
 });
 
 console.log(users);
-
 
 const chatOpen = async (userId: string) => {
   isLoading.value = true;

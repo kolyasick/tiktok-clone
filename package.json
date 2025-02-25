@@ -3,22 +3,22 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "nuxt build",
+    "build": "npx prisma migrate deploy && npx prisma generate && nuxt build",
     "dev": "nuxt dev --host 0.0.0.0",
-    "generate": "npx prisma migrate deploy && npx prisma generate && nuxt generate",
+    "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
     "@nuxt/image": "^1.8.0",
     "@pinia/nuxt": "^0.5.4",
-    "@prisma/client": "^5.20.0",
+    "@prisma/client": "^6.4.1",
     "@vueuse/nuxt": "^12.7.0",
     "nuxt": "^3.6.0",
     "nuxt-auth-utils": "^0.5.16",
     "nuxt-file-storage": "^0.2.9",
     "pinia": "^2.2.2",
-    "prisma": "^5.20.0",
+    "prisma": "^6.4.1",
     "vue": "latest",
     "vue-advanced-cropper": "^2.8.9",
     "vue-router": "latest"

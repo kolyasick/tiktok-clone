@@ -34,6 +34,10 @@ export default defineEventHandler(async (event) => {
     where: {
       userId: user.id,
     },
+    include: {
+      friendshipsAsFriend: true,
+      friendshipsAsUser: true,
+    }
   });
 
   const session = await setUserSession(event, {
@@ -45,12 +49,23 @@ export default defineEventHandler(async (event) => {
     loggedInAt: new Date(),
   });
 
-  if (!session) {
+  if (!session || !profile) {
     throw createError({
       statusCode: 500,
-      statusMessage: "Error creating session",
+      statusMessage: "Something went wrong",
     });
   }
 
-  return profile;
+  const mappedProfile = {
+    ...profile,
+    following: [...profile.friendshipsAsUser, ...profile.friendshipsAsFriend.filter((f) => f.status === "accepted")],
+    followers: [...profile.friendshipsAsFriend, ...profile.friendshipsAsUser.filter((f) => f.status === "accepted")],
+  };
+
+  // @ts-ignore
+  delete mappedProfile.friendshipsAsFriend;
+  // @ts-ignore
+  delete mappedProfile.friendshipsAsUser;
+
+  return mappedProfile;
 });

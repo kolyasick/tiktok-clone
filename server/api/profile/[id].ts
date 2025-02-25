@@ -10,11 +10,15 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const parsedId = parseInt(id, 10);
+  const parsedId = parseInt(id);
 
   const profile = await prisma.profile.findUnique({
     where: {
       userId: parsedId,
+    },
+    include: {
+      friendshipsAsFriend: true,
+      friendshipsAsUser: true,
     },
   });
 
@@ -25,5 +29,16 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  return profile;
+  const mappedProfile = {
+    ...profile,
+    following: [...profile.friendshipsAsUser, ...profile.friendshipsAsFriend.filter((f) => f.status === "accepted")],
+    followers: [...profile.friendshipsAsFriend, ...profile.friendshipsAsUser.filter((f) => f.status === "accepted")],
+  };
+
+  // @ts-ignore
+  delete mappedProfile.friendshipsAsFriend;
+  // @ts-ignore
+  delete mappedProfile.friendshipsAsUser;
+
+  return mappedProfile;
 });

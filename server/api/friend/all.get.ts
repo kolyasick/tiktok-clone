@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const parsedUserId = parseInt(userId, 10);
+  const parsedUserId = parseInt(userId);
 
   const friends = await prisma.friendship.findMany({
     where: {

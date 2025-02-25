@@ -1,10 +1,4 @@
-import type { User, Video, Like, Comment, Profile, Message, Chat } from "@prisma/client"
-
-export interface IUser extends User {
-	videos?: Video[]
-	likes?: ILike[]
-	comments?: IComment[]
-}
+import type { Video, Like, Comment, Profile, Message, Chat, Friendship } from "@prisma/client"
 
 export interface IVideo extends Video {
 	profile?: Profile
@@ -35,4 +29,9 @@ export interface IChat extends Chat {
   user1?: Profile;
   user2?: Profile;
   messages?: IMessage[];
+}
+
+export interface IProfile extends Profile {
+  followers?: Friendship[];
+  following?: Friendship[];
 }

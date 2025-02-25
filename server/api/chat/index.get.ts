@@ -15,8 +15,8 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const parsedUserId = parseInt(user1Id, 10);
-  const parsedFriendId = parseInt(user2Id, 10);
+  const parsedUserId = parseInt(user1Id);
+  const parsedFriendId = parseInt(user2Id);
 
   const room = await prisma.chat.findFirst({
     where: {
