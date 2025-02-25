@@ -1,4 +1,4 @@
-import { IUser } from "~/types/user.type"
+import { Profile } from "@prisma/client"
 
 interface IMessage {
 	text: string
@@ -6,10 +6,10 @@ interface IMessage {
 }
 
 interface IRoom {
-	[id: string]: IMessage[] // Каждая комната содержит массив сообщений
+	[id: string]: IMessage[]
 }
 
-const rooms: IRoom = {} // Хранилище комнат
+const rooms: IRoom = {}
 
 export default defineWebSocketHandler({
 	open(peer) {
@@ -28,12 +28,10 @@ export default defineWebSocketHandler({
 		try {
 			const { room, sender, text, action } = JSON.parse(message.text()) as {
 				room: string
-				sender: IUser
+				sender: Profile
 				text: string
 				action: string
 			}
-
-			console.log("Текущие комнаты:", rooms, text)
 
 			if (action === "subscribe") {
 				peer.subscribe(room)
@@ -42,8 +40,6 @@ export default defineWebSocketHandler({
 					rooms[room] = []
 				}
 			} else if (action === "message") {
-				console.log(`Сообщение в комнате ${room}: ${text}`)
-
 				if (rooms[room]) {
 					rooms[room].push({ text, created_at: new Date() })
 				}

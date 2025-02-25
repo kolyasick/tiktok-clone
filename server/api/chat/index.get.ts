@@ -1,44 +1,57 @@
-import prisma from "~/server/composables/prisma";
+import prisma from "~/server/composables/prisma"
 
 interface IQuery {
-  user1Id: string;
-  user2Id: string;
+	userId: string
 }
 
 export default defineEventHandler(async (event) => {
-  const { user1Id, user2Id } = getQuery<IQuery>(event);
+	const { userId } = getQuery<IQuery>(event)
 
-  if (!user1Id || !user2Id) {
-    throw createError({
-      statusCode: 400,
-      message: "User ids are required",
-    });
-  }
+	if (!userId) {
+		throw createError({
+			statusCode: 400,
+			message: "User id is required",
+		})
+	}
 
-  const parsedUserId = parseInt(user1Id);
-  const parsedFriendId = parseInt(user2Id);
+	const parsedUserId = parseInt(userId)
 
-  const room = await prisma.chat.findFirst({
-    where: {
-      OR: [
-        {
-          user1Id: parsedUserId,
-          user2Id: parsedFriendId,
-        },
-        {
-          user1Id: parsedUserId,
-          user2Id: parsedFriendId,
-        },
-      ],
-    },
-    include: {
-      messages: {
-        include: {
-          sender: true,
-        },
-      },
-    },
-  });
+	const rooms = await prisma.chat.findMany({
+		where: {
+			OR: [
+				{
+					user1Id: parsedUserId,
+				},
+				{
+					user2Id: parsedUserId,
+				},
+			],
+		},
+		include: {
+			messages: {
+				include: {
+					sender: true,
+				},
+			},
+			user1: true,
+			user2: true,
+		},
+	})
 
-  return room;
-});
+	const filteredRooms = rooms.map((room) => {
+		return {
+			...room,
+			user: room.user1Id === parsedUserId ? room.user2 : room.user1,
+		}
+	})
+
+	filteredRooms.forEach((room) => {
+		// @ts-ignore
+		delete room.user1
+
+		// @ts-ignore
+		delete room.user2
+	})
+
+	return filteredRooms
+})
