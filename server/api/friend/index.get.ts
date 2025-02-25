@@ -1,4 +1,4 @@
-import { prisma } from "~/server/composables/prisma";
+import prisma from "~/server/composables/prisma";
 
 interface IQuery {
   userId: string;
@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
     },
     include: {
       user: true,
-    }
+    },
   });
 
   return friendShip;

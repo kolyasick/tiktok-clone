@@ -1,4 +1,4 @@
-import { prisma } from "~/server/composables/prisma";
+import prisma from "~/server/composables/prisma";
 
 interface IQuery {
   userId: string;
@@ -10,13 +10,12 @@ export default defineEventHandler(async (event) => {
   if (!userId) {
     throw createError({
       statusCode: 400,
-      message: "All parameters are required",
+      message: "User id is required",
     });
   }
 
   const parsedUserId = parseInt(userId, 10);
 
-  // Получаем список друзей
   const friends = await prisma.friendship.findMany({
     where: {
       OR: [
@@ -38,11 +37,11 @@ export default defineEventHandler(async (event) => {
 
   const filteredFriends = friends.map((friendship) => {
     if (friendship.userId === parsedUserId) {
-      return friendship.friend; 
+      return friendship.friend;
     } else {
-      return friendship.user; 
+      return friendship.user;
     }
   });
 
-  return filteredFriends;
+  return filteredFriends || [];
 });

@@ -57,7 +57,7 @@ const handleFriendAction = async (action: "add" | "apply" | "reject") => {
     }
 
     friend.value = await $fetch<Friendship>(endpoint, {
-      method: "POST",
+      method: "PATCH",
       body,
     });
   } catch (error) {

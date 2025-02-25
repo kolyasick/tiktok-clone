@@ -1,4 +1,4 @@
-import { prisma } from "~/server/composables/prisma";
+import prisma from "~/server/composables/prisma";
 
 interface IQuery {
   user1Id: string;
@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   if (!user1Id || !user2Id) {
     throw createError({
       statusCode: 400,
-      message: "All parametres are required",
+      message: "User ids are required",
     });
   }
 
@@ -40,5 +40,5 @@ export default defineEventHandler(async (event) => {
     },
   });
 
-  return room ?? "no-room";
+  return room;
 });

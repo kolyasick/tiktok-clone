@@ -1,54 +1,56 @@
-import { prisma } from "~/server/composables/prisma"
+import prisma from "~/server/composables/prisma";
 
 type Body = {
-	email: string
-	password: string
-}
+  email: string;
+  password: string;
+};
 
 export default defineEventHandler(async (event) => {
-	const { email, password } = await readBody<Body>(event)
+  const { email, password } = await readBody<Body>(event);
 
-	if (!email || !password) {
-		throw createError({
-			statusCode: 400,
-			statusMessage: "All fields are required",
-		})
-	}
+  if (!email || !password) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "All fields are required",
+    });
+  }
 
-	const user = await prisma.user.findUnique({
-		where: {
-			email,
-		},
-	})
+  const user = await prisma.user.findUnique({
+    where: {
+      email,
+    },
+  });
 
-	const profile = await prisma.profile.findUnique({
-		where: {
-			userId: user?.id,
-		},
-	})
+  const isPasswordValid = user && (await verifyPassword(user.password, password));
 
-	if (!user) {
-		throw createError({
-			statusCode: 404,
-			statusMessage: "User with this email were not found",
-		})
-	}
+  if (!user || !isPasswordValid) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: "Invalid credentials",
+    });
+  }
 
-	const session = await setUserSession(event, {
-		user: {
-			id: user.id,
-			email: user.email,
-			role: user.roleId,
-		},
-		loggedInAt: new Date(),
-	})
+  const profile = await prisma.profile.findUnique({
+    where: {
+      userId: user.id,
+    },
+  });
 
-	if (!session) {
-		throw createError({
-			statusCode: 400,
-			statusMessage: "Something went wrong",
-		})
-	}
+  const session = await setUserSession(event, {
+    user: {
+      id: user.id,
+      email: user.email,
+      role: user.roleId,
+    },
+    loggedInAt: new Date(),
+  });
 
-	return profile
-})
+  if (!session) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: "Error creating session",
+    });
+  }
+
+  return profile;
+});

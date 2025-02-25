@@ -1,5 +1,4 @@
-import { PrismaClient } from "@prisma/client";
-import { prisma } from "~/server/composables/prisma";
+import prisma from "~/server/composables/prisma";
 
 interface IBody {
   senderId: number;

@@ -1,4 +1,4 @@
-import { prisma } from "~/server/composables/prisma";
+import prisma from "~/server/composables/prisma";
 
 interface IBody {
   userId: number;
@@ -14,12 +14,31 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const friendShip = await prisma.friendship.create({
-    data: {
-      userId: userId,
-      friendId: friendId,
+  const isFriendshipExist = await prisma.friendship.findFirst({
+    where: {
+      OR: [
+        {
+          userId: userId,
+          friendId: friendId,
+        },
+        {
+          userId: friendId,
+          friendId: userId,
+        },
+      ],
     },
   });
 
-  return friendShip;
+  if (isFriendshipExist) {
+    return isFriendshipExist;
+  } else {
+    const friendShip = await prisma.friendship.create({
+      data: {
+        userId: userId,
+        friendId: friendId,
+      },
+    });
+
+    return friendShip;
+  }
 });
