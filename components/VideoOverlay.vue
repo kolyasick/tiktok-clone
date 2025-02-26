@@ -3,14 +3,15 @@ import type { IVideo } from "~/types/user.type";
 import { formatDate } from "~/utils/formatDate";
 
 const { $videosStore, $authStore, $generalStore } = useNuxtApp();
-const { loggedIn } = useUserSession();
 interface Props {
   video: IVideo;
 }
 const props = defineProps<Props>();
 
 const route = useRoute();
-const videoUrl = "https://podvodni-tok.netlify.app" + route.fullPath;
+const videoUrl = window.location.href
+
+console.log(videoUrl);
 
 const isModalVisible = ref<boolean>(false);
 let commentText = ref("");
@@ -27,7 +28,7 @@ const createComment = async () => {
     id: new Date().getTime(),
     text: commentText.value,
     profileId: $authStore.profile?.id,
-	profile: $authStore.profile,
+    profile: $authStore.profile,
     user: $authStore.profile,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -62,6 +63,32 @@ const shareVideo = async () => {
   } catch (error) {
     console.error("Error copying video link:", error);
     alert("Failed to copy video link");
+  }
+};
+
+const likeVideo = async () => {
+  if (!$authStore.profile) {
+    $generalStore.isLoginOpen = true;
+    return;
+  }
+  
+  $videosStore.toggleLike(props.video);
+  const video = $videosStore.videos.find((v) => v.id === props.video.id);
+
+  if (!video) return;
+
+  if (props.video.liked) {
+    video.liked = true;
+    video.likes?.push({
+      id: new Date().getTime(),
+      profileId: $authStore.profile?.id || 0,
+      videoId: props.video.id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+  } else {
+    video.liked = false;
+    video.likes = video.likes?.filter((like) => like.profileId !== $authStore.profile?.id);
   }
 };
 </script>
@@ -107,7 +134,7 @@ const shareVideo = async () => {
     <div class="flex justify-center gap-10 mb-6 border-b pb-5 max-[330px]:gap-6">
       <div class="text-center flex items-center gap-2">
         <button
-          @click="$videosStore.toggleLike(props.video)"
+          @click="likeVideo"
           class="rounded-full transition flex items-center bg-[#3a3a3a] p-2 cursor-pointer disabled:bg-gray-300"
           :class="video.liked ? 'text-[#F02C56]' : 'text-[#EBEBEB]'"
         >

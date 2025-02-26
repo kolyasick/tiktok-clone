@@ -94,13 +94,15 @@ model Friendship {
   user      Profile     @relation("userFriendships", fields: [userId], references: [id])
   friend    Profile     @relation("friendFriendships", fields: [friendId], references: [id])
 
-  @@unique([userId, friendId]) // Уникальная пара пользователь-друг
+  @@unique([userId, friendId]) 
+  @@unique([friendId, userId])
+
 }
 
 model Chat {
   id        Int      @id @default(autoincrement())
-  user1Id   Int      // ID первого пользователя
-  user2Id   Int      // ID второго пользователя
+  user1Id   Int    
+  user2Id   Int      
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -109,7 +111,7 @@ model Chat {
 
   messages  Message[]
 
-  @@unique([user1Id, user2Id]) // Уникальная пара пользователей для чата
+  @@unique([user1Id, user2Id])
 }
 
 model Message {
