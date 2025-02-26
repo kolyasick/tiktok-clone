@@ -1,7 +1,7 @@
 import { useGeneralStore } from "~/stores/general"
 import { useAuthStore } from "~/stores/auth"
 import { useVideosStore } from "~/stores/videos"
-import {useProfileStore} from "~/stores/profile"
+import { useProfileStore } from "~/stores/profile"
 
 export default defineNuxtPlugin((NuxtApp) => {
 	return {

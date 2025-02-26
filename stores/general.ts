@@ -1,10 +1,16 @@
+import type { Chat, Profile } from "@prisma/client"
 import { defineStore } from "pinia"
-
+import type { IMessage } from "~/types/user.type"
+interface IChat extends Chat {
+	messages: IMessage[]
+	user: Profile
+}
 export const useGeneralStore = defineStore("gen", {
 	state: () => ({
 		isLoginOpen: false as boolean,
 		isEditProfileOpen: false as boolean,
 		isBackUrl: "/" as string,
+		chats: {} as IChat[],
 	}),
 	actions: {
 		bodySwitch(val: boolean) {

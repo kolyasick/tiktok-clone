@@ -27,6 +27,7 @@ model Profile {
   user    User      @relation(fields: [userId], references: [id])
   name    String     @unique
   avatar  String    @default("default.jpg")
+  online  Boolean   @default(false)
 
   friendshipsAsUser Friendship[] @relation("userFriendships")
   friendshipsAsFriend Friendship[] @relation("friendFriendships")
