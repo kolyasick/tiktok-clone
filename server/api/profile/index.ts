@@ -1,7 +1,7 @@
 import prisma from "~/server/composables/prisma";
 
 export default defineEventHandler(async (event) => {
-  const { id } = event.context.params as { id?: string };
+  const { id } = getQuery<{ id?: string }>(event);
 
   if (!id) {
     throw createError({
@@ -10,11 +10,9 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const parsedId = parseInt(id);
-
   const profile = await prisma.profile.findUnique({
     where: {
-      userId: parsedId,
+      id: parseInt(id),
     },
     include: {
       friendshipsAsFriend: true,

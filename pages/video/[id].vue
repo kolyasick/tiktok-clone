@@ -163,14 +163,6 @@ const toggleMute = () => {
   z-index: 1000;
 }
 
-.video-layout {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background: #121212;
-}
 
 .loader {
   z-index: 10;

@@ -6,6 +6,7 @@ import type { IProfile } from "~/types/user.type";
 
 const { $generalStore, $authStore } = useNuxtApp();
 const { handleFileInput, files: avatar } = useFileStorage();
+const router = useRouter();
 const cropper = ref<CropperResult | null>(null);
 
 const userName = ref<string | null>($authStore.profile?.name || null);
@@ -62,12 +63,13 @@ const updateUser = async (blob?: Blob) => {
       return;
     }
 
+    await router.replace(`/profile/${profile.name}`);
     $authStore.profile.name = profile.name;
     $authStore.profile.avatar = profile.avatar;
 
     $generalStore.isEditProfileOpen = false;
-  } catch (error) {
-    errors.value = "Failed to update user";
+  } catch (error: any) {
+    errors.value = error.statusMessage ?? "Failed to update user";
   } finally {
     loading.value = false;
   }

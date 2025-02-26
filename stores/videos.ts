@@ -11,18 +11,37 @@ export const useVideosStore = defineStore("general", {
   }),
 
   actions: {
-    set(videos: IVideo[]) {
-      this.$patch({ videos });
-    },
-
     async getVideos() {
+      if (this.isLoading || !this.hasMore) return;
+
+      this.isLoading = true;
+
       const { $authStore } = useNuxtApp();
-      await $fetch<IVideo[]>(`/api/video`).then((res) => {
-        this.videos = res.map((v) => ({
-          ...v,
-          liked: v?.likes?.some((like) => like.profileId === $authStore.profile?.id),
-        }));
-      });
+      try {
+        const res = await $fetch<IVideo[]>(`/api/video`, {
+          query: {
+            offset: this.offset,
+            limit: this.limit,
+          },
+        });
+
+        if (res.length > 0) {
+          this.videos = [
+            ...this.videos,
+            ...res.map((v) => ({
+              ...v,
+              liked: v?.likes?.some((like) => like.profileId === $authStore.profile?.id),
+            })),
+          ];
+          this.offset += this.limit;
+        } else {
+          this.hasMore = false;
+        }
+      } catch (error) {
+        console.error("Failed to fetch videos:", error);
+      } finally {
+        this.isLoading = false;
+      }
     },
 
     async toggleLike(video: IVideo) {

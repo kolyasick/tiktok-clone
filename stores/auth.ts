@@ -15,6 +15,7 @@ export const useAuthStore = defineStore("auth", {
     profile: null as IProfile | null,
     errors: <IErrors>{},
     isLoading: false,
+    status: "offline" as string,
   }),
   actions: {
     clearErrors() {
@@ -80,8 +81,14 @@ export const useAuthStore = defineStore("auth", {
       }
     },
 
-    async getProfile(userId: number): Promise<IProfile> {
-      return $fetch<IProfile>(`/api/profile/${userId}`);
+    async getProfileByName(name: string): Promise<IProfile> {
+      return $fetch<IProfile>(`/api/profile/${name}`);
+    },
+
+    async getProfileById(id: number): Promise<IProfile> {
+      return $fetch<IProfile>(`/api/profile/`, {
+        query: { id },
+      });
     },
 
     async logout() {

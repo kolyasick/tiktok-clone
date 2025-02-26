@@ -1,17 +1,18 @@
 // auth.d.ts
 
 declare module "#auth-utils" {
-	interface User {
-		id: number
-		email: string
-		role: number
-	}
+  interface User {
+    id: number;
+    email: string;
+    name: string;
+    role: number;
+  }
 
-	interface UserSession {}
+  interface UserSession {}
 
-	interface SecureSessionData {
-		// Add your own fields
-	}
+  interface SecureSessionData {
+    // Add your own fields
+  }
 }
 
-export {}
+export {};

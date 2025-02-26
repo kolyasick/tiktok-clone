@@ -8,12 +8,8 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-const route = useRoute();
-const videoUrl = window.location.href
-
-console.log(videoUrl);
-
 const isModalVisible = ref<boolean>(false);
+let videoUrl = "";
 let commentText = ref("");
 
 const createComment = async () => {
@@ -49,8 +45,6 @@ const createComment = async () => {
       videoId: props.video.id,
     },
   });
-
-  console.log(res);
 };
 
 const shareVideo = async () => {
@@ -71,7 +65,7 @@ const likeVideo = async () => {
     $generalStore.isLoginOpen = true;
     return;
   }
-  
+
   $videosStore.toggleLike(props.video);
   const video = $videosStore.videos.find((v) => v.id === props.video.id);
 
@@ -91,6 +85,10 @@ const likeVideo = async () => {
     video.likes = video.likes?.filter((like) => like.profileId !== $authStore.profile?.id);
   }
 };
+
+onMounted(() => {
+  videoUrl = window?.location.href;
+});
 </script>
 <template>
   <div
@@ -164,12 +162,12 @@ const likeVideo = async () => {
         v-for="comment in video.comments"
         :key="comment.id"
       >
-        <NuxtLink class="absolute top-2 left-2 w-10 h-10" :href="`/profile/${comment.profile?.id}`">
+        <NuxtLink class="absolute top-2 left-2 w-10 h-10" :href="`/profile/${comment.profile?.name}`">
           <NuxtImg format="webp" class="rounded-full" width="40" height="40" :src="'/upload/avatars/' + comment.profile?.avatar" />
         </NuxtLink>
 
         <div class="ml-12">
-          <NuxtLink :href="`/profile/${comment.profile?.id}`" class="font-semibold">
+          <NuxtLink :href="`/profile/${comment.profile?.name}`" class="font-semibold">
             <p class="text-sm">
               {{ comment.profile?.name === $authStore.profile?.name ? "you" : comment.profile?.name }}
               <span class="text-gray-500 text-sm">

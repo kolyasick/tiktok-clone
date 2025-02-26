@@ -100,7 +100,7 @@ const onVideoLoaded = () => {
 
           <div class="video-info absolute bottom-4 left-4 z-10 text-white w-[250px] md:w-[400px]">
             <div class="flex items-center gap-2 mb-2">
-              <NuxtLink :to="`/profile/${video.profile?.id}`" class="flex items-center gap-2">
+              <NuxtLink :to="`/profile/${video.profile?.name}`" class="flex items-center gap-2">
                 <NuxtImg format="webp" class="rounded-full" width="33" :src="'/upload/avatars/' + video.profile?.avatar" />
                 <span class="font-bold hover:underline cursor-pointer">
                   {{ video.profile?.name }}

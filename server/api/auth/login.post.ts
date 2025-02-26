@@ -37,19 +37,27 @@ export default defineEventHandler(async (event) => {
     include: {
       friendshipsAsFriend: true,
       friendshipsAsUser: true,
-    }
+    },
   });
+
+  if (!profile) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: "Something went wrong",
+    });
+  }
 
   const session = await setUserSession(event, {
     user: {
       id: user.id,
       email: user.email,
+      name: profile.name,
       role: user.roleId,
     },
     loggedInAt: new Date(),
   });
 
-  if (!session || !profile) {
+  if (!session) {
     throw createError({
       statusCode: 500,
       statusMessage: "Something went wrong",

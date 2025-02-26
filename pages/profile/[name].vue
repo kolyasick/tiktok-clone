@@ -9,14 +9,14 @@ const profile = ref<IProfile>();
 const likes = ref<Like[]>([]);
 
 const route = useRoute();
-const { id } = route.params as Partial<{ id: number }>;
+const { name } = route.params as Partial<{ name: string }>;
 
 const loadData = async () => {
   try {
-    if ($authStore.profile && id == $authStore.profile?.id) {
+    if ($authStore.profile && name == $authStore.profile?.name) {
       profile.value = $authStore.profile;
     } else {
-      profile.value = await $authStore.getProfile(id || 0);
+      profile.value = await $authStore.getProfileByName(name || "");
     }
 
     $profileStore.videos = await $fetch<IVideo[]>("/api/video", {
@@ -82,7 +82,7 @@ useSeoMeta({
         <div class="text-[18px] truncate">{{ profile?.name }}</div>
         <div class="flex items-center gap-3">
           <button
-            v-if="id == user?.id"
+            v-if="profile.id == user?.id"
             @click="$generalStore.isEditProfileOpen = true"
             class="flex items-center rounded-sm py-1.5 px-3.5 mt-3 text-[15px] font-semibold bg-[#3a3a3a] hover:bg-[#303030]"
           >
@@ -115,10 +115,7 @@ useSeoMeta({
               Follow back
             </button>
 
-            <button
-              @click="chatOpen"
-              class="flex items-center rounded-md py-1.5 px-8 mt-3 text-[15px] text-white font-semibold bg-[#666666]"
-            >
+            <button @click="chatOpen" class="flex items-center rounded-md py-1.5 px-8 mt-3 text-[15px] text-white font-semibold bg-[#666666]">
               Chat
             </button>
           </template>

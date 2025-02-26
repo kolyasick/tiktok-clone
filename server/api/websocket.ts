@@ -77,6 +77,19 @@ export default defineWebSocketHandler({
             );
           }
         }, 1000);
+      } else if (action === "online") {
+        peer.subscribe(room);
+        console.log(room);
+
+        peer.publish(
+          room,
+          JSON.stringify({
+            room,
+            sender,
+            action: "online",
+            created_at: new Date(),
+          })
+        );
       }
     } catch (err) {
       console.error("Ошибка обработки сообщения:", err);

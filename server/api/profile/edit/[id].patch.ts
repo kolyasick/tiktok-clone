@@ -17,19 +17,32 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  const isNameExist = await prisma.profile.findUnique({
+    where: {
+      name,
+    },
+  });
+
+  if (isNameExist) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Username already exist",
+    });
+  }
+
   const file = avatar ? await storeFileLocally(avatar, 6, "/avatars") : undefined;
-  
   const parsedId = parseInt(id);
 
   const profile = await prisma.profile.update({
     where: {
-      userId: parsedId,
+      id: parsedId,
     },
     data: {
       name,
       avatar: file,
     },
   });
+  
 
   return profile;
 });
