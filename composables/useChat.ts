@@ -4,7 +4,7 @@ import type { IChat, IMessage, IProfile, IRoom } from "~/types/user.type";
 export const useChat = () => {
   const { $authStore, $generalStore } = useNuxtApp();
 
-  const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
+  const protocol = window.location.protocol === "https:" ? "ws://" : "ws://";
   const wsUrl = `${protocol}${location.host}/api/websocket`;
   console.log("WebSocket URL:", wsUrl);
 
