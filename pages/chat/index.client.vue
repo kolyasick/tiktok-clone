@@ -15,7 +15,7 @@ const route = useRoute();
 
 interface IChat extends Chat {
   messages: IMessage[];
-  user: Profile & { online: boolean };
+  companion: Profile & { online: boolean };
 }
 
 const fetchChats = async () => {

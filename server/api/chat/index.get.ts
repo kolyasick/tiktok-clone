@@ -41,7 +41,7 @@ export default defineEventHandler(async (event) => {
 	const filteredRooms = rooms.map((room) => {
 		return {
 			...room,
-			user: room.user1Id === parsedUserId ? room.user2 : room.user1,
+			companion: room.user1Id === parsedUserId ? room.user2 : room.user1,
 		}
 	})
 

@@ -57,7 +57,7 @@ const filteredMessages = computed(() => {
 });
 
 const companion = computed(() => {
-  return $generalStore.currentChat?.messages.find((m) => m.sender?.id !== $authStore.profile?.id)?.sender;
+  return $generalStore.currentChat?.companion;
 });
 </script>
 
@@ -98,7 +98,7 @@ const companion = computed(() => {
               {{ message.text }}
             </span>
 
-            <span class="text-xs text-gray-400 absolute bottom-1 right-1">16:10</span>
+            <span class="text-xs text-gray-400 absolute bottom-1 right-1">{{ formatDate(message.createdAt, true) }}</span>
           </div>
         </div>
       </div>
@@ -106,6 +106,7 @@ const companion = computed(() => {
 
     <div class="p-4 border border-r-0 border-b-0 border-l-0 border-t-[#303030] flex items-center">
       <input
+        @keyup.enter="handleSend"
         type="text"
         @input="handleTyping"
         placeholder="Type a message..."

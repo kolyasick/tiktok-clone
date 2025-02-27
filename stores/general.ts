@@ -3,7 +3,7 @@ import { defineStore } from "pinia"
 import type { IMessage, IRoom } from "~/types/user.type"
 interface IChat extends Chat {
 	messages: IMessage[]
-	user: Profile
+	companion: Profile
 }
 export const useGeneralStore = defineStore("gen", {
 	state: () => ({

@@ -33,7 +33,7 @@ export const useChat = () => {
     text, // @ts-ignore
     sender: sender || $authStore.profile, // @ts-ignore
     senderId: sender?.id || $authStore.profile?.id, // @ts-ignore
-    chatId: room.value?.id,
+    chatId: $generalStore.currentChat?.id,
     createdAt: new Date(),
     updatedAt: new Date(),
     action,
@@ -43,39 +43,39 @@ export const useChat = () => {
     const message = JSON.parse(newValue);
 
     if (message.room === chat.value?.id && chat.value) {
-      messages.value.push(createMessage(message.text, message.action, message.sender));
+      $generalStore.currentChat?.messages.push(createMessage(message.text, message.action, message.sender));
     }
 
     switch (message.action) {
       case "remove-typing": {
-        messages.value = messages.value.filter((m) => m.action !== "typing" && m.action !== "remove-typing");
+        // @ts-ignore
+        $generalStore.currentChat.messages = $generalStore.currentChat?.messages.filter((m) => m.action !== "typing" && m.action !== "remove-typing");
       }
       case "online": {
         if ($generalStore.chats) {
-          const user = $generalStore.chats.find((c) => c.user.id === message.sender.id)?.user;
-          const messageUser = $generalStore.currentChat?.messages?.find((m) => m.senderId == message.sender.id)?.sender;
+          const user = $generalStore.chats.find((c) => c.companion.id === message.sender.id)?.companion;
+          const companion = $generalStore.currentChat?.companion;
 
           if (user) {
             user.online = true;
           }
 
-          if (messageUser) {
-            messageUser.online = true;
+          if (companion && companion.id === message.sender.id) {
+            companion.online = true;
           }
         }
       }
       case "offline": {
         if (message.action === "offline") {
           if ($generalStore.chats) {
-            const user = $generalStore.chats.find((c) => c.user.id === message.sender.id)?.user;
-            const messageUser = $generalStore.currentChat?.messages?.find((m) => m.senderId == message.sender.id)?.sender;
-
+            const user = $generalStore.chats.find((c) => c.companion.id === message.sender.id)?.companion;
+            const companion = $generalStore.currentChat?.companion;
             if (user) {
               user.online = false;
             }
 
-            if (messageUser) {
-              messageUser.online = false;
+            if (companion && companion.id === message.sender.id) {
+              companion.online = false;
             }
           }
         }
