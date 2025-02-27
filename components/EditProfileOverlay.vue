@@ -53,7 +53,7 @@ const updateUser = async (blob?: Blob) => {
     const profile = await $fetch<IProfile>(`/api/profile/edit/${$authStore.profile?.id}`, {
       method: "PATCH",
       body: {
-        name: userName.value,
+        name: isUpdated.value ? userName.value : undefined,
         avatar: avatar.value[0] ? avatar.value[0] : undefined,
       },
     });

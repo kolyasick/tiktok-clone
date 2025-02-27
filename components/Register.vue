@@ -9,7 +9,9 @@ const register = async () => {
   const { handleStatus } = useChat();
 
   await $authStore.register(name.value, email.value, password.value);
-  await handleStatus("online");
+  if ($authStore.profile) {
+    await handleStatus("online", $authStore.profile);
+  }
 };
 </script>
 

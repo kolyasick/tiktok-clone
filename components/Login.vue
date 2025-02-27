@@ -8,7 +8,9 @@ const login = async () => {
   const { handleStatus } = useChat();
 
   await $authStore.login(email.value, password.value);
-  await handleStatus("online", $authStore.profile);
+  if ($authStore.profile) {
+    await handleStatus("online", $authStore.profile);
+  }
 };
 </script>
 <template>
