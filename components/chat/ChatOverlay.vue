@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import type { IMessage } from "~/types/user.type";
 const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
 const { send } = useWebSocket(`${protocol}${location.host}/api/websocket`);
 
-const props = defineProps<{ messages: IMessage[]; chatId: number; isTyping: boolean }>();
 const emit = defineEmits(["send-message"]);
-const { $authStore } = useNuxtApp();
+const { $authStore, $generalStore } = useNuxtApp();
 
 let text = ref<string>("");
 let typing = ref<boolean>(false);
@@ -22,7 +20,7 @@ const handleTyping = () => {
     send(
       JSON.stringify({
         action: "typing",
-        room: props.chatId,
+        room: $generalStore.currentChat?.id,
         sender: $authStore.profile,
         text: "typing",
       })
@@ -38,7 +36,7 @@ const handleTyping = () => {
 const messagesContainer = ref<HTMLDivElement | null>(null);
 
 watch(
-  () => props.messages,
+  () => $generalStore.currentChat?.messages,
   async () => {
     await nextTick();
     if (messagesContainer.value) {
@@ -55,20 +53,20 @@ onMounted(() => {
 });
 
 const filteredMessages = computed(() => {
-  return props.messages.filter((m) => !(m.text === "typing" && m.sender?.id === $authStore.profile?.id));
+  return $generalStore.currentChat?.messages.filter((m) => !(m.text === "typing" && m.sender?.id === $authStore.profile?.id));
 });
 
 const companion = computed(() => {
-  return props.messages.find((m) => m.sender?.id !== $authStore.profile?.id)?.sender;
+  return $generalStore.currentChat?.messages.find((m) => m.sender?.id !== $authStore.profile?.id)?.sender;
 });
 </script>
 
 <template>
   <div class="w-3/4 flex flex-col max-[600px]:w-full">
-    <NuxtLink :to="'/profile/' + companion?.name" class="sticky top-0 left-0 w-full py-2 px-6 bg-[#222222] flex items-center z-50">
+    <NuxtLink :to="'/profile/' + companion?.name" class="sticky top-0 left-0 w-full py-2 px-6 bg-[#222222] flex items-center z-10">
       <span class="flex-1 text-center">
         <h1 class="text-xl">{{ companion?.name }}</h1>
-        <p class="text-sm text-gray-400">Online</p>
+        <p class="text-sm text-gray-400">{{ companion?.online ? "Online" : "Offline" }}</p>
       </span>
       <div>
         <NuxtImg class="rounded-full" width="40" :src="'/upload/avatars/' + companion?.avatar" />

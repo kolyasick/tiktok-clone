@@ -17,7 +17,7 @@ export interface IComment extends Comment {
 }
 
 export interface IRoom extends Chat {
-  messages?: Message;
+  messages?: Message[];
 }
 
 export interface IMessage extends Message {

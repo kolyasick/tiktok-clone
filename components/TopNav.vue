@@ -14,6 +14,13 @@ const isLoggedIn = () => {
     $generalStore.isLoginOpen = true;
   }
 };
+
+const logout = async () => {
+  const { handleStatus } = useChat();
+
+  await handleStatus("offline", $authStore.profile);
+  await $authStore.logout();
+};
 </script>
 <template>
   <div id="TopNav" class="fixed bg-[#121212] z-30 flex items-center w-full h-[61px]">
@@ -58,7 +65,7 @@ const isLoggedIn = () => {
                 <Icon name="ph:user" size="20" />
                 <span class="pl-2 font-semibold text-sm">Profile</span>
               </NuxtLink>
-              <div @click="$authStore.logout" class="flex items-center justify-start py-3 px-1.5 hover:bg-[#303030] border-t cursor-pointer">
+              <div @click="logout" class="flex items-center justify-start py-3 px-1.5 hover:bg-[#303030] border-t cursor-pointer">
                 <Icon name="ic:outline-login" size="20" />
                 <span class="pl-2 font-semibold text-sm">Log out</span>
               </div>

@@ -32,7 +32,7 @@ const lastMessage = computed(() => {
 					class="rounded-full"
 					alt="Avatar" />
 				<span
-					class="w-2 h-2 bg-green-500 rounded-full absolute bottom-0 right-0"
+					class="status w-2 h-2 bg-green-500 rounded-full absolute bottom-0 right-0"
 					v-if="chat.user.online"></span>
 			</div>
 

@@ -1,164 +1,95 @@
-import type { Chat, Profile } from "@prisma/client"
-import type { IMessage, IRoom } from "~/types/user.type"
+import type { Profile } from "@prisma/client";
+import type { IMessage, IProfile, IRoom } from "~/types/user.type";
 
 export const useChat = () => {
-	const { $generalStore } = useNuxtApp()
+  const { $authStore, $generalStore } = useNuxtApp();
 
-	const protocol = window.location.protocol === "https:" ? "wss://" : "ws://"
-	const { data: socketData, send } = useWebSocket(`${protocol}${location.host}/api/websocket`)
-	const room = ref<IRoom | null>(null)
-	const messages = ref<IMessage[]>([])
-	const isLoading = ref<boolean>(false)
-	const { $authStore } = useNuxtApp()
-	const route = useRoute()
+  const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
+  const { send, data: socketData, close } = useWebSocket(`${protocol}${location.host}/api/websocket`);
 
-	interface IChat extends Chat {
-		messages: IMessage[]
-		user: Profile & { online: boolean }
-	}
+  const messages = ref<IMessage[]>([]);
+  const chat = ref<IRoom | null>(null);
 
-	const fetchChats = async () => {
-		const chatItems = await $fetch<IChat[]>("/api/chat", {
-			query: {
-				userId: $authStore.profile?.id,
-			},
-		})
+  const handleStatus = async (status: "online" | "offline", sender: IProfile) => {
+    send(
+      JSON.stringify({
+        action: status,
+        room: "app",
+        text: status,
+        sender,
+      })
+    );
 
-		$generalStore.chats = chatItems
-	}
+    await $fetch(`/api/profile/edit/${sender?.id}`, {
+      method: "PATCH",
+      body: {
+        online: status === "online",
+      },
+    });
+  };
 
-	const chatOpen = async (chat: IChat) => {
-		navigateTo(`/chat?chatId=${chat.id}`)
-	}
+  const createMessage = (text: string, action?: string, sender?: Profile): IMessage => ({
+    id: Date.now(),
+    text, // @ts-ignore
+    sender: sender || $authStore.profile, // @ts-ignore
+    senderId: sender?.id || $authStore.profile?.id, // @ts-ignore
+    chatId: room.value?.id,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    action,
+  });
 
-	watch(
-		() => route.query.chatId,
-		async (chatId) => {
-			console.log(chatId)
+  watch(socketData, (newValue) => {
+    const message = JSON.parse(newValue);
 
-			isLoading.value = true
-			const chat = await $fetch<IRoom>(`/api/chat/${chatId}`)
-			room.value = chat ?? null
-			messages.value = (room.value?.messages ?? []) as IMessage[]
-			isLoading.value = false
+    if (message.room === chat.value?.id && chat.value) {
+      messages.value.push(createMessage(message.text, message.action, message.sender));
+    }
 
-			send(
-				JSON.stringify({
-					action: "subscribe",
-					text: "Пользователь онлайн!",
-					room: chat?.id,
-				})
-			)
-		}
-	)
+    switch (message.action) {
+      case "remove-typing": {
+        messages.value = messages.value.filter((m) => m.action !== "typing" && m.action !== "remove-typing");
+      }
+      case "online": {
+        if ($generalStore.chats) {
+          const user = $generalStore.chats.find((c) => c.user.id === message.sender.id)?.user;
+          const messageUser = $generalStore.currentChat?.messages?.find((m) => m.senderId == message.sender.id)?.sender;
 
-	const isTyping = ref<boolean>(false)
+          if (user) {
+            user.online = true;
+          }
 
-	watchEffect(async () => {
-		messages.value = messages.value.filter(
-			(mes) => mes.action !== "typing" && mes.action !== "remove-typing"
-		)
-	})
+          if (messageUser) {
+            messageUser.online = true;
+          }
+        }
+      }
+      case "offline": {
+        if (message.action === "offline") {
+          if ($generalStore.chats) {
+            const user = $generalStore.chats.find((c) => c.user.id === message.sender.id)?.user;
+            const messageUser = $generalStore.currentChat?.messages?.find((m) => m.senderId == message.sender.id)?.sender;
 
-	watch(socketData, (newValue) => {
-		const message = JSON.parse(newValue)
+            if (user) {
+              user.online = false;
+            }
 
-		if (message.room === room.value?.id && room.value) {
-			messages.value.push(createMessage(message.text, message.action, message.sender))
-		}
+            if (messageUser) {
+              messageUser.online = false;
+            }
+          }
+        }
+      }
+    }
+  });
 
-		if (message.action === "remove-typing") {
-			messages.value = messages.value.filter(
-				(m) => m.action !== "typing" && m.action !== "remove-typing"
-			)
-		}
-
-		if (message.action === "online") {
-			if ($generalStore.chats) {
-				console.log("on")
-				const user = $generalStore.chats.find((c) => c.user.id === message.sender.id)?.user
-
-				if (user) {
-					user.online = true
-				}
-			}
-		}
-
-		if (message.action === "offline") {
-			console.log('off')
-			if ($generalStore.chats) {
-				const user = $generalStore.chats.find((c) => c.user.id === message.sender.id)?.user
-				
-				if (user) {
-					user.online = false
-				}
-			}
-		}
-	})
-
-	const sendMessage = async (text: string) => {
-		if (!text.trim()) return
-
-		const message = createMessage(text)
-		messages.value.push(message)
-
-		send(
-			JSON.stringify({
-				action: "message",
-				room: room.value?.id,
-				text: text,
-				sender: $authStore.profile,
-			})
-		)
-
-		await $fetch("/api/chat/message/create", {
-			method: "POST",
-			body: {
-				text,
-				senderId: $authStore.profile?.id,
-				chatId: room.value?.id,
-			},
-		})
-	}
-
-	const handleStatus = async (status: "online" | "offline") => {
-		send(
-			JSON.stringify({
-				action: status,
-				room: "app",
-				text: status,
-				sender: $authStore.profile,
-			})
-		)
-		// console.log(status, $authStore.profile)
-
-		await $fetch(`/api/profile/edit/${$authStore.profile?.id}`, {
-			method: "PATCH",
-			body: {
-				online: status === "online",
-			},
-		})
-	}
-
-	const createMessage = (text: string, action?: string, sender?: Profile): IMessage => ({
-		id: Date.now(),
-		text, // @ts-ignore
-		sender: sender || $authStore.profile, // @ts-ignore
-		senderId: sender?.id || $authStore.profile?.id, // @ts-ignore
-		chatId: room.value?.id,
-		createdAt: new Date(),
-		updatedAt: new Date(),
-		action,
-	})
-
-	return {
-		room,
-		messages,
-		isLoading,
-		isTyping,
-		fetchChats,
-		chatOpen,
-		sendMessage,
-		handleStatus,
-	}
-}
+  return {
+    send,
+    socketData,
+    handleStatus,
+    chat,
+    messages,
+    createMessage,
+    close,
+  };
+};
