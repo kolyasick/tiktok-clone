@@ -3,112 +3,107 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id       Int      @id @default(autoincrement())
-  email    String   @unique
-  password String
-
-  roleId   Int 
-  role     Role    @relation(fields: [roleId], references: [id], onDelete: Cascade)
-
-  profile  Profile?
-
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  password  String
+  roleId    String   @db.ObjectId
+  role      Role     @relation(fields: [roleId], references: [id])
+  profile   Profile?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Profile {
-  id      Int       @id @default(autoincrement())
-  userId  Int       @unique
-  user    User      @relation(fields: [userId], references: [id])
-  name    String     @unique
-  avatar  String    @default("default.jpg")
-  online  Boolean   @default(false)
+  id        String       @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String       @unique @db.ObjectId
+  user      User         @relation(fields: [userId], references: [id])
+  name      String       @unique
+  avatar    String       @default("default.jpg")
+  online    Boolean      @default(false)
 
-  friendshipsAsUser Friendship[] @relation("userFriendships")
+  // Ссылки на дружбу
+  friendshipsAsUser   Friendship[] @relation("userFriendships")
   friendshipsAsFriend Friendship[] @relation("friendFriendships")
 
-  chatsAsUser1 Chat[] @relation("ChatUser1") 
-  chatsAsUser2 Chat[] @relation("ChatUser2") 
-  messages Message[]
+  // Ссылки на чаты
+  chatsAsUser1 Chat[] @relation("ChatUser1")
+  chatsAsUser2 Chat[] @relation("ChatUser2")
 
-  videos   Video[]
-  comments Comment[]
-  likes    Like[]
+  // Ссылки на сообщения, видео, комментарии и лайки
+  messages  Message[]
+  videos    Video[]
+  comments  Comment[]
+  likes     Like[]
 }
 
 model Role {
-  id      Int    @id @default(autoincrement())
-  title   String
-  User    User[]
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
+  title String
+  users User[]
 }
 
 model Video {
-  id       Int      @id @default(autoincrement())
-  title    String
-  url      String?
-  profileId Int
-  profile  Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
-
-  likes    Like[]
-  comments Comment[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  url       String?
+  profileId String    @db.ObjectId
+  profile   Profile   @relation(fields: [profileId], references: [id])
+  likes     Like[]
+  comments  Comment[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Like {
-  id        Int      @id @default(autoincrement())
-  profileId Int
-  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  videoId   Int
-  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
-
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  profileId String   @db.ObjectId
+  profile   Profile  @relation(fields: [profileId], references: [id])
+  videoId   String   @db.ObjectId
+  video     Video    @relation(fields: [videoId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Comment {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   text      String
-  profileId Int
-  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  videoId   Int
-  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
-
+  profileId String   @db.ObjectId
+  profile   Profile  @relation(fields: [profileId], references: [id])
+  videoId   String   @db.ObjectId
+  video     Video    @relation(fields: [videoId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Friendship {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  friendId  Int
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  friendId  String   @db.ObjectId
   status    String   @default("pending")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user      Profile     @relation("userFriendships", fields: [userId], references: [id])
-  friend    Profile     @relation("friendFriendships", fields: [friendId], references: [id])
+  user      Profile  @relation("userFriendships", fields: [userId], references: [id])
+  friend    Profile  @relation("friendFriendships", fields: [friendId], references: [id])
 
-  @@unique([userId, friendId]) 
+  @@unique([userId, friendId])
   @@unique([friendId, userId])
-
 }
 
 model Chat {
-  id        Int      @id @default(autoincrement())
-  user1Id   Int    
-  user2Id   Int      
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  user1Id   String    @db.ObjectId
+  user2Id   String    @db.ObjectId
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
-  user1     Profile     @relation("ChatUser1", fields: [user1Id], references: [id])
-  user2     Profile     @relation("ChatUser2", fields: [user2Id], references: [id])
+  user1     Profile   @relation("ChatUser1", fields: [user1Id], references: [id])
+  user2     Profile   @relation("ChatUser2", fields: [user2Id], references: [id])
 
   messages  Message[]
 
@@ -116,13 +111,13 @@ model Chat {
 }
 
 model Message {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   text      String
-  chatId    Int
-  senderId  Int
+  chatId    String   @db.ObjectId
+  senderId  String   @db.ObjectId
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   chat      Chat     @relation(fields: [chatId], references: [id])
-  sender    Profile     @relation(fields: [senderId], references: [id])
+  sender    Profile  @relation(fields: [senderId], references: [id])
 }

@@ -34,11 +34,10 @@ export default defineEventHandler(async (event) => {
 	}
 
 	const file = avatar ? await storeFileLocally(avatar, 6, "/avatars") : undefined
-	const parsedId = parseInt(id)
 
 	const profile = await prisma.profile.update({
 		where: {
-			id: parsedId,
+			id,
 		},
 		data: {
 			name,

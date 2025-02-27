@@ -47,7 +47,8 @@ export default defineWebSocketHandler({
 				peer.publish(room, JSON.stringify({ room, sender, text, created_at: new Date() }))
 			} else if (action === "typing") {
 				const typingMessage: IMessage = { text: "typing", created_at: new Date() }
-
+				console.log(typingMessage);
+				
 				peer.publish(
 					room,
 					JSON.stringify({

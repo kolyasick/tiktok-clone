@@ -11,11 +11,10 @@ export default defineEventHandler(async (event) => {
         });
     }    
 
-    const parsedId = parseInt(id);
     
     const chat = await prisma.chat.findUnique({
         where: {
-            id: parsedId,
+            id,
         },
         include: {
             user1: true,

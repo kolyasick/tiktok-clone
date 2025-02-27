@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
 
   const profile = await prisma.profile.findUnique({
     where: {
-      id: parseInt(id),
+      userId: id,
     },
     include: {
       friendshipsAsFriend: true,

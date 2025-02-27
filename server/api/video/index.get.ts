@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
   if (userId) {
     videos = await prisma.video.findMany({
       where: {
-        profileId: parseInt(userId),
+        profileId: userId,
       },
       include: {
         profile: true,

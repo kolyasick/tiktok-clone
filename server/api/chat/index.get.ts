@@ -14,34 +14,33 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	const parsedUserId = parseInt(userId)
 
 	const rooms = await prisma.chat.findMany({
-		where: {
-			OR: [
-				{
-					user1Id: parsedUserId,
-				},
-				{
-					user2Id: parsedUserId,
-				},
-			],
-		},
-		include: {
-			messages: {
-				include: {
-					sender: true,
-				},
-			},
-			user1: true,
-			user2: true,
-		},
-	})
+    where: {
+      OR: [
+        {
+          user1Id: userId,
+        },
+        {
+          user2Id: userId,
+        },
+      ],
+    },
+    include: {
+      messages: {
+        include: {
+          sender: true,
+        },
+      },
+      user1: true,
+      user2: true,
+    },
+  });
 
 	const filteredRooms = rooms.map((room) => {
 		return {
 			...room,
-			user: room.user1Id === parsedUserId ? room.user2 : room.user1,
+			user: room.user1Id === userId ? room.user2 : room.user1,
 		}
 	})
 

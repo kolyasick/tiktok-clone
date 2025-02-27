@@ -43,6 +43,7 @@ watch(
 
     // $generalStore.currentChat = fetchChat;
     chat.value = $generalStore.currentChat ?? null;
+
     messages.value = (chat.value?.messages ?? []) as IMessage[];
     isLoading.value = false;
 
@@ -50,7 +51,7 @@ watch(
       JSON.stringify({
         action: "subscribe",
         text: "Пользователь онлайн!",
-        room: $generalStore.currentChat?.id,
+        room: chat.value?.id,
       })
     );
   },

@@ -57,6 +57,8 @@ const filteredMessages = computed(() => {
 });
 
 const companion = computed(() => {
+  console.log($generalStore.currentChat?.messages.find((m) => m))
+
   return $generalStore.currentChat?.messages.find((m) => m.sender?.id !== $authStore.profile?.id)?.sender;
 });
 </script>
