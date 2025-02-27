@@ -15,6 +15,7 @@ CREATE TABLE "Profile" (
     "userId" INTEGER NOT NULL,
     "name" TEXT NOT NULL,
     "avatar" TEXT NOT NULL DEFAULT 'default.jpg',
+    "online" BOOLEAN NOT NULL DEFAULT false,
     CONSTRAINT "Profile_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -100,7 +101,13 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 CREATE UNIQUE INDEX "Profile_userId_key" ON "Profile"("userId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Profile_name_key" ON "Profile"("name");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Friendship_userId_friendId_key" ON "Friendship"("userId", "friendId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Friendship_friendId_userId_key" ON "Friendship"("friendId", "userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Chat_user1Id_user2Id_key" ON "Chat"("user1Id", "user2Id");

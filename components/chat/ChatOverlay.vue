@@ -56,6 +56,8 @@ const filteredMessages = computed(() => {
   return $generalStore.currentChat?.messages.filter((m) => !(m.text === "typing" && m.sender?.id === $authStore.profile?.id));
 });
 
+console.log(filteredMessages.value)
+
 const companion = computed(() => {
   return $generalStore.currentChat?.companion;
 });

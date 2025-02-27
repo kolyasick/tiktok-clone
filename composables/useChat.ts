@@ -1,5 +1,5 @@
 import type { Profile } from "@prisma/client";
-import type { IMessage, IProfile, IRoom } from "~/types/user.type";
+import type { IMessage, IProfile } from "~/types/user.type";
 
 export const useChat = () => {
   const { $authStore, $generalStore } = useNuxtApp();
@@ -8,7 +8,6 @@ export const useChat = () => {
   const { send, data: socketData, close } = useWebSocket(`${protocol}${location.host}/api/websocket`);
 
   const messages = ref<IMessage[]>([]);
-  const chat = ref<IRoom | null>(null);
 
   const handleStatus = async (status: "online" | "offline", sender: IProfile) => {
     send(
@@ -41,8 +40,9 @@ export const useChat = () => {
 
   watch(socketData, (newValue) => {
     const message = JSON.parse(newValue);
+    console.log(message);
 
-    if (message.room === chat.value?.id && chat.value) {
+    if (message.room === $generalStore.currentChat?.id && $generalStore.currentChat) {
       $generalStore.currentChat?.messages.push(createMessage(message.text, message.action, message.sender));
     }
 
@@ -87,7 +87,6 @@ export const useChat = () => {
     send,
     socketData,
     handleStatus,
-    chat,
     messages,
     createMessage,
     close,

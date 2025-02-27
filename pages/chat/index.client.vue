@@ -9,7 +9,7 @@ definePageMeta({
 
 const { $generalStore, $authStore } = useNuxtApp();
 
-const { send, chat, messages, createMessage } = useChat();
+const { send, messages, createMessage } = useChat();
 const isLoading = ref<boolean>(false);
 const route = useRoute();
 
@@ -42,8 +42,6 @@ watch(
     // const fetchChat = await $fetch<IChat>(`/api/chat/${chatId}`);
 
     // $generalStore.currentChat = fetchChat;
-    chat.value = $generalStore.currentChat ?? null;
-    messages.value = (chat.value?.messages ?? []) as IMessage[];
     isLoading.value = false;
 
     send(
@@ -64,13 +62,13 @@ watchEffect(async () => {
 const sendMessage = async (text: string) => {
   if (!text.trim()) return;
 
-  const message = createMessage(text);
-  messages.value.push(message);
+  const message = createMessage(text, "message", $authStore.profile || undefined);
+  $generalStore.currentChat?.messages.push(message);
 
   send(
     JSON.stringify({
       action: "message",
-      room: chat.value?.id,
+      room: $generalStore.currentChat?.id,
       text: text,
       sender: $authStore.profile,
     })
@@ -81,7 +79,7 @@ const sendMessage = async (text: string) => {
     body: {
       text,
       senderId: $authStore.profile?.id,
-      chatId: chat.value?.id,
+      chatId: $generalStore.currentChat?.id,
     },
   });
 };
