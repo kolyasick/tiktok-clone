@@ -5,7 +5,18 @@ export const useChat = () => {
   const { $authStore, $generalStore } = useNuxtApp();
 
   const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
-  const { send, data: socketData, close } = useWebSocket(`${protocol}${location.host}/api/websocket`);
+  const wsUrl = `${protocol}${location.host}/api/websocket`;
+  console.log("WebSocket URL:", wsUrl);
+
+  const {
+    send,
+    data: socketData,
+    close,
+  } = useWebSocket(wsUrl, {
+    onError: (error) => {
+      console.error("WebSocket error:", error);
+    },
+  });
 
   const messages = ref<IMessage[]>([]);
   const chat = ref<IChat | null>(null);
