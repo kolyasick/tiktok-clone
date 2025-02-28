@@ -5,17 +5,26 @@ export const useChat = () => {
   const { $authStore, $generalStore } = useNuxtApp();
 
   const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
-  const wsUrl = `${protocol}${location.host}/api/websocket`;
-  console.log("WebSocket URL:", wsUrl);
-
   const {
     send,
     data: socketData,
     close,
-  } = useWebSocket(wsUrl, {
-    onError: (error) => {
-      console.error("WebSocket error:", error);
+  } = useWebSocket(`${protocol}${location.host}/api/websocket`, {
+    onConnected: (ws) => {
+      console.log("Connected", ws);
     },
+    onDisconnected: () => {
+      console.log("Disconnected", handleStatus("offline", $authStore.profile));
+    },
+    autoClose: true,
+    autoReconnect: {
+      retries: 3,
+      delay: 1000,
+      onFailed() {
+        alert("Failed to connect WebSocket after 3 retries");
+      },
+    },
+    protocols: ["soap"],
   });
 
   const messages = ref<IMessage[]>([]);
