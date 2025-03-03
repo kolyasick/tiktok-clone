@@ -15,6 +15,9 @@ export default defineNuxtConfig({
     experimental: {
       websocket: true,
     },
+    preset: 'node-server', // или другой пресет, если используется
+    minify: true, // минификация кода
+    compressPublicAssets: true, // сжатие ресурсов
   },
   fileStorage: {
     mount: "public/upload",
