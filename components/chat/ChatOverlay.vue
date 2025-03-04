@@ -56,7 +56,10 @@ const filteredMessages = computed(() => {
   return $generalStore.currentChat?.messages.filter((m) => !(m.text === "typing" && m.sender?.id === $authStore.profile?.id));
 });
 
-console.log(filteredMessages.value)
+const goBack = async () => {
+  await navigateTo("/chat");
+  $generalStore.currentChat = null;
+};
 
 const companion = computed(() => {
   return $generalStore.currentChat?.companion;
@@ -64,17 +67,20 @@ const companion = computed(() => {
 </script>
 
 <template>
-  <div class="w-3/4 flex flex-col max-[600px]:w-full">
-    <NuxtLink :to="'/profile/' + companion?.name" class="sticky top-0 left-0 w-full py-2 px-6 bg-[#222222] flex items-center z-10">
+  <div class="absolute top-0 right-0 h-full w-full sm:static sm:w-3/4 flex flex-col max-[600px]:w-full border-r border-[#303030] bg-[#121212] z-20">
+    <div class="sticky top-[61px] left-0 w-full py-2 px-6 bg-[#222222] flex items-center z-10">
+      <button @click="goBack" class="inline-flex items-center">
+        <Icon name="material-symbols:arrow-back-ios" size="24" class="min-w-[24px]" />
+      </button>
       <span class="flex-1 text-center">
         <h1 class="text-xl">{{ companion?.name }}</h1>
         <p class="text-sm text-gray-400">{{ companion?.online ? "Online" : "Offline" }}</p>
       </span>
-      <div>
+      <NuxtLink :to="'/profile/' + companion?.name">
         <NuxtImg class="rounded-full" width="40" :src="'/upload/avatars/' + companion?.avatar" />
-      </div>
-    </NuxtLink>
-    <div ref="messagesContainer" class="flex-1 overflow-y-auto p-6 message">
+      </NuxtLink>
+    </div>
+    <div ref="messagesContainer" class="flex-1 overflow-y-auto p-6 message mt-14 sm:mt-0">
       <div
         v-for="message in filteredMessages"
         :key="message.id"

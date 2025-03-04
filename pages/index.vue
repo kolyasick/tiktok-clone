@@ -48,7 +48,7 @@ onMounted(() => {
 </script>
 <template>
   <NuxtLayout>
-    <div class="pt-[80px] w-[calc(100%-20px)] max-w-[890px] overflow-hidden" ref="scrollContainer">
+    <div class="" ref="scrollContainer">
       <div v-if="$videosStore.videos.length > 0">
         <PostMain v-for="video in $videosStore.videos" :key="video.id" :video="video" />
       </div>

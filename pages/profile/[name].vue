@@ -72,9 +72,9 @@ useSeoMeta({
 
 <template>
   <TopNav />
-  <div v-if="profile" class="pt-[90px] 2xl:pl-[185px] lg:pl-[160px] lg:pr-0 pr-2 w-[calc(100%-90px)] max-w-[1800px] 2xl:mx-auto">
+  <div v-if="profile" class="container mt-5">
     <div class="flex w-full items-center">
-      <NuxtImg format="webp" class="rounded-full w-[150px] max-[450px]:w-[90px] max-[450px]:h-[90px]" :src="'/upload/avatars/' + profile?.avatar" />
+      <NuxtImg format="webp" class="rounded-full aspect-square w-32 sm:w-40 object-cover" :src="'/upload/avatars/' + profile?.avatar" />
       <div class="ml-5 w-full">
         <div class="text-[30px] font-bold truncate">
           {{ profile?.name }}

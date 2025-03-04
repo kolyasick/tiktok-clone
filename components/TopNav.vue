@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { IProfile } from "~/types/user.type";
+
 const { $generalStore, $authStore } = useNuxtApp();
 const { loggedIn, clear } = useUserSession();
 
@@ -18,20 +20,20 @@ const isLoggedIn = () => {
 const logout = async () => {
   const { handleStatus } = useChat();
 
-  await handleStatus("offline", $authStore.profile);
+  await handleStatus("offline", $authStore.profile as IProfile);
   await $authStore.logout();
 };
 </script>
 <template>
-  <div id="TopNav" class="fixed bg-[#121212] z-30 flex items-center w-full h-[61px]">
-    <div class="flex items-center justify-between w-full px-2 mx-auto max-w-[1260px]">
-      <div :class="route.fullPath === '/' ? 'w-[80%]' : 'lg:w-[20%] w-[70%]'">
+  <div id="TopNav" class="sticky top-0 bg-[#121212] z-30 flex items-center w-full h-[61px]">
+    <div class="flex items-center justify-between container">
+      <div>
         <NuxtLink to="/">
-          <NuxtImg width="155" src="/tiktok-logo-white.png" />
+          <NuxtImg class="-ml-1" width="155" height="40" src="/tiktok-logo-white.png" />
         </NuxtLink>
       </div>
 
-      <div class="flex items-center justify-end gap-3 min-w-[275px] max-w-[320px] w-full">
+      <div class="flex items-center justify-end gap-3 max-w-[250px] w-full">
         <button @click="isLoggedIn()" class="flex items-center transition bg-[#3a3a3a] rounded-sm px-3 py-[6px] hover:bg-[#303030]">
           <Icon name="mdi:plus" color="#000000" size="22" />
           <span class="px-2 font-medium text-[15px]">Upload</span>

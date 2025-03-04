@@ -25,7 +25,7 @@ const lastMessage = computed(() => {
       @click="handleOpen(chat)"
       class="flex items-center gap-3 p-4 cursor-pointer hover:bg-[#212121] transition-colors duration-200 overflow-hidden"
     >
-      <div class="w-12 h-12 object-cover relative">
+      <div class="w-10 h-10 object-cover relative shrink-0">
         <img :src="'/upload/avatars/' + chat.companion.avatar" class="rounded-full" alt="Avatar" />
         <span class="status w-2 h-2 bg-green-500 rounded-full absolute bottom-0 right-0" v-if="chat.companion.online"></span>
       </div>
@@ -35,13 +35,13 @@ const lastMessage = computed(() => {
           <span class="text-white font-medium text-lg">{{ chat.companion.name }}</span>
         </div>
 
-        <div v-if="lastMessage" class="text-gray-400 text-sm flex gap-2">
+        <div v-if="lastMessage" class="text-gray-400 text-sm flex gap-2 ">
           <p>
             {{ lastMessage?.sender?.id === $authStore.profile?.id ? "You: " : lastMessage?.sender?.name + ": " }}
           </p>
           <span class="text-gray-300 truncate max-w-[90%] flex items-center justify-between w-full">
             <p class="truncate max-w-20">{{ lastMessage.text }}</p>
-            <p class="text-gray-500">{{ formatDate(lastMessage.createdAt) }}</p>
+            <p class="text-gray-500">{{ formatDate(lastMessage.createdAt, true) }}</p>
           </span>
         </div>
 

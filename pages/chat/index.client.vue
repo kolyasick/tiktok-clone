@@ -90,8 +90,8 @@ await fetchChats();
 <template>
   <div>
     <TopNav />
-    <div class="flex h-screen max-w-[1260px] mx-auto pt-[60px] border border-b-0 border-[#303030] max-[600px]:flex-col">
-      <div class="w-1/4 bg-[#303030] max-[600px]:w-full">
+    <div class="container flex h-[calc(100vh-61px)]">
+      <div class="w-full sm:w-1/4 bg-[#303030] relative">
         <div class="p-4 border-b border-[#ebebeb6c]">
           <h2 class="text-xl font-semibold">Friends</h2>
         </div>
@@ -107,7 +107,7 @@ await fetchChats();
       </template>
 
       <template v-else-if="!$generalStore.currentChat">
-        <div class="h-full w-3/4 flex items-center justify-center max-[600px]:w-full">Выберите, кому хотели бы написать</div>
+        <div class="h-full w-3/4 hidden sm:flex items-center justify-center max-[600px]:w-full">Выберите, кому хотели бы написать</div>
       </template>
 
       <template v-else>

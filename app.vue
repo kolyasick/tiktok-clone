@@ -51,6 +51,15 @@ body {
   @apply text-[#ffffff];
 }
 
+* {
+  transition: all 0.2s ease;
+}
+#__nuxt {
+  min-height: 100vh;
+  height: 100%;
+  width: 100%;
+}
+
 ::-webkit-scrollbar {
   width: 12px;
   background-color: #333;
