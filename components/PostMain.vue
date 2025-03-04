@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import type { IVideo } from "~/types/user.type";
-const { $generalStore, $videosStore } = useNuxtApp();
-const router = useRouter();
+const { $videosStore } = useNuxtApp();
 
 type Props = {
   video: IVideo;
 };
-const props = defineProps<Props>();
+defineProps<Props>();
 
 let videoplay = ref<HTMLVideoElement | null>(null);
 let videoContainer = ref(null);
@@ -23,11 +22,6 @@ const toggleMute = () => {
     isMuted.value = !isMuted.value;
     videoplay.value.muted = isMuted.value;
   }
-};
-
-const displayPost = (video: IVideo) => {
-  $generalStore.isBackUrl = "/";
-  router.push(`/video/${video.id}`);
 };
 
 const handleIntersection = (entries: IntersectionObserverEntry[]) => {
@@ -88,7 +82,7 @@ const onVideoLoaded = () => {
         </div>
 
         <video
-          @click="displayPost(video)"
+          @click="navigateTo(`/video/${video.id}`)"
           ref="videoplay"
           preload="auto"
           loop
@@ -113,7 +107,7 @@ const onVideoLoaded = () => {
           <div class="text-[14px] text-gray-300 pb-1">#fun #cool #SuperAwesome</div>
           <div class="text-[14px] flex items-center font-semibold">
             <Icon name="mdi:music" size="17" />
-            <div class="px-1">{{ video.profile?.name }}</div>
+            <div class="px-1">{{ video.profile?.name }}'s sound</div>
           </div>
         </div>
       </div>
@@ -123,7 +117,7 @@ const onVideoLoaded = () => {
             <button
               :disabled="isLiking"
               @click="$videosStore.toggleLike(video)"
-              class="rounded-full flex items-center bg-[#3a3a3a] p-2 cursor-pointer disabled:bg-gray-300"
+              class="rounded-full flex items-center bg-[#3a3a3a] p-2 cursor-pointer disabled:bg-gray-300 w-[41px] aspect-square"
             >
               <Icon name="mdi:heart" size="25" :class="video.liked ? 'text-red-500' : ''" class="transition" />
             </button>
@@ -131,21 +125,21 @@ const onVideoLoaded = () => {
           </div>
 
           <div class="pb-4 text-center">
-            <button class="rounded-full flex items-center bg-[#3a3a3a] p-2 cursor-pointer">
-              <Icon @click="displayPost(video)" name="bx:bxs-message-rounded-dots" size="25" />
+            <button class="rounded-full flex items-center bg-[#3a3a3a] p-2 cursor-pointer w-[41px] aspect-square">
+              <Icon @click="navigateTo(`/video/${video.id}`)" name="bx:bxs-message-rounded-dots" size="25" />
             </button>
             <span class="text-xs text-[#EBEBEB] font-semibold">{{ video.comments?.length }}</span>
           </div>
 
           <div class="pb-4 text-center">
-            <button @click="shareVideo(video)" class="rounded-full flex items-center bg-[#3a3a3a] p-2 cursor-pointer">
+            <button @click="shareVideo(video)" class="rounded-full flex items-center bg-[#3a3a3a] p-2 cursor-pointer w-[41px] aspect-square">
               <Icon name="ri:share-forward-fill" size="25" />
             </button>
             <span class="text-xs text-[#EBEBEB] font-semibold">0</span>
           </div>
 
           <div class="text-center mb-2">
-            <button class="rounded-full flex items-center bg-[#3a3a3a] p-2 cursor-pointer" @click="toggleMute">
+            <button class="rounded-full flex items-center bg-[#3a3a3a] p-2 cursor-pointer w-[41px] aspect-square" @click="toggleMute">
               <Icon :name="isMuted ? 'mdi:volume-off' : 'mdi:volume-high'" size="25" />
             </button>
           </div>

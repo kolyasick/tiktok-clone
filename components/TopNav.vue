@@ -2,12 +2,16 @@
 import type { IProfile } from "~/types/user.type";
 
 const { $generalStore, $authStore } = useNuxtApp();
-const { loggedIn, clear } = useUserSession();
+const { loggedIn } = useUserSession();
 
-const route = useRoute();
 const router = useRouter();
 
 let showMenu = ref(false);
+
+const toggleAuthModal = () => {
+  $generalStore.bodySwitch(true);
+  $generalStore.isLoginOpen = true;
+};
 
 const isLoggedIn = () => {
   if (loggedIn.value) {
@@ -25,7 +29,7 @@ const logout = async () => {
 };
 </script>
 <template>
-  <div id="TopNav" class="sticky top-0 bg-[#121212] z-30 flex items-center w-full h-[61px]">
+  <div id="TopNav" class="sticky top-0 bg-[#121212] z-30 flex items-center w-full h-[61px] border-b border-[#ebebeb6c]">
     <div class="flex items-center justify-between container">
       <div>
         <NuxtLink to="/">
@@ -40,7 +44,7 @@ const logout = async () => {
         </button>
 
         <div v-if="!loggedIn" class="flex items-center">
-          <button @click="$generalStore.isLoginOpen = true" class="flex items-center bg-[#F02C56] text-white rounded-sm px-3 py-[6px]">
+          <button @click="toggleAuthModal()" class="flex items-center bg-[#F02C56] text-white rounded-sm px-3 py-[6px]">
             <span class="mx-4 font-medium text-[15px]">Log in</span>
           </button>
           <Icon name="mdi:dots-vertical" color="#161724" size="25" />
@@ -78,8 +82,4 @@ const logout = async () => {
     </div>
   </div>
 </template>
-<style scoped>
-#TopNav {
-  border-bottom: 1px solid #ebebeb6c;
-}
-</style>
+<style scoped></style>

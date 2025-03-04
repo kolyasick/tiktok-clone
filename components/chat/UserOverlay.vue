@@ -35,13 +35,13 @@ const lastMessage = computed(() => {
           <span class="text-white font-medium text-lg">{{ chat.companion.name }}</span>
         </div>
 
-        <div v-if="lastMessage" class="text-gray-400 text-sm flex gap-2 ">
+        <div v-if="lastMessage" class="text-gray-400 text-sm flex gap-2">
           <p>
             {{ lastMessage?.sender?.id === $authStore.profile?.id ? "You: " : lastMessage?.sender?.name + ": " }}
           </p>
           <span class="text-gray-300 truncate max-w-[90%] flex items-center justify-between w-full">
             <p class="truncate max-w-20">{{ lastMessage.text }}</p>
-            <p class="text-gray-500">{{ formatDate(lastMessage.createdAt, true) }}</p>
+            <p class="text-gray-500">{{ formatDate(lastMessage.createdAt) }}</p>
           </span>
         </div>
 

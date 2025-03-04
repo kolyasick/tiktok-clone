@@ -2,7 +2,7 @@ import type { Profile } from "@prisma/client";
 import type { IMessage, IProfile } from "~/types/user.type";
 
 export const useChat = () => {
-  const { $authStore, $generalStore } = useNuxtApp();
+  const { $generalStore } = useNuxtApp();
 
   const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
   const { send, data: socketData, close } = useWebSocket(`${protocol}${location.host}/api/websocket`);
@@ -29,10 +29,10 @@ export const useChat = () => {
 
   const createMessage = (text: string, action?: string, sender?: Profile): IMessage => ({
     id: Date.now(),
-    text, // @ts-ignore
-    sender: sender || $authStore.profile, // @ts-ignore
-    senderId: sender?.id || $authStore.profile?.id, // @ts-ignore
-    chatId: $generalStore.currentChat?.id,
+    text,
+    sender: sender,
+    senderId: sender?.id!,
+    chatId: $generalStore.currentChat?.id!,
     createdAt: new Date(),
     updatedAt: new Date(),
     action,
@@ -40,16 +40,17 @@ export const useChat = () => {
 
   watch(socketData, (newValue) => {
     const message = JSON.parse(newValue);
-    console.log(message);
 
     if (message.room === $generalStore.currentChat?.id && $generalStore.currentChat) {
-      $generalStore.currentChat?.messages.push(createMessage(message.text, message.action, message.sender));
+      const chat = $generalStore.chats?.find((c) => c.id === $generalStore.currentChat?.id);
+      chat?.messages.push(createMessage(message.text, message.action, message.sender));
     }
 
     switch (message.action) {
       case "remove-typing": {
+        const chat = $generalStore.chats?.find((c) => c.id === $generalStore.currentChat?.id);
         // @ts-ignore
-        $generalStore.currentChat.messages = $generalStore.currentChat?.messages.filter((m) => m.action !== "typing" && m.action !== "remove-typing");
+        chat.messages = $generalStore.currentChat?.messages.filter((m) => m.action !== "typing" && m.action !== "remove-typing");
       }
       case "online": {
         if ($generalStore.chats) {

@@ -33,12 +33,12 @@ export default defineNuxtConfig({
         extend: {
           container: {
             center: true,
-            padding: "1rem", 
+            padding: "1rem",
             screens: {
               sm: "100%",
               md: "100%",
               lg: "1024px",
-              xl: "1260px", 
+              xl: "1260px",
             },
           },
         },

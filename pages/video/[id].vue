@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { IVideo } from "~/types/user.type";
 
-const { $videosStore, $authStore } = useNuxtApp();
+const { $authStore } = useNuxtApp();
 
 const route = useRoute();
 
@@ -27,9 +27,9 @@ useSeoMeta({
   ogTitle: `Podvodni-Tok · ${video.value?.profile?.name}`,
   description: `Podvodni-Tok · ${video.value?.title}`,
   ogDescription: `Podvodni-Tok · ${video.value?.title}`,
-  ogImage: "https://gcqzkhtzxxchrzuvgfwx.supabase.co/storage/v1/object/public/uploads/avatars/1732128056099",
+  ogImage: "/upload/avatars/" + video.value?.profile?.avatar,
   ogImageHeight: 300,
-  ogUrl: `https://podvodni-tok.com/video/${video.value?.id}`,
+  ogUrl: `${import.meta.env.BASE_URL}/video/${video.value?.id}`,
 });
 
 let playTimeout: NodeJS.Timeout | null = null;
@@ -61,6 +61,10 @@ const toggleMute = () => {
   videoplay.value.muted = isMuted.value;
   videoplay.value.volume = isMuted.value ? 0 : volume.value / 100;
 };
+
+const goBack = async () => {
+  await navigateTo(window.history.state.back || "/");
+};
 </script>
 
 <template>
@@ -85,11 +89,15 @@ const toggleMute = () => {
               :src="'/upload/videos/' + video?.url"
             ></video>
 
-            <button class="text-center absolute top-4 right-4 rounded-full flex items-center bg-[#3a3a3a] p-2 cursor-pointer" @click="toggleMute">
+            <button
+              class="text-center absolute top-4 right-4 rounded-full flex items-center bg-[#3a3a3a] p-2 cursor-pointer w-[41px] aspect-square"
+              @click="toggleMute"
+            >
               <Icon :name="isMuted ? 'mdi:volume-off' : 'mdi:volume-high'" size="25" color="[#EBEBEB]" />
             </button>
             <button
-              class="absolute flex cursor-pointer justify-self-start text-white left-4 top-4 z-20 rounded-full bg-[#3a3a3a] p-1.5 hover:bg-[#363533]"
+              @click="goBack"
+              class="absolute flex cursor-pointer justify-self-start text-white left-4 top-4 z-20 rounded-full bg-[#3a3a3a] p-2 w-[41px] aspect-square"
             >
               <Icon name="material-symbols:close" size="25" />
             </button>

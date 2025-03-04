@@ -71,6 +71,16 @@ const clearVideo = () => {
   fileDisplay.value = null;
   fileToUpload.value = null;
 };
+
+useSeoMeta({
+  title: "Podvodni-Tok | Upload video",
+  ogTitle: "Podvodni-Tok | Upload video",
+  description: "Create and share videos with your friends on Podvodni-Tok",
+  ogDescription: "Create and share videos with your friends on Podvodni-Tok",
+  ogImage: "/upload/avatars/default.png",
+  ogImageHeight: 300,
+  ogUrl: import.meta.env.BASE_URL,
+});
 </script>
 <template>
   <div v-if="loading" class="fixed flex items-center justify-center top-0 left-0 w-full h-screen bg-black z-50 bg-opacity-50">
