@@ -2,21 +2,19 @@
 import type { Chat, Profile } from "@prisma/client";
 import UserOverlay from "~/components/chat/UserOverlay.vue";
 import type { IMessage } from "~/types/user.type";
+interface IChat extends Chat {
+  messages: IMessage[];
+  companion: Profile & { online: boolean };
+}
 
 definePageMeta({
   middleware: ["auth", "chat"],
 });
 
-const { $generalStore, $authStore } = useNuxtApp();
-
-const { send, messages, createMessage } = useChat();
+const { $authStore, $generalStore } = useNuxtApp();
 const isLoading = ref<boolean>(false);
 const route = useRoute();
-
-interface IChat extends Chat {
-  messages: IMessage[];
-  companion: Profile & { online: boolean };
-}
+const { $io: socket } = useNuxtApp();
 
 const fetchChats = async () => {
   const chatItems = await $fetch<IChat[]>("/api/chat", {
@@ -25,8 +23,10 @@ const fetchChats = async () => {
     },
   });
 
-  $generalStore.chats = chatItems;
+  $generalStore.$patch({ chats: chatItems });
 };
+
+await fetchChats();
 
 const chatOpen = async (chat: IChat) => {
   navigateTo(`/chat?chatId=${chat.id}`);
@@ -34,45 +34,41 @@ const chatOpen = async (chat: IChat) => {
 
 watch(
   () => route.query.chatId,
-  async (chatId) => {
-    if (!chatId) return;
+  async (chatId, oldId) => {
+    if (!chatId) {
+      $generalStore.$patch({ currentChat: null });
+      return;
+    }
 
     isLoading.value = true;
 
-    // const fetchChat = await $fetch<IChat>(`/api/chat/${chatId}`);
+    if (oldId) {
+      socket.emit("leaveChat", oldId);
+    }
 
-    // $generalStore.currentChat = fetchChat;
+    socket.emit("joinChat", chatId);
+
     isLoading.value = false;
-
-    send(
-      JSON.stringify({
-        action: "subscribe",
-        text: "Пользователь онлайн!",
-        room: $generalStore.currentChat?.id,
-      })
-    );
   },
   { immediate: true }
 );
 
-watchEffect(async () => {
-  messages.value = messages.value.filter((mes) => mes.action !== "typing" && mes.action !== "remove-typing");
-});
-
 const sendMessage = async (text: string) => {
   if (!text.trim()) return;
 
-  const message = createMessage(text, "message", $authStore.profile || undefined);
-  $generalStore.currentChat?.messages.push(message);
+  if (!$generalStore.currentChat || !$authStore.profile) return;
 
-  send(
-    JSON.stringify({
-      action: "message",
-      room: $generalStore.currentChat?.id,
-      text: text,
-      sender: $authStore.profile,
-    })
-  );
+  const message: IMessage = {
+    id: Date.now(),
+    chatId: $generalStore.currentChat?.id,
+    senderId: $authStore.profile?.id,
+    text,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    sender: $authStore.profile,
+  };
+
+  socket.emit("chatMessage", message);
 
   await $fetch("/api/chat/message/create", {
     method: "POST",
@@ -84,8 +80,6 @@ const sendMessage = async (text: string) => {
   });
 };
 
-await fetchChats();
-
 useSeoMeta({
   title: "Podvodni-Tok | Chat",
   ogTitle: "Podvodni-Tok | Chat",
@@ -94,6 +88,20 @@ useSeoMeta({
   ogImage: "/upload/avatars/default.png",
   ogImageHeight: 300,
   ogUrl: import.meta.env.BASE_URL,
+});
+
+onMounted(() => {
+  socket.on("chatMessage", (message: IMessage) => {
+    const chat = $generalStore.chats?.find((chat) => chat.id === message.chatId);
+    if (chat) chat.messages.push(message);
+    if ($generalStore.currentChat?.id === message.chatId) {
+      $generalStore.currentChat.messages.push(message);
+    }
+  });
+});
+
+onUnmounted(() => {
+  socket.off("chatMessage");
 });
 </script>
 

@@ -1,39 +1,36 @@
 <script setup lang="ts">
 const { $generalStore, $authStore, $videosStore } = useNuxtApp();
 const { user } = useUserSession();
+const { $io: socket } = useNuxtApp();
 
 if (user.value) {
   const profile = await $authStore.getProfileById(user.value.id);
   $authStore.profile = profile;
 }
 
-onMounted(async () => {
-  if (!$authStore.profile) return;
+onMounted(() => {
+  if ($authStore.profile) {
+    const { handleStatus } = useChat();
+    socket.emit("setUser", $authStore.profile.id);
+    handleStatus("online", $authStore.profile);
+  }
 
-  const { handleStatus } = useChat();
+  socket.on("offline", (userId: number) => {
+    if ($generalStore.chats) {
+      const user = $generalStore.chats.find((c) => c.companion.id === userId)?.companion;
+      const companion = $generalStore.currentChat?.companion;
 
-  const handleVisibilityChange = async () => {
-    if (!$authStore.profile) return;
+      if (user) {
+        user.online = false;
+      }
 
-    if (document.visibilityState === "visible") {
-      await handleStatus("online", $authStore.profile);
-    } else {
-      await handleStatus("offline", $authStore.profile);
-    }
-  };
-
-  document.addEventListener("visibilitychange", handleVisibilityChange);
-
-  onBeforeUnmount(() => {
-    document.removeEventListener("visibilitychange", handleVisibilityChange);
-  });
-
-  watchEffect(async () => {
-    if ($authStore.profile) {
-      await handleStatus("online", $authStore.profile);
+      if (companion && companion.id === userId) {
+        companion.online = false;
+      }
     }
   });
 });
+
 await $videosStore.getVideos();
 </script>
 <template>

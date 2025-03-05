@@ -46,7 +46,6 @@ const loadData = async () => {
 await loadData();
 
 const chatOpen = async () => {
-  const { send } = useChat();
   const chat = await $fetch<IChat>("/api/chat/open", {
     method: "POST",
     body: {
@@ -56,7 +55,6 @@ const chatOpen = async () => {
   });
 
   if (chat) {
-    send(JSON.stringify({ action: "chatOpen", text: "asd", room: chat.id }));
     await navigateTo(`/chat/?chatId=${chat.id}`);
   }
 };

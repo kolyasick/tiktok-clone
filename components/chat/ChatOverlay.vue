@@ -1,42 +1,35 @@
 <script setup lang="ts">
-const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
-const { send } = useWebSocket(`${protocol}${location.host}/api/websocket`);
-
 const emit = defineEmits(["send-message"]);
 const { $authStore, $generalStore } = useNuxtApp();
 
 let text = ref<string>("");
-let typing = ref<boolean>(false);
-let typingTimeout: NodeJS.Timeout | null = null;
+let typingTimeout: NodeJS.Timeout;
+const typingUser = ref<string | null>(null);
+const { $io: socket } = useNuxtApp();
 
 const handleSend = () => {
   emit("send-message", text.value);
+  socket.emit("stopTyping", $generalStore.currentChat?.id.toString());
   text.value = "";
 };
-
 const handleTyping = () => {
-  if (!typing.value) {
-    typing.value = true;
-    send(
-      JSON.stringify({
-        action: "typing",
-        room: $generalStore.currentChat?.id,
-        sender: $authStore.profile,
-        text: "typing",
-      })
-    );
-  }
+  const data = {
+    name: $authStore.profile?.name,
+    chatId: $generalStore.currentChat?.id.toString(),
+  };
 
-  if (typingTimeout) clearTimeout(typingTimeout);
+  socket.emit("typing", data);
+
+  clearTimeout(typingTimeout);
   typingTimeout = setTimeout(() => {
-    typing.value = false;
+    socket.emit("stopTyping", data.chatId);
   }, 1000);
 };
 
 const messagesContainer = ref<HTMLDivElement | null>(null);
 
 watch(
-  () => $generalStore.currentChat?.messages,
+  () => [$generalStore.currentChat?.messages, typingUser],
   async () => {
     await nextTick();
     if (messagesContainer.value) {
@@ -50,13 +43,24 @@ onMounted(() => {
   if (messagesContainer.value) {
     messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
   }
+
+  socket.on("typing", (name: string) => {
+    typingUser.value = name;
+  });
+
+  socket.on("stopTyping", () => {
+    typingUser.value = "";
+  });
 });
 
-const filteredMessages = computed(() => {
-  return $generalStore.currentChat?.messages.filter((m) => !(m.text === "typing" && m.sender?.id === $authStore.profile?.id));
+onUnmounted(() => {
+  socket.off("typing");
+  socket.off("stopTyping");
 });
 
 const goBack = async () => {
+  socket.emit("leaveChat", $generalStore.currentChat?.id.toString());
+
   await navigateTo("/chat");
   $generalStore.currentChat = null;
 };
@@ -80,9 +84,9 @@ const companion = computed(() => {
         <NuxtImg class="rounded-full" width="40" :src="'/upload/avatars/' + companion?.avatar" />
       </NuxtLink>
     </div>
-    <div ref="messagesContainer" class="flex-1 overflow-y-auto p-6 message mt-14 sm:mt-0">
+    <div ref="messagesContainer" class="flex-1 overflow-y-auto p-6 mt-14 sm:mt-0">
       <div
-        v-for="message in filteredMessages"
+        v-for="message in $generalStore.currentChat?.messages"
         :key="message.id"
         class="flex items-start mb-1"
         :class="{
@@ -98,17 +102,16 @@ const companion = computed(() => {
             }"
             class="p-3 pe-10 max-w-xs w-fit break-all shadow-md min-w-20 relative"
           >
-            <p v-if="message.text === 'typing'" class="typing-animation">
-              {{ message.sender?.name }} is typing<span></span><span></span><span></span>
-            </p>
-
-            <span v-else>
+            <span>
               {{ message.text }}
             </span>
 
             <span class="text-xs text-gray-400 absolute bottom-1 right-1">{{ formatDate(message.createdAt, true) }}</span>
           </div>
         </div>
+      </div>
+      <div v-if="typingUser && typingUser !== $authStore.profile?.name" class="typing-animation mt-5">
+        {{ typingUser }} is typing<span></span><span></span><span></span>
       </div>
     </div>
 
@@ -133,24 +136,11 @@ const companion = computed(() => {
 </template>
 
 <style scoped>
-.message {
-  animation: message 0.6s 1;
-}
-
-@keyframes message {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
 .typing-animation {
   display: flex;
   align-items: center;
   font-size: 1rem;
-  color: #6b7280; /* Тёмно-серый */
+  color: #6b7280;
 }
 
 .typing-animation span {
@@ -158,7 +148,7 @@ const companion = computed(() => {
   width: 6px;
   height: 6px;
   margin-left: 4px;
-  background-color: #6b7280; /* Тёмно-серый */
+  background-color: #6b7280;
   border-radius: 50%;
   animation: bounce 1.4s infinite ease-in-out;
 }

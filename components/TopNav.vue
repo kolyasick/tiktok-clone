@@ -22,9 +22,6 @@ const isLoggedIn = () => {
 };
 
 const logout = async () => {
-  const { handleStatus } = useChat();
-
-  await handleStatus("offline", $authStore.profile as IProfile);
   await $authStore.logout();
 };
 </script>
