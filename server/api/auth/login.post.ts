@@ -35,8 +35,8 @@ export default defineEventHandler(async (event) => {
       userId: user.id,
     },
     include: {
-      friendshipsAsFriend: true,
-      friendshipsAsUser: true,
+      followsAsFollower: true,
+      followsAsFollowing: true,
     },
   });
 
@@ -65,15 +65,21 @@ export default defineEventHandler(async (event) => {
   }
 
   const mappedProfile = {
-    ...profile,
-    following: [...profile.friendshipsAsUser, ...profile.friendshipsAsFriend.filter((f) => f.status === "accepted")],
-    followers: [...profile.friendshipsAsFriend, ...profile.friendshipsAsUser.filter((f) => f.status === "accepted")],
-  };
+		...profile,
+		following: [
+			...profile.followsAsFollower,
+			...profile.followsAsFollowing.filter((f) => f.status === "accepted"),
+		],
+		followers: [
+			...profile.followsAsFollowing,
+			...profile.followsAsFollower.filter((f) => f.status === "accepted"),
+		],
+  }
 
   // @ts-ignore
-  delete mappedProfile.friendshipsAsFriend;
+  delete mappedProfile.followsAsFollower
   // @ts-ignore
-  delete mappedProfile.friendshipsAsUser;
+  delete mappedProfile.followsAsFollowing;
 
   return mappedProfile;
 });

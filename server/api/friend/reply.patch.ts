@@ -14,29 +14,29 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const findFriendShip = await prisma.friendship.findFirst({
-    where: {
-      OR: [
-        {
-          userId: userId,
-          friendId: friendId,
-        },
-        {
-          userId: friendId,
-          friendId: userId,
-        },
-      ],
-    },
-  });
+  const findFriendShip = await prisma.follows.findFirst({
+		where: {
+			OR: [
+				{
+					userId: userId,
+					friendId: friendId,
+				},
+				{
+					userId: friendId,
+					friendId: userId,
+				},
+			],
+		},
+  })
 
-  const friendShip = await prisma.friendship.update({
-    where: {
-      id: findFriendShip?.id,
-    },
-    data: {
-      status: "reply",
-    },
-  });
+  const friendShip = await prisma.follows.update({
+		where: {
+			id: findFriendShip?.id,
+		},
+		data: {
+			status: "reply",
+		},
+  })
 
   return friendShip;
 });
