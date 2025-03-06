@@ -6,8 +6,8 @@ const password = ref(null);
 
 const login = async () => {
   const { handleStatus } = useChat();
-
   await $authStore.login(email.value, password.value);
+
   if ($authStore.profile) {
     await handleStatus("online", $authStore.profile);
   }

@@ -4,6 +4,8 @@ export const useChat = () => {
   const { $io: socket, $generalStore } = useNuxtApp();
 
   const handleStatus = async (status: "online" | "offline", sender: IProfile) => {
+    socket.emit(status, sender?.id);
+    
     socket.on(status, (userId: number) => {
       if ($generalStore.chats) {
         const user = $generalStore.chats.find((c) => c.companion.id === userId)?.companion;

@@ -36,6 +36,14 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
       io.to(chatId).emit("stopTyping");
     });
 
+    socket.on("offline", (userId: number) => {
+      io.emit("offline", userId);
+    });
+
+    socket.on("online", (userId: number) => {
+      io.emit("online", userId);
+    });
+
     socket.on("disconnect", () => {
       console.log("WS disconnected", socket.data.userId);
       io.emit("offline", socket.data.userId);

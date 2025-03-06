@@ -43,6 +43,7 @@ watch(
     isLoading.value = true;
 
     if (oldId) {
+      socket.emit("stopTyping", oldId);
       socket.emit("leaveChat", oldId);
     }
 
@@ -85,7 +86,7 @@ useSeoMeta({
   ogTitle: "Podvodni-Tok | Chat",
   description: "Create and share videos with your friends on Podvodni-Tok",
   ogDescription: "Create and share videos with your friends on Podvodni-Tok",
-  ogImage: "/upload/avatars/default.png",
+  ogImage: "/upload/avatars/default.jpg",
   ogImageHeight: 300,
   ogUrl: import.meta.env.BASE_URL,
 });
@@ -108,7 +109,7 @@ onUnmounted(() => {
 <template>
   <div>
     <TopNav />
-    <div class="container flex h-[calc(100dvh-61px)]">
+    <div class="container flex h-[calc(100vh-61px)]">
       <div class="w-full sm:w-1/4 bg-[#303030] relative">
         <div class="p-4 border-b border-[#ebebeb6c]">
           <h2 class="text-xl font-semibold">Friends</h2>

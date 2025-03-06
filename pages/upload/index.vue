@@ -77,7 +77,7 @@ useSeoMeta({
   ogTitle: "Podvodni-Tok | Upload video",
   description: "Create and share videos with your friends on Podvodni-Tok",
   ogDescription: "Create and share videos with your friends on Podvodni-Tok",
-  ogImage: "/upload/avatars/default.png",
+  ogImage: "/upload/avatars/default.jpg",
   ogImageHeight: 300,
   ogUrl: import.meta.env.BASE_URL,
 });
