@@ -22,7 +22,6 @@ const handleIntersection = async (entries: IntersectionObserverEntry[], observer
   const [entry] = entries;
   if (entry.isIntersecting) {
     await $videosStore.getVideos();
-    observer.unobserve(entry.target);
   }
 };
 

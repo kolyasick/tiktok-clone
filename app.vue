@@ -15,7 +15,11 @@ onMounted(() => {
     handleStatus("online", $authStore.profile);
   }
 
-  socket.on("offline", (userId: number) => {
+  socket.on("connect", () => {
+    socket.emit("setUser", $authStore.profile?.id);
+  });
+
+  socket.on("offline", async (userId: number) => {
     if ($generalStore.chats) {
       const user = $generalStore.chats.find((c) => c.companion.id === userId)?.companion;
       const companion = $generalStore.currentChat?.companion;
@@ -28,6 +32,13 @@ onMounted(() => {
         companion.online = false;
       }
     }
+
+    await $fetch(`/api/profile/edit/${userId}`, {
+      method: "PATCH",
+      body: {
+        online: false,
+      },
+    });
   });
 });
 

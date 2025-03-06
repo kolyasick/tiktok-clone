@@ -11,6 +11,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
   io.bind(engine);
 
   io.on("connection", (socket: Socket) => {
+    
     socket.on("setUser", (userId: number) => {
       socket.data.userId = userId;
       io.emit("online", userId);
