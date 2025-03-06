@@ -97,7 +97,7 @@ onMounted(() => {
     <div class="comment-header sticky top-0 bg-[#161616] p-3 rounded-xl">
       <div class="flex items-center justify-between gap-4 max-[540px]:flex-col max-[540px]:items-stretch">
         <NuxtLink class="flex gap-5 items-center" :to="`/profile/${video.profile?.id}`">
-          <NuxtImg format="webp" class="rounded-full w-12 h-12" :src="'/upload/avatars/' + video.profile?.avatar" alt="" />
+          <img class="rounded-full w-12 h-12" :src="'/upload/avatars/' + video.profile?.avatar" alt="" />
           <span>
             <h2 class="text-lg font-bold">
               {{ video.profile?.name }}
@@ -162,7 +162,7 @@ onMounted(() => {
         :key="comment.id"
       >
         <NuxtLink class="absolute top-2 left-2 w-10 h-10" :href="`/profile/${comment.profile?.name}`">
-          <NuxtImg format="webp" class="rounded-full" width="40" height="40" :src="'/upload/avatars/' + comment.profile?.avatar" />
+          <img class="rounded-full" width="40" height="40" :src="'/upload/avatars/' + comment.profile?.avatar" />
         </NuxtLink>
 
         <div class="ml-12">

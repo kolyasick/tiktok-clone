@@ -74,7 +74,7 @@ useSeoMeta({
   <TopNav />
   <div v-if="profile" class="container mt-5">
     <div class="flex w-full items-center">
-      <NuxtImg format="webp" class="rounded-full aspect-square w-32 sm:w-40 object-cover" :src="'/upload/avatars/' + profile?.avatar" />
+      <img class="rounded-full aspect-square w-32 sm:w-40 object-cover" :src="'/upload/avatars/' + profile?.avatar" />
       <div class="ml-5 w-full">
         <div class="text-[30px] font-bold truncate">
           {{ profile?.name }}

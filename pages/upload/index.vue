@@ -114,8 +114,8 @@ useSeoMeta({
           v-else
           class="md:mx-0 mx-auto mt-4 md:mb-12 mb-16 flex items-center justify-center w-full max-w-[260px] h-[540px] p-3 rounded-2xl cursor-pointer relative"
         >
-          <NuxtImg class="absolute z-20 pointer-events-none w-full h-full" format="webp" src="/mobile-case.png" />
-          <NuxtImg format="webp" class="absolute right-4 bottom-6 z-20" width="90" src="/tiktok-logo-white.png" />
+          <img class="absolute z-20 pointer-events-none w-full h-full" src="/mobile-case.png" />
+          <img class="absolute right-4 bottom-6 z-20" width="90" src="/tiktok-logo-white.png" />
           <video autoplay loop muted class="absolute rounded-xl object-cover z-10 p-[13px] w-full h-full" :src="video[0].content?.toString()" />
 
           <div class="absolute -bottom-12 flex items-center justify-between z-50 rounded-xl border w-full p-2 border-gray-300">

@@ -80,9 +80,7 @@ const companion = computed(() => {
         <h1 class="text-xl">{{ companion?.name }}</h1>
         <p class="text-sm text-gray-400">{{ companion?.online ? "Online" : "Offline" }}</p>
       </span>
-      <NuxtLink :to="'/profile/' + companion?.name">
-        <NuxtImg class="rounded-full" width="40" :src="'/upload/avatars/' + companion?.avatar" />
-      </NuxtLink>
+      <NuxtLink :to="'/profile/' + companion?.name"> img class="rounded-full" width="40" :src="'/upload/avatars/' + companion?.avatar" /> </NuxtLink>
     </div>
     <div ref="messagesContainer" class="flex-1 overflow-y-auto p-6 mt-14 sm:mt-0">
       <div

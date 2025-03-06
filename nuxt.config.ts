@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: false },
-  modules: ["@pinia/nuxt", "@nuxtjs/tailwindcss", "@nuxt/image", "@nuxt/icon", "nuxt-auth-utils", "nuxt-file-storage"],
+  modules: ["@pinia/nuxt", "@nuxtjs/tailwindcss", "@nuxt/icon", "nuxt-auth-utils", "nuxt-file-storage"],
   pages: true,
   nitro: {
     experimental: {
