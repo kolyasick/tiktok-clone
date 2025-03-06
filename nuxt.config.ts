@@ -14,6 +14,9 @@ export default defineNuxtConfig({
   fileStorage: {
     mount: "public/upload",
   },
+  routeRules: {
+    "/admin/*": { ssr: false },
+  },
   app: {
     head: {
       charset: "utf-8",

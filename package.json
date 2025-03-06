@@ -12,6 +12,7 @@
   "dependencies": {
     "@pinia/nuxt": "^0.10.1",
     "@prisma/client": "^6.4.1",
+    "date-fns": "^4.1.0",
     "nuxt": "^3.6.0",
     "nuxt-auth-utils": "^0.5.16",
     "nuxt-file-storage": "^0.3.0",

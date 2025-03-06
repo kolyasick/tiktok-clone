@@ -1,10 +1,9 @@
+import { format, parseISO } from "date-fns";
+import { ru } from "date-fns/locale"; // Для русского языка
+
 export function formatDate(dateInput: string | Date, short?: boolean): string {
-  const date = typeof dateInput === "string" ? new Date(dateInput) : dateInput;
+  const date = typeof dateInput === "string" ? parseISO(dateInput) : dateInput;
+  const dateFormat = short ? "HH:mm" : "d MMM, HH:mm";
 
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-
-  return short ? `${hours}:${minutes}` : `${month}-${day} ${hours}:${minutes}`;
+  return format(date, dateFormat, { locale: ru });
 }
