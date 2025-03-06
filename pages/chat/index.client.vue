@@ -108,7 +108,7 @@ onUnmounted(() => {
 <template>
   <div>
     <TopNav />
-    <div class="container flex h-[calc(100vh-61px)]">
+    <div class="container flex h-[calc(100dvh-61px)]">
       <div class="w-full sm:w-1/4 bg-[#303030] relative">
         <div class="p-4 border-b border-[#ebebeb6c]">
           <h2 class="text-xl font-semibold">Friends</h2>

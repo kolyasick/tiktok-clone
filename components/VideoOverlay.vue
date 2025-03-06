@@ -15,6 +15,8 @@ let commentText = ref("");
 const createComment = async () => {
   if (!$authStore.profile) {
     $generalStore.isLoginOpen = true;
+    window.scrollTo(0, 0);
+    $generalStore.bodySwitch(true);
     return;
   } else if (!commentText.value.trim()) {
     return;

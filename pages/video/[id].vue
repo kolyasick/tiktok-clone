@@ -65,12 +65,18 @@ const toggleMute = () => {
 const goBack = async () => {
   await navigateTo(window.history.state.back || "/");
 };
+
+onMounted(() => {
+  if (videoplay.value) {
+    videoplay.value.play();
+  }
+});
 </script>
 
 <template>
   <TopNav />
   <div class="container flex flex-col lg:flex-row justify-between items-center gap-5 mt-5 bg-[#121212]">
-    <div class="lg:w-1/2 lg:h-screen h-[600px]">
+    <div class="lg:w-1/2 lg:h-[calc(100dvh-90px)] h-[600px]">
       <div class="video-container flex justify-center items-center h-full">
         <div :id="`PostMain-${video?.id}`" ref="videoContainer" class="postmain h-full">
           <div class="video-wrapper h-full relative flex items-center bg-black rounded-xl cursor-pointer">
@@ -121,7 +127,7 @@ const goBack = async () => {
       </div>
     </div>
 
-    <div class="flex-1 w-full lg:w-1/2 h-screen">
+    <div class="flex-1 w-full lg:w-1/2 lg:h-[calc(100dvh-90px)]">
       <VideoOverlay :video="video!" />
     </div>
   </div>

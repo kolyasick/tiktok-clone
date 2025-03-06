@@ -38,6 +38,6 @@ export default defineEventHandler(async (event) => {
       take: typeof limit === "string" ? parseInt(limit) : limit,
     });
   }
-
+  
   return videos ?? [];
 });

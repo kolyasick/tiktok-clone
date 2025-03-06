@@ -56,7 +56,7 @@ const logout = async () => {
           </NuxtLink>
           <div class="relative">
             <button class="mt-1" @click="showMenu = !showMenu">
-              <NuxtImg format="webp" class="rounded-full" width="33" :src="'/upload/avatars/' + $authStore.profile?.avatar" />
+              <NuxtImg format="webp" class="rounded-full aspect-square object-cover" width="33" :src="'/upload/avatars/' + $authStore.profile?.avatar" />
             </button>
 
             <div v-if="showMenu" id="PopupMenu" class="absolute bg-[#3a3a3a] rounded-lg py-1.5 w-[200px] shadow-xl top-[43px] -right-2">

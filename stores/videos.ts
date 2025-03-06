@@ -5,7 +5,7 @@ export const useVideosStore = defineStore("general", {
   state: () => ({
     videos: [] as IVideo[],
     offset: 0,
-    limit: 1,
+    limit: 2,
     hasMore: true,
     isLoading: false,
   }),
@@ -33,8 +33,10 @@ export const useVideosStore = defineStore("general", {
               liked: v?.likes?.some((like) => like.profileId === $authStore.profile?.id),
             })),
           ];
+
           this.offset += this.limit;
         } else {
+          
           this.hasMore = false;
         }
       } catch (error) {
