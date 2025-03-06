@@ -16,24 +16,24 @@ export default defineEventHandler(async (event) => {
 
   const parsedUserId = parseInt(userId);
 
-  const friends = await prisma.friendship.findMany({
-    where: {
-      OR: [
-        {
-          userId: parsedUserId,
-          status: "accepted",
-        },
-        {
-          friendId: parsedUserId,
-          status: "accepted",
-        },
-      ],
-    },
-    include: {
-      user: true,
-      friend: true,
-    },
-  });
+  const friends = await prisma.follows.findMany({
+		where: {
+			OR: [
+				{
+					userId: parsedUserId,
+					status: "accepted",
+				},
+				{
+					friendId: parsedUserId,
+					status: "accepted",
+				},
+			],
+		},
+		include: {
+			user: true,
+			friend: true,
+		},
+  })
 
   const filteredFriends = friends.map((friendship) => {
     if (friendship.userId === parsedUserId) {

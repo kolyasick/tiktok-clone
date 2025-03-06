@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Friendship, Like } from "@prisma/client";
+import type { Follows, Like } from "@prisma/client";
 import type { IChat, IProfile, IVideo } from "~/types/user.type";
 
 const { $authStore, $generalStore, $profileStore } = useNuxtApp();
@@ -31,7 +31,7 @@ const loadData = async () => {
     }
 
     if (profile.value?.id && $authStore.profile?.id) {
-      $profileStore.friend = await $fetch<Friendship>("/api/friend", {
+      $profileStore.friend = await $fetch<Follows>("/api/friend", {
         query: {
           userId: $authStore.profile?.id,
           friendId: profile.value.id,

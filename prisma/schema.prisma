@@ -29,8 +29,8 @@ model Profile {
   avatar  String    @default("default.jpg")
   online  Boolean   @default(false)
 
-  friendshipsAsUser Friendship[] @relation("userFriendships")
-  friendshipsAsFriend Friendship[] @relation("friendFriendships")
+  followsAsFollower Follows[] @relation("userFollowers")
+  followsAsFollowing Follows[] @relation("userFollowing")
 
   chatsAsUser1 Chat[] @relation("ChatUser1") 
   chatsAsUser2 Chat[] @relation("ChatUser2") 
@@ -84,7 +84,7 @@ model Comment {
   updatedAt DateTime @updatedAt
 }
 
-model Friendship {
+model Follows {
   id        Int      @id @default(autoincrement())
   userId    Int
   friendId  Int
@@ -92,8 +92,8 @@ model Friendship {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user      Profile     @relation("userFriendships", fields: [userId], references: [id])
-  friend    Profile     @relation("friendFriendships", fields: [friendId], references: [id])
+  user      Profile     @relation("userFollowers", fields: [userId], references: [id])
+  friend    Profile     @relation("userFollowing", fields: [friendId], references: [id])
 
   @@unique([userId, friendId]) 
   @@unique([friendId, userId])

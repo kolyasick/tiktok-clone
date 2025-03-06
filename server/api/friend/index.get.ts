@@ -18,23 +18,23 @@ export default defineEventHandler(async (event) => {
   const parsedUserId = parseInt(userId);
   const parsedFriendId = parseInt(friendId);
 
-  const friendShip = await prisma.friendship.findFirst({
-    where: {
-      OR: [
-        {
-          userId: parsedUserId,
-          friendId: parsedFriendId,
-        },
-        {
-          userId: parsedFriendId,
-          friendId: parsedUserId,
-        },
-      ],
-    },
-    include: {
-      user: true,
-    },
-  });
+  const friendShip = await prisma.follows.findFirst({
+		where: {
+			OR: [
+				{
+					userId: parsedUserId,
+					friendId: parsedFriendId,
+				},
+				{
+					userId: parsedFriendId,
+					friendId: parsedUserId,
+				},
+			],
+		},
+		include: {
+			user: true,
+		},
+  })
 
   return friendShip;
 });

@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const isFriendshipExist = await prisma.friendship.findFirst({
+  const isFriendshipExist = await prisma.follows.findFirst({
     where: {
       OR: [
         {
@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
   if (isFriendshipExist) {
     return isFriendshipExist;
   } else {
-    const friendShip = await prisma.friendship.create({
+    const friendShip = await prisma.follows.create({
       data: {
         userId: userId,
         friendId: friendId,
