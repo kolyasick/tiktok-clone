@@ -8,7 +8,6 @@ type Query = {
 
 export default defineEventHandler(async (event) => {
   const { userId, offset, limit } = getQuery<Query>(event);
-  console.log(userId, offset, limit);
   
   let videos;
   if (userId) {

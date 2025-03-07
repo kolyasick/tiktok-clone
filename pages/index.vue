@@ -47,11 +47,11 @@ onMounted(() => {
 </script>
 <template>
   <NuxtLayout>
-    <div class="" ref="scrollContainer">
-      <div v-if="$videosStore.videos.length > 0">
-        <PostMain v-for="video in $videosStore.videos" :key="video.id" :video="video" />
-      </div>
+    <div ref="scrollContainer">
+      <PostMain v-if="$videosStore.videos.length" v-for="video in $videosStore.videos" :key="video.id" :video="video" />
+      <!-- <ClientOnly> -->
       <div ref="loadMoreTrigger"></div>
+      <!-- </ClientOnly> -->
       <div v-if="$videosStore.isLoading" class="flex justify-center">
         <Icon class="animate-spin ml-1" name="mingcute:loading-line" size="100" color="#FFFFFF" />
       </div>

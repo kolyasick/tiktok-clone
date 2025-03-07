@@ -37,8 +37,6 @@ export const useVideosStore = defineStore("general", {
           this.offset += this.limit;
 
           if (res.length < this.limit) {
-            console.log("Нет больше видео");
-            
             this.hasMore = false;
           }
         } else {

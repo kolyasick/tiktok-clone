@@ -60,6 +60,9 @@ export default defineEventHandler(async (event) => {
       password: hashedPassword,
       roleId: role.id,
     },
+    include: {
+      role: true,
+    },
   });
 
   const profile = await prisma.profile.create({
@@ -81,7 +84,7 @@ export default defineEventHandler(async (event) => {
       id: user.id,
       email: user.email,
       name: profile.name,
-      role: user.roleId,
+      role: user.role.title,
     },
     loggedInAt: new Date(),
   });

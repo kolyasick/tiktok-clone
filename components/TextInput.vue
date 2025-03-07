@@ -3,7 +3,7 @@
 		<input
 			:id="`input-${placeholder}`"
 			:placeholder="placeholder"
-			class="block w-full bg-[#222222] text-white border border-gray-300 rounded-md py-2.5 px-3 focus:outline-none"
+			class="block w-full bg-[#222222] text-white rounded-md py-2.5 px-3 focus:outline-none"
 			:type="inputType"
 			v-model="inputComputed"
 			autocomplete="off"

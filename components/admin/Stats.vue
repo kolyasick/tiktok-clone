@@ -1,9 +1,5 @@
 <script setup lang="ts">
-type Props = {
-  usersCount: number;
-  videosCount: number;
-};
-defineProps<Props>();
+const { $adminStore } = useNuxtApp();
 </script>
 
 <template>
@@ -31,7 +27,7 @@ defineProps<Props>();
           <div>
             <p class="text-indigo-300 text-sm font-medium uppercase leading-4">Users</p>
             <p class="text-white font-bold text-2xl inline-flex items-center space-x-2">
-              <span>+{{ usersCount }}</span>
+              <span>+{{ $adminStore.users?.length }}</span>
               <span>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                   <path
@@ -101,7 +97,7 @@ defineProps<Props>();
           <div>
             <p class="text-blue-300 text-sm font-medium uppercase leading-4">VIDEOS</p>
             <p class="text-white font-bold text-2xl inline-flex items-center space-x-2">
-              <span>+{{ videosCount }}</span>
+              <span>+{{ $adminStore.videos?.length }}</span>
               <span>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                   <path

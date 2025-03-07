@@ -46,7 +46,6 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
     });
 
     socket.on("disconnect", () => {
-      console.log("WS disconnected", socket.data.userId);
       io.emit("offline", socket.data.userId);
     });
   });

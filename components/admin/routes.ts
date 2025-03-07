@@ -5,7 +5,7 @@ type Route = {
   icon: string;
 };
 
-export const routes = [
+export const routes: Route[] = [
   {
     name: "Dashboard",
     descr: "Data overview",
@@ -30,4 +30,4 @@ export const routes = [
     path: "/admin/settings",
     icon: "material-symbols:settings-account-box-outline",
   },
-] as Route[];
+] ;

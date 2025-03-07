@@ -18,12 +18,18 @@ export default defineEventHandler(async (event) => {
   }
 
   const file = await storeFileLocally(body.file, 6, "/videos");
+  const status = await prisma.status.findFirst({
+    where: {
+      title: "new",
+    },
+  });
 
   const video = await prisma.video.create({
     data: {
       title: body.title,
       profileId: body.userId,
       url: file,
+      statusId: status!.id,
     },
   });
 

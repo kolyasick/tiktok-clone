@@ -1,3 +1,1 @@
-<template>
-  <NuxtLayout name="admin-layout">SETTINGS</NuxtLayout>
-</template>
+<template>SETTINGS</template>

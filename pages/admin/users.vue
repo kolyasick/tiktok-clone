@@ -1,3 +1,3 @@
 <template>
-  <NuxtLayout name="admin-layout">USERS</NuxtLayout>
+  <AdminUsers />
 </template>

@@ -24,27 +24,32 @@ const closeModal = () => {
   <Transition name="modal-fade">
     <div
       v-if="$generalStore.isLoginOpen"
-      class="absolute z-50 bg-[#222222] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[500px] w-full h-[500px] mx-auto rounded-lg"
+      class="absolute z-50 bg-[#121212] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[500px] w-full h-[500px] mx-auto rounded-lg"
     >
       <div class="w-full flex justify-end">
-        <button @click="closeModal" class="p-1.5 rounded-full bg-[#222222]">
+        <button @click="closeModal" class="p-3">
           <Icon name="mdi:close" size="26" />
         </button>
       </div>
 
-      <Login v-if="isRegister" />
-      <Register v-else />
+      <Transition name="form-switch" mode="out-in">
+        <Login v-if="isRegister" key="login" />
+        <Register v-else key="register" />
+      </Transition>
 
-      <div class="absolute flex items-center justify-center py-5 left-0 bottom-0 border-t w-full">
-        <span class="text-[14px] text-gray-500">Don’t have an account?</span>
-        <button @click="switchForm" class="text-[14px] text-[#F02C56] font-semibold pl-1">
-          <span v-if="isRegister">Sign up</span>
-          <span v-else>Log in</span>
-        </button>
-      </div>
+      <Transition name="form-switch" mode="out-in">
+        <div class="absolute flex items-center justify-center py-5 left-0 bottom-0 border-t border-[#ebebeb6c] w-full">
+          <span class="text-[14px] text-gray-500">{{ isRegister ? "Already have an account?" : "Don't have an account?" }}</span>
+          <button @click="switchForm" class="text-[14px] text-[#F02C56] font-semibold pl-1">
+            <span v-if="isRegister">Sign up</span>
+            <span v-else>Log in</span>
+          </button>
+        </div>
+      </Transition>
     </div>
   </Transition>
 </template>
+
 <style scoped>
 .modal-fade-enter-active,
 .modal-fade-leave-active {
@@ -54,5 +59,20 @@ const closeModal = () => {
 .modal-fade-enter-from,
 .modal-fade-leave-to {
   opacity: 0;
+}
+
+.form-switch-enter-active,
+.form-switch-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.form-switch-enter-from {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.form-switch-leave-to {
+  opacity: 0;
+  transform: translateX(20px);
 }
 </style>

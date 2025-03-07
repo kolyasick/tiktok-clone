@@ -1,15 +1,6 @@
 <script setup lang="ts">
-import type { Profile, Role, User } from "@prisma/client";
-import { format, parseISO } from "date-fns";
-import { ru } from "date-fns/locale";
+const { $adminStore } = useNuxtApp();
 
-type UserWithProfile = Profile & {
-  user: User & {
-    role: Role;
-  };
-};
-
-defineProps<{ users: UserWithProfile[] }>();
 </script>
 
 <template>
@@ -27,7 +18,7 @@ defineProps<{ users: UserWithProfile[] }>();
           </tr>
         </thead>
         <tbody>
-          <tr v-for="user in users" :key="user.id" class="border-b border-gray-700">
+          <tr v-for="user in $adminStore.users" :key="user.id" class="border-b border-gray-700">
             <td class="py-3 px-2 font-bold">
               <div class="inline-flex space-x-3 items-center">
                 <span>

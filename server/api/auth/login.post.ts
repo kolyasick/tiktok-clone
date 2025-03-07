@@ -19,6 +19,9 @@ export default defineEventHandler(async (event) => {
     where: {
       email,
     },
+    include: {
+      role: true,
+    },
   });
 
   const isPasswordValid = user && (await verifyPassword(user.password, password));
@@ -52,7 +55,7 @@ export default defineEventHandler(async (event) => {
       id: user.id,
       email: user.email,
       name: profile.name,
-      role: user.roleId,
+      role: user.role.title,
     },
     loggedInAt: new Date(),
   });
@@ -65,19 +68,13 @@ export default defineEventHandler(async (event) => {
   }
 
   const mappedProfile = {
-		...profile,
-		following: [
-			...profile.followsAsFollower,
-			...profile.followsAsFollowing.filter((f) => f.status === "accepted"),
-		],
-		followers: [
-			...profile.followsAsFollowing,
-			...profile.followsAsFollower.filter((f) => f.status === "accepted"),
-		],
-  }
+    ...profile,
+    following: [...profile.followsAsFollower, ...profile.followsAsFollowing.filter((f) => f.status === "accepted")],
+    followers: [...profile.followsAsFollowing, ...profile.followsAsFollower.filter((f) => f.status === "accepted")],
+  };
 
   // @ts-ignore
-  delete mappedProfile.followsAsFollower
+  delete mappedProfile.followsAsFollower;
   // @ts-ignore
   delete mappedProfile.followsAsFollowing;
 

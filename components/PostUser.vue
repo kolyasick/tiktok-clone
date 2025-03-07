@@ -40,8 +40,8 @@ const isHover = (bool: boolean) => {
     <div v-if="!isLoaded" class="absolute flex items-center justify-center top-0 left-0 aspect-[3/4] w-full object-cover rounded-md bg-black">
       <Icon class="animate-spin ml-1 text-white" name="mingcute:loading-line" size="100" />
     </div>
-    <div class="border rounded border-[#2a2a2a]">
-      <video ref="videoRef" muted autoplay playsinline loop class="aspect-[3/4] object-cover rounded-md" :src="'/upload/videos/' + video.url || ''" />
+    <div class="border rounded border-[#2a2a2a] aspect-[3/4] object-cover">
+      <video ref="videoRef" muted autoplay playsinline loop class="w-full h-full object-cover rounded-md" :src="'/upload/videos/' + video.url || ''" />
     </div>
     <div class="px-1">
       <div class="text-[15px] pt-1 break-words">
