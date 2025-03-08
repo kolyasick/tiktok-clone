@@ -1,8 +1,11 @@
+import { IconsDashboard, IconsPeople, IconsSettings, IconsVideos } from "#components";
+import type { Component } from "vue";
+
 type Route = {
   name: string;
   descr: string;
   path: string;
-  icon: string;
+  icon: Component;
 };
 
 export const routes: Route[] = [
@@ -10,24 +13,24 @@ export const routes: Route[] = [
     name: "Dashboard",
     descr: "Data overview",
     path: "/admin/dashboard",
-    icon: "material-symbols:dashboard-outline-rounded",
+    icon: IconsDashboard,
   },
   {
     name: "Videos",
     descr: "Manage videos",
     path: "/admin/videos",
-    icon: "material-symbols:video-library-outline",
+    icon: IconsVideos,
   },
   {
     name: "Users",
     descr: "Manage users",
     path: "/admin/users",
-    icon: "ci:users",
+    icon: IconsPeople,
   },
   {
     name: "Settings",
     descr: "Edit settings",
     path: "/admin/settings",
-    icon: "material-symbols:settings-account-box-outline",
+    icon: IconsSettings,
   },
-] ;
+];

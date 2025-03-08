@@ -78,7 +78,7 @@ const onVideoLoaded = () => {
         class="video-wrapper relative w-full lg:w-[80%] h-[calc(100vh-111px)] max-h-[500px] sm:max-h-full flex items-center bg-black rounded-xl cursor-pointer"
       >
         <div v-if="false" class="loader absolute inset-0 flex items-center justify-center bg-black rounded-xl">
-          <Icon name="mdi:loading" class="animate-spin" size="48" color="white" />
+          <IconsLoader class="animate-spin w-12 h-12" />
         </div>
 
         <video
@@ -96,7 +96,11 @@ const onVideoLoaded = () => {
         <div class="video-info absolute bottom-4 left-4 z-10 text-white w-[250px] md:w-[400px]">
           <div class="flex items-center gap-2 mb-2">
             <NuxtLink :to="`/profile/${video.profile?.name}`" class="flex items-center gap-2">
-              <img class="rounded-full aspect-square object-cover" width="33" :src="'/upload/avatars/' + video.profile?.avatar" />
+              <img
+                class="rounded-full aspect-square object-cover"
+                width="33"
+                :src="'/upload/avatars/' + video.profile?.avatar"
+              />
               <span class="font-bold hover:underline cursor-pointer">
                 {{ video.profile?.name }}
               </span>
@@ -106,7 +110,7 @@ const onVideoLoaded = () => {
           <div class="text-[15px] pb-1 break-words">{{ video.title }}</div>
           <div class="text-[14px] text-gray-300 pb-1">#fun #cool #SuperAwesome</div>
           <div class="text-[14px] flex items-center font-semibold">
-            <Icon name="mdi:music" size="17" />
+            <IconsMusic class="w-4 h-4" />
             <div class="px-1">{{ video.profile?.name }}'s sound</div>
           </div>
         </div>
@@ -119,28 +123,34 @@ const onVideoLoaded = () => {
               @click="$videosStore.toggleLike(video)"
               class="rounded-full flex items-center bg-[#3a3a3a] p-2 cursor-pointer disabled:bg-gray-300 w-[41px] aspect-square"
             >
-              <Icon name="mdi:heart" size="25" :class="video.liked ? 'text-red-500' : ''" class="transition" />
+              <IconsHeart :class="video.liked ? 'text-red-500' : ''" class="transition w-6 h-6" />
             </button>
             <span class="text-xs text-[#EBEBEB] font-semibold">{{ video.likes?.length }}</span>
           </div>
 
           <div class="pb-4 text-center">
             <button class="rounded-full flex items-center bg-[#3a3a3a] p-2 cursor-pointer w-[41px] aspect-square">
-              <Icon @click="navigateTo(`/video/${video.id}`)" name="bx:bxs-message-rounded-dots" size="25" />
+              <IconsComment class="w-6 h-6" @click="navigateTo(`/video/${video.id}`)" />
             </button>
             <span class="text-xs text-[#EBEBEB] font-semibold">{{ video.comments?.length }}</span>
           </div>
 
           <div class="pb-4 text-center">
-            <button @click="shareVideo(video)" class="rounded-full flex items-center bg-[#3a3a3a] p-2 cursor-pointer w-[41px] aspect-square">
-              <Icon name="ri:share-forward-fill" size="25" />
+            <button
+              @click="shareVideo(video)"
+              class="rounded-full flex items-center bg-[#3a3a3a] p-2 cursor-pointer w-[41px] aspect-square"
+            >
+              <IconsShare class="w-6 h-6" />
             </button>
             <span class="text-xs text-[#EBEBEB] font-semibold">0</span>
           </div>
 
           <div class="text-center mb-2">
-            <button class="rounded-full flex items-center bg-[#3a3a3a] p-2 cursor-pointer w-[41px] aspect-square" @click="toggleMute">
-              <Icon :name="isMuted ? 'mdi:volume-off' : 'mdi:volume-high'" size="25" />
+            <button
+              class="rounded-full flex items-center bg-[#3a3a3a] p-2 cursor-pointer w-[41px] aspect-square"
+              @click="toggleMute"
+            >
+              <IconsMute :muted="isMuted" class="w-6 h-6" />
             </button>
           </div>
         </div>
@@ -152,7 +162,10 @@ const onVideoLoaded = () => {
   </div>
 
   <transition name="modal">
-    <div v-if="isModalVisible" class="modal fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
+    <div
+      v-if="isModalVisible"
+      class="modal fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50"
+    >
       <div class="bg-[#2a2a2a] p-4 rounded shadow-lg">
         <p>Video link copied to clipboard!</p>
       </div>

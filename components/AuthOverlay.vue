@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 const { $generalStore, $authStore } = useNuxtApp();
 let isRegister = ref(true);
 
@@ -28,7 +28,7 @@ const closeModal = () => {
     >
       <div class="w-full flex justify-end">
         <button @click="closeModal" class="p-3">
-          <Icon name="mdi:close" size="26" />
+          <IconsClose class="w-7 h-7" />
         </button>
       </div>
 
@@ -39,7 +39,9 @@ const closeModal = () => {
 
       <Transition name="form-switch" mode="out-in">
         <div class="absolute flex items-center justify-center py-5 left-0 bottom-0 border-t border-[#ebebeb6c] w-full">
-          <span class="text-[14px] text-gray-500">{{ isRegister ? "Already have an account?" : "Don't have an account?" }}</span>
+          <span class="text-[14px] text-gray-500">{{
+            isRegister ? "Already have an account?" : "Don't have an account?"
+          }}</span>
           <button @click="switchForm" class="text-[14px] text-[#F02C56] font-semibold pl-1">
             <span v-if="isRegister">Sign up</span>
             <span v-else>Log in</span>

@@ -2,7 +2,7 @@
 import type { IProfile } from "~/types/user.type";
 
 const { $generalStore, $authStore } = useNuxtApp();
-const { loggedIn } = useUserSession();
+const { loggedIn, user } = useUserSession();
 
 const router = useRouter();
 
@@ -35,41 +35,52 @@ const logout = async () => {
       </div>
 
       <div class="flex items-center justify-end gap-3 max-w-[250px] w-full">
-        <button @click="isLoggedIn()" class="flex items-center transition bg-[#3a3a3a] rounded-sm px-3 py-[6px] hover:bg-[#303030]">
-          <Icon name="mdi:plus" color="#000000" size="22" />
+        <button
+          @click="isLoggedIn()"
+          class="flex items-center transition bg-[#3a3a3a] rounded-md px-3 py-[6px] hover:bg-[#303030]"
+        >
+          <IconsPlus class="w-5 h-5" />
           <span class="px-2 font-medium text-[15px]">Upload</span>
         </button>
 
         <div v-if="!loggedIn" class="flex items-center">
-          <button @click="toggleAuthModal()" class="flex items-center bg-[#F02C56] text-white rounded-sm px-3 py-[6px]">
+          <button @click="toggleAuthModal()" class="flex items-center bg-[#F02C56] text-white rounded-md px-3 py-[6px]">
             <span class="mx-4 font-medium text-[15px]">Log in</span>
           </button>
-          <Icon name="mdi:dots-vertical" color="#161724" size="25" />
+          <IconsDots class="w-7 h-7" />
         </div>
 
         <div v-else class="flex items-center">
-          <NuxtLink to="/chat" class="flex item-center justify-center mr-3">
-            <Icon class="" name="carbon:send-alt" color="#161724" size="30" />
-          </NuxtLink>
           <NuxtLink to="/chat" class="flex item-center justify-center mr-5">
-            <Icon name="bx:message-detail" color="#161724" size="27" />
+            <IconsChat class="w-7 h-7" />
           </NuxtLink>
           <div class="relative">
             <button class="mt-1" @click="showMenu = !showMenu">
-              <img class="rounded-full aspect-square object-cover" width="33" :src="'/upload/avatars/' + $authStore.profile?.avatar" />
+              <img
+                class="rounded-full aspect-square object-cover"
+                width="33"
+                :src="'/upload/avatars/' + $authStore.profile?.avatar"
+              />
             </button>
 
-            <div v-if="showMenu" id="PopupMenu" class="absolute bg-[#3a3a3a] rounded-lg py-1.5 w-[200px] shadow-xl top-[43px] -right-2">
+            <div
+              v-if="showMenu"
+              id="PopupMenu"
+              class="absolute bg-[#3a3a3a] rounded-lg py-1.5 w-[200px] shadow-xl top-[43px] -right-2"
+            >
               <NuxtLink
                 :to="`/profile/${$authStore.profile?.name}`"
                 @click="showMenu = false"
                 class="flex items-center justify-start py-3 px-2 hover:bg-[#303030] cursor-pointer"
               >
-                <Icon name="ph:user" size="20" />
+                <IconsUser class="w-5 h-5" />
                 <span class="pl-2 font-semibold text-sm">Profile</span>
               </NuxtLink>
-              <div @click="logout" class="flex items-center justify-start py-3 px-1.5 hover:bg-[#303030] border-t cursor-pointer">
-                <Icon name="ic:outline-login" size="20" />
+              <div
+                @click="logout"
+                class="flex items-center justify-start py-3 px-1.5 hover:bg-[#303030] border-t cursor-pointer"
+              >
+                <IconsLogout class="w-5 h-5" />
                 <span class="pl-2 font-semibold text-sm">Log out</span>
               </div>
             </div>

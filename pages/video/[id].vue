@@ -78,10 +78,10 @@ onMounted(() => {
   <div class="container flex flex-col lg:flex-row justify-between items-center gap-5 mt-5 bg-[#121212]">
     <div class="lg:w-1/2 lg:h-[calc(100vh-90px)] h-[600px]">
       <div class="video-container flex justify-center items-center h-full">
-        <div :id="`PostMain-${video?.id}`" ref="videoContainer" class="postmain h-full">
+        <div :id="`PostMain-${video?.id}`" ref="videoContainer" class="postmain h-full w-full">
           <div class="video-wrapper h-full relative flex items-center bg-black rounded-xl cursor-pointer">
             <div v-if="false" class="loader absolute inset-0 flex items-center justify-center text-white">
-              <Icon name="mdi:loading" size="80" class="animate-spin" />
+              <IconsLoader class="animate-spin w-20 h-20" />
             </div>
 
             <video
@@ -99,17 +99,20 @@ onMounted(() => {
               class="text-center absolute top-4 right-4 rounded-full flex items-center bg-[#3a3a3a] p-2 cursor-pointer w-[41px] aspect-square"
               @click="toggleMute"
             >
-              <Icon :name="isMuted ? 'mdi:volume-off' : 'mdi:volume-high'" size="25" color="[#EBEBEB]" />
+              <IconsMute :muted="isMuted" class="w-6 h-6" />
             </button>
             <button
               @click="goBack"
               class="absolute flex cursor-pointer justify-self-start text-white left-4 top-4 z-20 rounded-full bg-[#3a3a3a] p-2 w-[41px] aspect-square"
             >
-              <Icon name="material-symbols:close" size="25" />
+              <IconsClose class="w-6 h-6" />
             </button>
 
-            <div v-if="!isPlaying && !isVideoLoading" class="play-icon absolute inset-0 flex items-center justify-center text-white">
-              <Icon name="mdi:play" size="80" />
+            <div
+              v-if="!isPlaying && !isVideoLoading"
+              class="play-icon absolute inset-0 flex items-center justify-center text-white"
+            >
+              <IconsPlay class="w-20 h-20" />
             </div>
           </div>
         </div>

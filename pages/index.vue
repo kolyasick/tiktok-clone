@@ -53,7 +53,7 @@ onMounted(() => {
       <div ref="loadMoreTrigger"></div>
       <!-- </ClientOnly> -->
       <div v-if="$videosStore.isLoading" class="flex justify-center">
-        <Icon class="animate-spin ml-1" name="mingcute:loading-line" size="100" color="#FFFFFF" />
+        <IconsLoader class="animate-spin ml-1 w-24 h-24" />
       </div>
     </div>
   </NuxtLayout>

@@ -121,12 +121,14 @@ onUnmounted(() => {
 
       <template v-if="isLoading">
         <div class="h-full w-3/4 flex items-center justify-center max-[600px]:w-full">
-          <Icon class="animate-spin ml-1" name="mingcute:loading-line" size="100" color="#FFFFFF" />
+          <IconsLoader class="animate-spin ml-1 w-24 h-24" />
         </div>
       </template>
 
       <template v-else-if="!$generalStore.currentChat">
-        <div class="h-full w-3/4 hidden sm:flex items-center justify-center max-[600px]:w-full">Выберите, кому хотели бы написать</div>
+        <div class="h-full w-3/4 hidden sm:flex items-center justify-center max-[600px]:w-full">
+          Выберите, кому хотели бы написать
+        </div>
       </template>
 
       <template v-else>

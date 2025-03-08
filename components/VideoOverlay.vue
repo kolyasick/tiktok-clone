@@ -93,7 +93,10 @@ onMounted(() => {
 });
 </script>
 <template>
-  <div v-if="video" class="relative flex flex-col gap-3 bg-[#222222] h-full text-white overflow-hidden px-4 py-4 rounded-xl">
+  <div
+    v-if="video"
+    class="relative flex flex-col gap-3 bg-[#222222] h-full text-white overflow-hidden px-4 py-4 rounded-xl"
+  >
     <div class="comment-header sticky top-0 bg-[#161616] p-3 rounded-xl">
       <div class="flex items-center justify-between gap-4 max-[540px]:flex-col max-[540px]:items-stretch">
         <NuxtLink class="flex gap-5 items-center" :to="`/profile/${video.profile?.name}`">
@@ -118,13 +121,13 @@ onMounted(() => {
     <span class="text-center text-gray-500">Поделиться в:</span>
     <div class="flex items-center justify-center gap-5 mb-1">
       <a :href="`https://telegram.me/share/url?url=${videoUrl}`" target="_blank">
-        <Icon name="mdi:telegram" size="30" />
+        <IconsTelegram class="w-8 h-8" />
       </a>
       <a :href="`https://wa.me/?text=${videoUrl}`" target="_blank">
-        <Icon name="mdi:whatsapp" size="30" />
+        <IconsWhatsApp class="w-8 h-8" />
       </a>
       <a :href="`https://vk.com/share.php?url=${videoUrl}`" target="_blank">
-        <Icon name="mdi:vk" size="30" />
+        <IconsVk class="w-8 h-8" />
       </a>
     </div>
 
@@ -135,21 +138,21 @@ onMounted(() => {
           class="rounded-full transition flex items-center bg-[#3a3a3a] p-2 cursor-pointer disabled:bg-gray-300"
           :class="video.liked ? 'text-[#F02C56]' : 'text-[#EBEBEB]'"
         >
-          <Icon name="mdi:heart" size="25" />
+          <IconsHeart class="w-6 h-6" />
         </button>
         <span class="text-xs text-[#EBEBEB] font-semibold">{{ video.likes?.length }}</span>
       </div>
 
       <label for="comment-input" class="text-center flex items-center gap-2">
         <span class="rounded-full flex items-center bg-[#3a3a3a] p-2 cursor-pointer">
-          <Icon color="[#EBEBEB]" name="bx:bxs-message-rounded-dots" size="25" />
+          <IconsComment class="w-6 h-6" />
         </span>
         <span class="text-xs text-[#EBEBEB] font-semibold">{{ video.comments?.length }}</span>
       </label>
 
       <div class="text-center flex items-center gap-2">
         <button @click="shareVideo()" class="rounded-full flex items-center bg-[#3a3a3a] p-2 cursor-pointer">
-          <Icon name="ri:share-forward-fill" color="[#EBEBEB]" size="25" />
+          <IconsShare class="w-6 h-6" />
         </button>
         <span class="text-xs text-[#EBEBEB] font-semibold">0</span>
       </div>
@@ -208,7 +211,10 @@ onMounted(() => {
   </div>
 
   <transition name="modal">
-    <div v-if="isModalVisible" class="modal fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
+    <div
+      v-if="isModalVisible"
+      class="modal fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50"
+    >
       <div class="bg-[#2a2a2a] p-4 rounded shadow-lg">
         <p>Video link copied to clipboard!</p>
       </div>

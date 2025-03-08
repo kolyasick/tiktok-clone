@@ -87,8 +87,11 @@ watch(
 );
 </script>
 <template>
-  <div v-if="loading" class="fixed flex items-center justify-center top-0 left-0 w-full h-screen bg-black z-50 bg-opacity-50">
-    <Icon class="animate-spin ml-1" name="mingcute:loading-line" size="100" color="#FFFFFF" />
+  <div
+    v-if="loading"
+    class="fixed flex items-center justify-center top-0 left-0 w-full h-screen bg-black z-50 bg-opacity-50"
+  >
+    <IconsLoader class="animate-spin ml-1 w-20 h-20" />
   </div>
   <div
     id="EditProfileOverlay"
@@ -101,36 +104,47 @@ watch(
       <div class="absolute flex items-center justify-between w-full p-5 left-0 top-0 border-b border-[#ebebeb6c]">
         <div class="text-[22px] font-medium">Edit profile</div>
         <button @click="$generalStore.isEditProfileOpen = false">
-          <Icon name="mdi:close" size="25" />
+          <IconsClose class="w-7 h-7" />
         </button>
       </div>
 
       <div class="h-[calc(500px-200px)]" :class="!avatar[0] ? 'mt-16' : 'mt-[58px]'">
         <div v-if="!avatar[0]">
           <div id="ProfilePhotoSection" class="flex flex-col sm:h-[118px] h-[145px] px-1.5 py-2 w-full">
-            <div class="font-semibold text-[15px] sm:mb-0 mb-1 text-gray-500 sm:w-[160px] sm:text-left text-center">Profile photo</div>
+            <div class="font-semibold text-[15px] sm:mb-0 mb-1 text-gray-500 sm:w-[160px] sm:text-left text-center">
+              Profile photo
+            </div>
 
             <div class="flex items-center justify-center sm:-mt-6">
               <label for="image" class="relative cursor-pointer">
                 <img class="rounded-full" width="95" :src="'/upload/avatars/' + $authStore.profile?.avatar" />
                 <div
-                  class="flex items-center justify-center absolute bottom-0 right-0 rounded-full bg-white shadow-xl inline-block w-[32px] aspect-square"
+                  class="flex items-center justify-center absolute bottom-0 right-0 rounded-full bg-white shadow-xl w-[32px] aspect-square"
                 >
-                  <Icon name="ph:pencil-simple-line-bold" size="17" class="text-[#121212]" />
+                  <IconsPencil class="text-[#121212] w-5 h-5" />
                 </div>
               </label>
-              <input class="hidden" type="file" id="image" @input="(e) => handleFileInput(e)" accept="image/png, image/jpeg, image/jpg" />
+              <input
+                class="hidden"
+                type="file"
+                id="image"
+                @input="(e) => handleFileInput(e)"
+                accept="image/png, image/jpeg, image/jpg"
+              />
             </div>
           </div>
 
           <div id="UsernameSectionSection" class="flex flex-col sm:h-[130px] px-1.5 py-2 mt-1.5 w-full">
-            <div class="font-semibold text-[15px] sm:mb-0 mb-1 text-gray-500 sm:w-[160px] sm:text-left text-center">Username</div>
+            <div class="font-semibold text-[15px] sm:mb-0 mb-1 text-gray-500 sm:w-[160px] sm:text-left text-center">
+              Username
+            </div>
 
             <div class="flex items-center justify-center sm:-mt-6">
               <div class="sm:w-[60%] w-full max-w-md">
                 <TextInput placeholder="Username" v-model:input="userName" inputType="text" max="30" />
                 <div class="text-[11px] text-gray-500 mt-4">
-                  Usernames can only contain letters, numbers, underscores, and periods. Changing your username will also change your profile link.
+                  Usernames can only contain letters, numbers, underscores, and periods. Changing your username will
+                  also change your profile link.
                 </div>
               </div>
             </div>
@@ -147,7 +161,10 @@ watch(
 
       <div id="ButtonSection" class="absolute p-5 left-0 bottom-0 border-t border-[#ebebeb6c] w-full">
         <div id="UpdateInfoButtons" v-if="!avatar[0]" class="flex items-center justify-end">
-          <button @click="$generalStore.isEditProfileOpen = false" class="flex items-center bg-[#3a3a3a] rounded-sm px-3 py-[6px] hover:bg-[#303030]">
+          <button
+            @click="$generalStore.isEditProfileOpen = false"
+            class="flex items-center bg-[#3a3a3a] rounded-md px-3 py-[6px] hover:bg-[#303030]"
+          >
             <span class="px-2 font-medium text-[15px]">Cancel</span>
           </button>
 
@@ -155,20 +172,23 @@ watch(
             :disabled="!isUpdated"
             @click="updateUser()"
             :class="!isUpdated ? 'bg-gray-200' : 'bg-[#F02C56] '"
-            class="flex items-center bg-[#F02C56] rounded-sm ml-3 px-3 py-[6px] disabled:text-[#121212] text-white"
+            class="flex items-center bg-[#F02C56] rounded-md ml-3 px-3 py-[6px] disabled:text-[#121212] text-white"
           >
             <span class="mx-4 font-medium text-[15px]">Save</span>
           </button>
         </div>
 
         <div id="CropperButtons" v-else class="flex items-center justify-end">
-          <button @click="avatar[0] = null" class="flex items-center bg-[#3a3a3a] rounded-sm px-3 py-[6px] hover:bg-[#303030]">
+          <button
+            @click="avatar[0] = null"
+            class="flex items-center bg-[#3a3a3a] rounded-md px-3 py-[6px] hover:bg-[#303030]"
+          >
             <span class="px-2 font-medium text-[15px]">Cancel</span>
           </button>
 
           <button
             @click="cropAndUpdateImage()"
-            class="flex items-center bg-[#F02C56] rounded-sm ml-3 px-3 py-[6px] disabled:text-[#121212] text-white"
+            class="flex items-center bg-[#F02C56] rounded-md ml-3 px-3 py-[6px] disabled:text-[#121212] text-white"
           >
             <span class="mx-4 font-medium text-[15px]">Save</span>
           </button>
