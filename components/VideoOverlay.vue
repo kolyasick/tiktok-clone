@@ -96,7 +96,7 @@ onMounted(() => {
   <div v-if="video" class="relative flex flex-col gap-3 bg-[#222222] h-full text-white overflow-hidden px-4 py-4 rounded-xl">
     <div class="comment-header sticky top-0 bg-[#161616] p-3 rounded-xl">
       <div class="flex items-center justify-between gap-4 max-[540px]:flex-col max-[540px]:items-stretch">
-        <NuxtLink class="flex gap-5 items-center" :to="`/profile/${video.profile?.id}`">
+        <NuxtLink class="flex gap-5 items-center" :to="`/profile/${video.profile?.name}`">
           <img class="rounded-full w-12 h-12" :src="'/upload/avatars/' + video.profile?.avatar" alt="" />
           <span>
             <h2 class="text-lg font-bold">

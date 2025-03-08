@@ -50,6 +50,9 @@ model Profile {
   videos   Video[]
   comments Comment[]
   likes    Like[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Role {
