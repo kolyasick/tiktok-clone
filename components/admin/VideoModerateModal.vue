@@ -43,26 +43,14 @@ const deleteVideo = async () => {
 </script>
 
 <template>
-  <div
-    class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
-    @click.self="$adminStore.isEditModalVisible = false"
-  >
+  <div class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50" @click.self="$adminStore.isEditModalVisible = false">
     <div class="bg-[#1a1a1a] rounded-lg overflow-hidden w-[500px] max-w-full">
-      <video
-        :src="'/upload/videos/' + selectedVideo?.url"
-        class="w-full h-[300px] object-cover"
-        muted
-        preload="metadata"
-        controls
-      ></video>
+      <video :src="'/upload/videos/' + selectedVideo?.url" class="w-full h-[300px] object-cover" muted preload="metadata" controls></video>
       <div class="p-4">
         <h2 class="text-2xl font-bold mb-5">{{ selectedVideo?.title }}</h2>
         <div class="flex items-end justify-between text-sm text-gray-600">
           <div>
-            <NuxtLink
-              :to="`/profile/${selectedVideo?.profile?.name}`"
-              class="flex items-center mb-3 gap-2 hover:underline"
-            >
+            <NuxtLink :to="`/profile/${selectedVideo?.profile?.name}`" class="flex items-center mb-3 gap-2 hover:underline">
               <img
                 class="w-10 aspect-square object-cover rounded-full"
                 :src="'/upload/avatars/' + $adminStore.selectedVideo?.profile?.avatar"
@@ -74,10 +62,7 @@ const deleteVideo = async () => {
           </div>
           <div class="flex justify-end items-center mt-4 gap-1">
             <div class="relative group">
-              <IconsCheck
-                @click="changeStatus('published')"
-                class="text-green-500 cursor-pointer hover:-translate-y-1 w-7 h-7"
-              />
+              <IconsCheck @click="changeStatus('published')" class="text-green-500 cursor-pointer hover:-translate-y-1 w-7 h-7" />
               <div
                 class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200"
               >
@@ -120,12 +105,7 @@ const deleteVideo = async () => {
           rows="4"
         ></textarea>
         <div class="flex justify-end gap-3 mt-4">
-          <button
-            @click="closeBlockModal"
-            class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-700 transition-colors"
-          >
-            Отмена
-          </button>
+          <button @click="closeBlockModal" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-700 transition-colors">Отмена</button>
           <button
             @click="changeStatus('blocked')"
             :disabled="!blockReason"

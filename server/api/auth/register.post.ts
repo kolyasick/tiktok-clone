@@ -1,3 +1,4 @@
+import { mail } from "~/server/composables/mailer";
 import prisma from "~/server/composables/prisma";
 import { validateEmail, validateName, validatePassword } from "~/server/composables/validators";
 
@@ -40,25 +41,15 @@ export default defineEventHandler(async (event) => {
 
   const hashedPassword = await hashPassword(password);
 
-  let role = await prisma.role.findFirst({
-    where: {
-      title: "user",
-    },
-  });
-
-  if (!role) {
-    role = await prisma.role.create({
-      data: {
-        title: "user",
-      },
-    });
-  }
-
   const user = await prisma.user.create({
     data: {
       email,
       password: hashedPassword,
-      roleId: role.id,
+      role: {
+        connect: {
+          title: "user",
+        },
+      },
     },
     include: {
       role: true,
@@ -79,22 +70,5 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const session = await setUserSession(event, {
-    user: {
-      id: user.id,
-      email: user.email,
-      name: profile.name,
-      role: user.role.title,
-    },
-    loggedInAt: new Date(),
-  });
-
-  if (!session) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: "Something went wrong",
-    });
-  }
-
-  return profile;
+  return mail(user);
 });

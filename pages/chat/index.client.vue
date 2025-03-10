@@ -16,21 +16,52 @@ const isLoading = ref<boolean>(false);
 const route = useRoute();
 const { $io: socket } = useNuxtApp();
 
+socket.on("chatOpen", async (chat: IChat) => {
+  const isChatExist = $generalStore.chats?.some((c) => c.id === chat.id);
+
+  if (!isChatExist) {
+    await fetchChats();
+  }
+});
+
 const fetchChats = async () => {
+  const chat = await $fetch<IChat>("/api/chat/open", {
+    method: "POST",
+    body: {
+      user1Id: $authStore.profile?.id,
+      user2Id: $authStore.profile?.id,
+    },
+  });
+
   const chatItems = await $fetch<IChat[]>("/api/chat", {
     query: {
       userId: $authStore.profile?.id,
     },
   });
 
-  $generalStore.$patch({ chats: chatItems });
+  const sortedChats = sortChatsByLastMessage(chatItems);
+  $generalStore.$patch({ chats: sortedChats });
+};
+
+const sortChatsByLastMessage = (chats: IChat[]): IChat[] => {
+  return chats.sort((a, b) => {
+    const lastMessageA = a.messages[a.messages.length - 1]?.createdAt || 0;
+    const lastMessageB = b.messages[b.messages.length - 1]?.createdAt || 0;
+
+    return new Date(lastMessageB).getTime() - new Date(lastMessageA).getTime();
+  });
 };
 
 await fetchChats();
 
-const chatOpen = async (chat: IChat) => {
-  navigateTo(`/chat?chatId=${chat.id}`);
-};
+watch(
+  () => $generalStore.currentChat?.messages,
+  () => {
+    const sortedChats = sortChatsByLastMessage($generalStore.chats!);
+    $generalStore.$patch({ chats: sortedChats });
+  },
+  { deep: true }
+);
 
 watch(
   () => route.query.chatId,
@@ -110,12 +141,12 @@ onUnmounted(() => {
   <div>
     <TopNav />
     <div class="container flex h-[calc(100vh-61px)]">
-      <div class="w-full sm:w-1/4 bg-[#303030] relative">
-        <div class="p-4 border-b border-[#ebebeb6c]">
-          <h2 class="text-xl font-semibold">Friends</h2>
-        </div>
+      <div class="w-full sm:w-1/4 bg-[#222222] relative mr-[1px]">
+        <form class="flex justify-center items-center h-[64px] mx-4">
+          <input class="bg-[#3a3a3a] py-2 px-4 rounded-md w-full focus:outline-none" type="text" placeholder="Поиск" />
+        </form>
         <ul>
-          <UserOverlay v-for="chat in $generalStore.chats" :key="chat.id" :chat="chat" @chat-open="chatOpen" />
+          <UserOverlay v-for="chat in $generalStore.chats" :key="chat.id" :chat="chat" />
         </ul>
       </div>
 
@@ -126,8 +157,8 @@ onUnmounted(() => {
       </template>
 
       <template v-else-if="!$generalStore.currentChat">
-        <div class="h-full w-3/4 hidden sm:flex items-center justify-center max-[600px]:w-full">
-          Выберите, кому хотели бы написать
+        <div class="h-full bg-[#191919] w-3/4 hidden sm:flex items-center justify-center max-[600px]:w-full">
+          <h3 class="py-1 px-3 bg-[#222222] rounded-full">Выберите, кому хотели бы написать</h3>
         </div>
       </template>
 

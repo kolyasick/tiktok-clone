@@ -3,7 +3,7 @@ import type { IVideo } from "~/types/user.type";
 
 const { $adminStore } = useNuxtApp();
 
-await $adminStore.getUsers();
+await $adminStore.getUsers(3);
 await $adminStore.getVideos(3);
 
 const showModerateModal = (video: IVideo) => {

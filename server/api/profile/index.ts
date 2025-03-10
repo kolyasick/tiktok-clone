@@ -14,7 +14,13 @@ export default defineEventHandler(async (event) => {
     where: {
       id: parseInt(id),
     },
+
     include: {
+      user: {
+        select: {
+          isBlocked: true,
+        },
+      },
       followsAsFollower: true,
       followsAsFollowing: true,
     },
@@ -27,22 +33,24 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const mappedProfile = {
-		...profile,
-		following: [
-			...profile.followsAsFollower,
-			...profile.followsAsFollowing.filter((f) => f.status == "reply"),
-		],
-		followers: [
-			...profile.followsAsFollowing,
-			...profile.followsAsFollower.filter((f) => f.status == "reply"),
-		],
+  if (profile.user.isBlocked) {
+    await clearUserSession(event);
+    throw createError({
+      status: 403,
+      statusMessage: "User is banned",
+    });
   }
 
+  const mappedProfile = {
+    ...profile,
+    following: [...profile.followsAsFollower, ...profile.followsAsFollowing.filter((f) => f.status == "reply")],
+    followers: [...profile.followsAsFollowing, ...profile.followsAsFollower.filter((f) => f.status == "reply")],
+  };
+
   // @ts-ignore
-  delete mappedProfile.followsAsFollowing
+  delete mappedProfile.followsAsFollowing;
   // @ts-ignore
-  delete mappedProfile.followsAsFollower
+  delete mappedProfile.followsAsFollower;
 
   return mappedProfile;
 });

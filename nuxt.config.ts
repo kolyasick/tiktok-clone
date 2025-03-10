@@ -1,7 +1,22 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: false },
-  modules: ["@pinia/nuxt", "@nuxtjs/tailwindcss", "nuxt-auth-utils", "nuxt-file-storage"],
+  modules: ["@pinia/nuxt", "@nuxtjs/tailwindcss", "nuxt-auth-utils", "nuxt-file-storage", "nuxt-nodemailer"],
+  nodemailer: {
+    from: '"Podvodni-Tok" <killergems122@gmail.com>',
+    host: process.env.SMTP_HOST,
+    port: process.env.PORT,
+    secure: false,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASSWORD,
+    },
+  },
+  runtimeConfig: {
+    public: {
+      appUrl: "https://4342349-oh47207.twc1.net",
+    },
+  },
   pages: true,
   nitro: {
     experimental: {

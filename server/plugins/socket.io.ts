@@ -3,6 +3,7 @@ import { Server as Engine } from "engine.io";
 import { Server, Socket } from "socket.io";
 import { defineEventHandler } from "h3";
 import { IMessage } from "~/types/user.type";
+import { Chat, User } from "@prisma/client";
 
 export default defineNitroPlugin((nitroApp: NitroApp) => {
   const engine = new Engine();
@@ -11,7 +12,6 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
   io.bind(engine);
 
   io.on("connection", (socket: Socket) => {
-    
     socket.on("setUser", (userId: number) => {
       socket.data.userId = userId;
       io.emit("online", userId);
@@ -35,6 +35,10 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
 
     socket.on("stopTyping", (chatId: string) => {
       io.to(chatId).emit("stopTyping");
+    });
+
+    socket.on("chatOpen", (chat) => {
+      io.emit("chatOpen", chat);
     });
 
     socket.on("offline", (userId: number) => {

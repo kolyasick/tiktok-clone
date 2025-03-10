@@ -32,8 +32,26 @@ export const useAdminStore = defineStore("admin", {
       }
     },
 
-    async getUsers() {
-      this.users = await $fetch<UserWithProfile[]>("/api/admin/user/all");
+    async blockUser(userId: number, reason: string) {
+      if (!userId) return;
+
+      const user = this.users.find((u) => u.userId === userId);
+      if (user) user.user.isBlocked = true;
+
+      await $fetch("/api/admin/user/block", {
+        method: "POST",
+        body: {
+          userId,
+          reason,
+          info: "Обратитесь в поддержку за подробной информацией",
+        },
+      });
+    },
+
+    async getUsers(limit?: number) {
+      this.users = await $fetch<UserWithProfile[]>("/api/admin/user/all", {
+        query: { limit },
+      });
     },
     async getVideos(limit?: number) {
       this.videos = await $fetch<IVideo[]>("/api/admin/video/all", {

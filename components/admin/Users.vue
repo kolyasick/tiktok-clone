@@ -1,6 +1,21 @@
 <script setup lang="ts">
 const { $adminStore } = useNuxtApp();
 
+const isBlockModalVisible = ref(false);
+const blockReason = ref<string | null>(null);
+const userId = ref<number | null>(null);
+
+const toggleModal = (val: boolean, id?: number) => {
+  isBlockModalVisible.value = val;
+  userId.value = id || null;
+};
+
+const blockUser = () => {
+  if (!userId.value || !blockReason.value) return;
+  $adminStore.blockUser(userId.value, blockReason.value).then(() => {
+    toggleModal(false);
+  });
+};
 </script>
 
 <template>
@@ -18,52 +33,52 @@ const { $adminStore } = useNuxtApp();
           </tr>
         </thead>
         <tbody>
-          <tr v-for="user in $adminStore.users" :key="user.id" class="border-b border-gray-700">
+          <tr v-for="profile in $adminStore.users" :key="profile.id" class="border-b border-gray-700">
             <td class="py-3 px-2 font-bold">
               <div class="inline-flex space-x-3 items-center">
                 <span>
-                  <img class="rounded-full w-8 h-8" :src="'/upload/avatars/' + user.avatar" :alt="user.name" />
+                  <img class="rounded-full w-8 h-8" :src="'/upload/avatars/' + profile.avatar" :alt="profile.name" />
                 </span>
-                <span>{{ user.name }}</span>
+                <span>{{ profile.name }}</span>
               </div>
             </td>
-            <td class="py-3 px-2">{{ user.user.email }}</td>
-            <td class="py-3 px-2">{{ user.online ? "Online" : "Offline" }}</td>
-            <td class="py-3 px-2">{{ formatDate(user.user.createdAt) }}</td>
-            <td class="py-3 px-2">
-              <div class="inline-flex items-center space-x-3">
-                <a href="" title="Edit" class="hover:text-white">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
-                    />
-                  </svg>
-                </a>
-                <a href="" title="Edit password" class="hover:text-white">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
-                    />
-                  </svg>
-                </a>
-                <a href="" title="Suspend user" class="hover:text-white">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
-                    />
-                  </svg>
-                </a>
-              </div>
+            <td class="py-3 px-2">{{ profile.user.email }}</td>
+            <td :class="{ 'text-red-500': profile.user.isBlocked }" class="py-3 px-2">
+              {{ profile.user.isBlocked ? "BLOCKED" : profile.online ? "Online" : "Offline" }}
+            </td>
+            <td class="py-3 px-2">{{ formatDate(profile.user.createdAt) }}</td>
+            <td class="py-3 px-2 inline-flex items-center justify-center">
+              <button v-if="!profile.user.isBlocked" @click="toggleModal(true, profile.userId)" class="hover:text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
+                  />
+                </svg>
+              </button>
             </td>
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <div v-if="isBlockModalVisible" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+      <div class="bg-[#1a1a1a] rounded-lg p-6 w-[400px] max-w-full">
+        <h3 class="text-xl font-bold mb-4">Укажите причину блокировки</h3>
+        <textarea
+          v-model="blockReason"
+          class="w-full p-2 bg-[#2a2a2a] text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Введите причину..."
+          rows="4"
+        ></textarea>
+        <div class="flex justify-end gap-3 mt-4">
+          <button @click="toggleModal(false)" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-700 transition-colors">Отмена</button>
+          <button @click="blockUser" :disabled="!blockReason" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 transition-colors">
+            Заблокировать
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>

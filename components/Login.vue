@@ -1,12 +1,12 @@
 <script setup>
 const { $authStore } = useNuxtApp();
 
-const email = ref(null);
+const name = ref(null);
 const password = ref(null);
 
 const login = async () => {
   const { handleStatus } = useChat();
-  await $authStore.login(email.value, password.value);
+  await $authStore.login(name.value, password.value);
 
   if ($authStore.profile) {
     await handleStatus("online", $authStore.profile);
@@ -18,12 +18,12 @@ const login = async () => {
     <div class="text-center text-[28px] mb-4 font-bold">Log in</div>
     <div class="px-6 pb-2">
       <TextInput
-        placeholder="Email address"
-        @input="$authStore.errors.email = ''"
-        v-model:input="email"
-        inputType="email"
+        placeholder="Username"
+        @input="$authStore.errors.name = ''"
+        v-model:input="name"
+        inputType="text"
         :autoFocus="true"
-        :error="$authStore.errors.email ? $authStore.errors.email : ''"
+        :error="$authStore.errors.name ? $authStore.errors.name : ''"
       />
     </div>
 
@@ -39,8 +39,8 @@ const login = async () => {
 
     <div class="px-6 pb-2 mt-6">
       <button
-        :disabled="!email || !password || $authStore.isLoading"
-        :class="!email || !password ? 'bg-gray-200' : 'bg-[#F02C56]'"
+        :disabled="!name || !password || $authStore.isLoading"
+        :class="!name || !password ? 'bg-gray-200' : 'bg-[#F02C56]'"
         @click="login"
         class="w-full text-[17px] transition font-semibold text-white py-3 rounded-md disabled:bg-gray-400"
       >
@@ -49,6 +49,9 @@ const login = async () => {
     </div>
     <span class="px-6 text-[14px] text-red-600" v-if="$authStore.errors.other">
       {{ $authStore.errors.other }}
+    </span>
+     <span class="px-6 text-[14px] text-orange-500" v-if="$authStore.message">
+      {{ $authStore.message }}
     </span>
   </div>
 </template>

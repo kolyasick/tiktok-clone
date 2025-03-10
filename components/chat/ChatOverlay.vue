@@ -10,8 +10,10 @@ const { $io: socket } = useNuxtApp();
 const handleSend = () => {
   emit("send-message", text.value);
   socket.emit("stopTyping", $generalStore.currentChat?.id.toString());
+  socket.emit("chatOpen", $generalStore.currentChat);
   text.value = "";
 };
+
 const handleTyping = () => {
   const data = {
     name: $authStore.profile?.name,
@@ -68,25 +70,27 @@ const goBack = async () => {
 const companion = computed(() => {
   return $generalStore.currentChat?.companion;
 });
+
+const isFavorite = computed(() => {
+  return companion.value?.id === $authStore.profile?.id;
+});
 </script>
 
 <template>
-  <div
-    class="absolute top-0 right-0 h-full w-full sm:static sm:w-3/4 flex flex-col max-[600px]:w-full border-r border-[#303030] bg-[#121212] z-20"
-  >
-    <div class="sticky top-[61px] left-0 w-full py-2 px-6 bg-[#222222] flex items-center z-10">
+  <div class="absolute top-0 right-0 h-full w-full sm:static sm:w-3/4 flex flex-col max-[600px]:w-full bg-[#191919] z-20">
+    <div class="sticky min-h-[64px] top-[61px] left-0 w-full py-2 px-6 bg-[#222222] flex items-center z-10">
       <button @click="goBack" class="inline-flex items-center">
         <IconsArrow class="w-6 h-6" />
       </button>
       <span class="flex-1 text-center">
-        <h1 class="text-xl">{{ companion?.name }}</h1>
-        <p class="text-sm text-gray-400">
+        <h1 class="text-xl">{{ !isFavorite ? companion?.name : "Saved Messages" }}</h1>
+        <p v-if="!isFavorite" class="text-sm text-gray-400">
           {{ companion?.online ? "Online" : "last seen" }}
           {{ !companion?.online ? formatDate(companion!.updatedAt) : "" }}
         </p>
       </span>
       <NuxtLink :to="'/profile/' + companion?.name">
-        <img class="rounded-full" width="40" :src="'/upload/avatars/' + companion?.avatar" />
+        <img class="rounded-full" width="40" :src="'/upload/avatars/' + (!isFavorite ? companion?.avatar : 'fav.jpeg')" />
       </NuxtLink>
     </div>
     <div ref="messagesContainer" class="flex-1 overflow-y-auto p-6 mt-14 sm:mt-0">
@@ -102,10 +106,8 @@ const companion = computed(() => {
         <div class="flex items-start">
           <div
             :class="{
-              'bg-[#F02C56] text-white rounded-tl-xl rounded-tr-xl rounded-bl-xl':
-                message.senderId === $authStore.profile?.id,
-              'bg-gray-200 text-gray-800 rounded-tr-xl rounded-tl-xl rounded-br-xl':
-                message.senderId !== $authStore.profile?.id,
+              'bg-[#F02C56] text-white rounded-tl-xl rounded-tr-xl rounded-bl-xl': message.senderId === $authStore.profile?.id,
+              'bg-gray-200 text-gray-800 rounded-tr-xl rounded-tl-xl rounded-br-xl': message.senderId !== $authStore.profile?.id,
             }"
             class="p-3 pe-10 max-w-xs w-fit break-all shadow-md min-w-20 relative"
           >
@@ -113,9 +115,7 @@ const companion = computed(() => {
               {{ message.text }}
             </span>
 
-            <span class="text-xs text-gray-400 absolute bottom-1 right-1">{{
-              formatDate(message.createdAt, true)
-            }}</span>
+            <span class="text-xs text-gray-400 absolute bottom-1 right-1">{{ formatDate(message.createdAt, true) }}</span>
           </div>
         </div>
       </div>
@@ -124,7 +124,7 @@ const companion = computed(() => {
       </div>
     </div>
 
-    <div class="p-4 border border-r-0 border-b-0 border-l-0 border-t-[#303030] flex items-center">
+    <div class="p-4 border-[#303030] border-t flex items-center">
       <input
         @keyup.enter="handleSend"
         type="text"

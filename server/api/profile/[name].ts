@@ -28,21 +28,15 @@ export default defineEventHandler(async (event) => {
   }
 
   const mappedProfile = {
-		...profile,
-		following: [
-			...profile.followsAsFollower,
-			...profile.followsAsFollowing.filter((f) => f.status == "reply"),
-		],
-		followers: [
-			...profile.followsAsFollowing,
-			...profile.followsAsFollower.filter((f) => f.status == "reply"),
-		],
-  }
+    ...profile,
+    following: [...profile.followsAsFollower, ...profile.followsAsFollowing.filter((f) => f.status == "reply")],
+    followers: [...profile.followsAsFollowing, ...profile.followsAsFollower.filter((f) => f.status == "reply")],
+  };
 
   // @ts-ignore
-  delete mappedProfile.followsAsFollower
+  delete mappedProfile.followsAsFollower;
   // @ts-ignore
-  delete mappedProfile.followsAsFollowing
+  delete mappedProfile.followsAsFollowing;
 
   return mappedProfile;
 });

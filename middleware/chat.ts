@@ -17,7 +17,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
       query: { userId: $authStore.profile?.id },
     });
 
-    if ((chat.user1Id !== $authStore.profile?.id && chat.user2Id !== $authStore.profile?.id) || chat.user1Id === chat.user2Id) {
+    if (chat.user1Id !== $authStore.profile?.id && chat.user2Id !== $authStore.profile?.id) {
       return navigateTo("/chat");
     } else {
       $generalStore.$patch({ currentChat: chat });

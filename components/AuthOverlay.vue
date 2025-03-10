@@ -9,6 +9,7 @@ const switchForm = () => {
 
 const closeModal = () => {
   $generalStore.bodySwitch(false);
+  $authStore.clearErrors();
   $generalStore.isLoginOpen = false;
 };
 </script>

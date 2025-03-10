@@ -62,5 +62,8 @@ const register = async () => {
     <span class="px-6 text-[14px] text-red-500" v-if="$authStore.errors.other">
       {{ $authStore.errors.other }}
     </span>
+    <span class="px-6 text-[14px] text-orange-500" v-if="$authStore.message">
+      {{ $authStore.message }}
+    </span>
   </div>
 </template>

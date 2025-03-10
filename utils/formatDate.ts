@@ -5,5 +5,5 @@ export function formatDate(dateInput: string | Date, short?: boolean): string {
   const date = typeof dateInput === "string" ? parseISO(dateInput) : dateInput;
   const dateFormat = short ? "HH:mm" : "d MMM, HH:mm";
 
-  return format(date, dateFormat, { locale: ru });
+  return format(date, dateFormat);
 }

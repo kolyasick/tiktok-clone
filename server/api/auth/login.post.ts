@@ -1,43 +1,30 @@
 import prisma from "~/server/composables/prisma";
 
 type Body = {
-  email: string;
+  name: string;
   password: string;
 };
 
 export default defineEventHandler(async (event) => {
-  const { email, password } = await readBody<Body>(event);
+  const { name, password } = await readBody<Body>(event);
 
-  if (!email || !password) {
+  if (!name || !password) {
     throw createError({
       statusCode: 400,
       statusMessage: "All fields are required",
     });
   }
 
-  const user = await prisma.user.findUnique({
-    where: {
-      email,
-    },
-    include: {
-      role: true,
-    },
-  });
-
-  const isPasswordValid = user && (await verifyPassword(user.password, password));
-
-  if (!user || !isPasswordValid) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: "Invalid credentials",
-    });
-  }
-
   const profile = await prisma.profile.findUnique({
     where: {
-      userId: user.id,
+      name,
     },
     include: {
+      user: {
+        include: {
+          role: true,
+        },
+      },
       followsAsFollower: true,
       followsAsFollowing: true,
     },
@@ -45,17 +32,38 @@ export default defineEventHandler(async (event) => {
 
   if (!profile) {
     throw createError({
-      statusCode: 500,
-      statusMessage: "Something went wrong",
+      statusCode: 404,
+      statusMessage: "User doesn't exist",
+    });
+  } else if (!profile.user.verified) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: "Follow the link on your email to verify account",
+    });
+  }
+
+  const isPasswordValid = profile?.user && (await verifyPassword(profile.user.password, password));
+
+  if (!isPasswordValid) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: "Invalid credentials",
+    });
+  }
+
+  if (profile.user.isBlocked) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: "User is banned",
     });
   }
 
   const session = await setUserSession(event, {
     user: {
-      id: user.id,
-      email: user.email,
+      id: profile.user.id,
+      email: profile.user.email,
       name: profile.name,
-      role: user.role.title,
+      role: profile.user.role.title,
     },
     loggedInAt: new Date(),
   });
@@ -75,6 +83,8 @@ export default defineEventHandler(async (event) => {
 
   // @ts-ignore
   delete mappedProfile.followsAsFollower;
+  // @ts-ignore
+  delete mappedProfile.user;
   // @ts-ignore
   delete mappedProfile.followsAsFollowing;
 

@@ -20,11 +20,14 @@
     "prisma": "^6.4.1",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
+    "uuid": "^11.1.0",
     "vue": "latest",
     "vue-advanced-cropper": "^2.8.9",
     "vue-router": "latest"
   },
   "devDependencies": {
-    "@nuxtjs/tailwindcss": "^6.13.1"
+    "@nuxtjs/tailwindcss": "^6.13.1",
+    "nodemailer": "^6.10.0",
+    "nuxt-nodemailer": "^1.1.2"
   }
 }

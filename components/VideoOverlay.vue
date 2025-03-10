@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { IVideo } from "~/types/user.type";
 import { formatDate } from "~/utils/formatDate";
+const r = useRuntimeConfig();
 
 const { $videosStore, $authStore, $generalStore } = useNuxtApp();
 interface Props {
@@ -9,7 +10,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const isModalVisible = ref<boolean>(false);
-let videoUrl = "";
+let videoUrl = `${r.public.appUrl}/video/${props.video.id}`;
 let commentText = ref("");
 
 const createComment = async () => {
@@ -87,16 +88,9 @@ const likeVideo = async () => {
     video.likes = video.likes?.filter((like) => like.profileId !== $authStore.profile?.id);
   }
 };
-
-onMounted(() => {
-  videoUrl = window?.location.href;
-});
 </script>
 <template>
-  <div
-    v-if="video"
-    class="relative flex flex-col gap-3 bg-[#222222] h-full text-white overflow-hidden px-4 py-4 rounded-xl"
-  >
+  <div v-if="video" class="relative flex flex-col gap-3 bg-[#222222] h-full text-white overflow-hidden px-4 py-4 rounded-xl">
     <div class="comment-header sticky top-0 bg-[#161616] p-3 rounded-xl">
       <div class="flex items-center justify-between gap-4 max-[540px]:flex-col max-[540px]:items-stretch">
         <NuxtLink class="flex gap-5 items-center" :to="`/profile/${video.profile?.name}`">
@@ -211,10 +205,7 @@ onMounted(() => {
   </div>
 
   <transition name="modal">
-    <div
-      v-if="isModalVisible"
-      class="modal fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50"
-    >
+    <div v-if="isModalVisible" class="modal fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
       <div class="bg-[#2a2a2a] p-4 rounded shadow-lg">
         <p>Video link copied to clipboard!</p>
       </div>

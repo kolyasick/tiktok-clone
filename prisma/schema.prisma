@@ -11,6 +11,7 @@ model User {
   id       Int      @id @default(autoincrement())
   email    String   @unique
   password String
+  verified Boolean @default(false)
   isBlocked Boolean @default(false)
 
   roleId   Int 
@@ -18,9 +19,18 @@ model User {
 
   profile  Profile?
   block    Block?
+  activationLink ActivationLink? 
+
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model ActivationLink {
+  id    Int @id @default(autoincrement())
+  link  String @unique
+  userId Int @unique
+  user   User  @relation(fields: [userId], references: [id])
 }
 
 model Block {

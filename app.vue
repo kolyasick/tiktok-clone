@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { User } from "@prisma/client";
+
 const { $generalStore, $authStore, $videosStore } = useNuxtApp();
 const { user } = useUserSession();
 const { $io: socket } = useNuxtApp();

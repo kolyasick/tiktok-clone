@@ -16,20 +16,23 @@ export const useAuthStore = defineStore("auth", {
     errors: <IErrors>{},
     isLoading: false,
     status: "offline" as string,
+    message: null as string | null,
   }),
   actions: {
     clearErrors() {
       this.$patch({
         errors: { email: null, password: null, name: null, other: null },
+        message: null,
       });
     },
 
     async register(name: string, email: string, password: string) {
+      this.clearErrors();
       if (!validateName(name, this.errors) || !validateEmail(email, this.errors) || !validatePassword(password, this.errors)) return;
 
       try {
         this.isLoading = true;
-        const user = await $fetch<Profile>("/api/auth/register", {
+        const message = await $fetch<string>("/api/auth/register", {
           method: "POST",
           body: {
             name,
@@ -37,7 +40,7 @@ export const useAuthStore = defineStore("auth", {
             password,
           },
         });
-        this.$patch({ profile: user });
+        this.$patch({ message });
 
         const { $generalStore } = useNuxtApp();
 
@@ -45,7 +48,6 @@ export const useAuthStore = defineStore("auth", {
           .fetch()
           .then(() => {
             this.isLoading = false;
-            $generalStore.isLoginOpen = false;
           });
       } catch (error: any) {
         this.errors.other = error.statusMessage;
@@ -54,15 +56,16 @@ export const useAuthStore = defineStore("auth", {
       }
     },
 
-    async login(email: string, password: string) {
-      if (!email || !password) return;
+    async login(name: string, password: string) {
+      this.clearErrors();
+      if (!name || !password) return;
 
       try {
         this.isLoading = true;
         const user = await $fetch<IProfile>("/api/auth/login", {
           method: "POST",
           body: {
-            email,
+            name,
             password,
           },
         });
@@ -75,7 +78,11 @@ export const useAuthStore = defineStore("auth", {
             $generalStore.isLoginOpen = false;
           });
       } catch (error: any) {
-        this.errors.other = error.statusMessage;
+        if (error.statusCode === 403) {
+          this.message = error.statusMessage;
+        } else {
+          this.errors.other = error.statusMessage;
+        }
       } finally {
         this.isLoading = false;
       }

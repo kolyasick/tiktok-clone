@@ -32,6 +32,7 @@ export interface IChat extends Chat {
 }
 
 export interface IProfile extends Profile {
+  user: { isBlocked: boolean };
   followers?: Follows[];
   following?: Follows[];
 }
