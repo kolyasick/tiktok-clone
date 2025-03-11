@@ -3,11 +3,12 @@ import prisma from "~/server/composables/prisma";
 interface IBody {
   userId: number;
   reason: string;
+  until: Date;
   info: string;
 }
 
 export default defineEventHandler(async (event) => {
-  const { userId, reason, info } = await readBody<IBody>(event);
+  const { userId, reason, info, until } = await readBody<IBody>(event);
 
   const user = await prisma.user.update({
     where: {
@@ -23,6 +24,7 @@ export default defineEventHandler(async (event) => {
       userId,
       reason,
       info,
+      until,
     },
   });
 

@@ -11,5 +11,7 @@ await $adminStore.getVideos();
 </script>
 
 <template>
-  <AdminVideos @show-moderate-modal="showModerateModal" />
+  <div>
+    <AdminVideos @show-moderate-modal="showModerateModal" />
+  </div>
 </template>

@@ -75,7 +75,7 @@ const onVideoLoaded = () => {
   <div :id="`PostMain-${video.id}`" ref="videoContainer" class="postmain flex">
     <div class="mt-2.5 flex">
       <div
-        class="video-wrapper relative w-full lg:w-[80%] h-[calc(100vh-111px)] max-h-[500px] sm:max-h-full flex items-center bg-black rounded-xl cursor-pointer"
+        class="video-wrapper relative w-full lg:w-[80%] aspect-6/12 h-[calc(100vh-111px)] sm:min-h-[700px] max-h-[500px] sm:max-h-full flex items-center bg-black rounded-xl cursor-pointer"
       >
         <div v-if="false" class="loader absolute inset-0 flex items-center justify-center bg-black rounded-xl">
           <IconsLoader class="animate-spin w-12 h-12" />
@@ -96,11 +96,7 @@ const onVideoLoaded = () => {
         <div class="video-info absolute bottom-4 left-4 z-10 text-white w-[250px] md:w-[400px]">
           <div class="flex items-center gap-2 mb-2">
             <NuxtLink :to="`/profile/${video.profile?.name}`" class="flex items-center gap-2">
-              <img
-                class="rounded-full aspect-square object-cover"
-                width="33"
-                :src="'/upload/avatars/' + video.profile?.avatar"
-              />
+              <img class="rounded-full aspect-square object-cover" width="33" :src="'/upload/avatars/' + video.profile?.avatar" />
               <span class="font-bold hover:underline cursor-pointer">
                 {{ video.profile?.name }}
               </span>
@@ -136,20 +132,14 @@ const onVideoLoaded = () => {
           </div>
 
           <div class="pb-4 text-center">
-            <button
-              @click="shareVideo(video)"
-              class="rounded-full flex items-center bg-[#3a3a3a] p-2 cursor-pointer w-[41px] aspect-square"
-            >
+            <button @click="shareVideo(video)" class="rounded-full flex items-center bg-[#3a3a3a] p-2 cursor-pointer w-[41px] aspect-square">
               <IconsShare class="w-6 h-6" />
             </button>
             <span class="text-xs text-[#EBEBEB] font-semibold">0</span>
           </div>
 
           <div class="text-center mb-2">
-            <button
-              class="rounded-full flex items-center bg-[#3a3a3a] p-2 cursor-pointer w-[41px] aspect-square"
-              @click="toggleMute"
-            >
+            <button class="rounded-full flex items-center bg-[#3a3a3a] p-2 cursor-pointer w-[41px] aspect-square" @click="toggleMute">
               <IconsMute :muted="isMuted" class="w-6 h-6" />
             </button>
           </div>
@@ -162,10 +152,7 @@ const onVideoLoaded = () => {
   </div>
 
   <transition name="modal">
-    <div
-      v-if="isModalVisible"
-      class="modal fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50"
-    >
+    <div v-if="isModalVisible" class="modal fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
       <div class="bg-[#2a2a2a] p-4 rounded shadow-lg">
         <p>Video link copied to clipboard!</p>
       </div>

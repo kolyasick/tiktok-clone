@@ -3,6 +3,7 @@ const { $adminStore } = useNuxtApp();
 
 const isBlockModalVisible = ref(false);
 const blockReason = ref<string | null>(null);
+const until = ref();
 const userId = ref<number | null>(null);
 
 const toggleModal = (val: boolean, id?: number) => {
@@ -12,7 +13,7 @@ const toggleModal = (val: boolean, id?: number) => {
 
 const blockUser = () => {
   if (!userId.value || !blockReason.value) return;
-  $adminStore.blockUser(userId.value, blockReason.value).then(() => {
+  $adminStore.blockUser(userId.value, blockReason.value, until.value).then(() => {
     toggleModal(false);
   });
 };
@@ -45,6 +46,8 @@ const blockUser = () => {
             <td class="py-3 px-2">{{ profile.user.email }}</td>
             <td :class="{ 'text-red-500': profile.user.isBlocked }" class="py-3 px-2">
               {{ profile.user.isBlocked ? "BLOCKED" : profile.online ? "Online" : "Offline" }}
+              <br />
+              {{ profile.user.isBlocked ? "Until: " + formatDate(profile.user.block.until, false, true) : "" }}
             </td>
             <td class="py-3 px-2">{{ formatDate(profile.user.createdAt) }}</td>
             <td class="py-3 px-2 inline-flex items-center justify-center">
@@ -68,10 +71,12 @@ const blockUser = () => {
         <h3 class="text-xl font-bold mb-4">Укажите причину блокировки</h3>
         <textarea
           v-model="blockReason"
-          class="w-full p-2 bg-[#2a2a2a] text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          class="w-full p-2 bg-[#2a2a2a] text-white rounded-lg focus:outline-none"
           placeholder="Введите причину..."
           rows="4"
         ></textarea>
+        <label>Заблокировать до</label>
+        <input v-model="until" type="date" class="w-full p-2 bg-[#2a2a2a] text-white rounded-lg focus:outline-none" />
         <div class="flex justify-end gap-3 mt-4">
           <button @click="toggleModal(false)" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-700 transition-colors">Отмена</button>
           <button @click="blockUser" :disabled="!blockReason" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 transition-colors">

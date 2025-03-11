@@ -42,13 +42,7 @@ export const useAuthStore = defineStore("auth", {
         });
         this.$patch({ message });
 
-        const { $generalStore } = useNuxtApp();
-
-        await useUserSession()
-          .fetch()
-          .then(() => {
-            this.isLoading = false;
-          });
+        await useUserSession().fetch();
       } catch (error: any) {
         this.errors.other = error.statusMessage;
       } finally {
@@ -71,12 +65,7 @@ export const useAuthStore = defineStore("auth", {
         });
         this.$patch({ profile: user });
 
-        const { $generalStore } = useNuxtApp();
-        await useUserSession()
-          .fetch()
-          .then(() => {
-            $generalStore.isLoginOpen = false;
-          });
+        await useUserSession().fetch();
       } catch (error: any) {
         if (error.statusCode === 403) {
           this.message = error.statusMessage;
@@ -100,6 +89,7 @@ export const useAuthStore = defineStore("auth", {
 
     async logout() {
       await useUserSession().clear();
+      await navigateTo("/");
       this.$patch({ profile: null });
     },
   },

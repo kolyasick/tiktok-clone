@@ -1,13 +1,9 @@
 <script setup lang="ts">
-import { Cropper, CircleStencil } from "vue-advanced-cropper";
-import type { CropperResult } from "vue-advanced-cropper";
-import "vue-advanced-cropper/dist/style.css";
 import type { IProfile } from "~/types/user.type";
 
 const { $generalStore, $authStore } = useNuxtApp();
 const { handleFileInput, files: avatar } = useFileStorage();
 const router = useRouter();
-const cropper = ref<CropperResult | null>(null);
 
 const userName = ref<string | null>($authStore.profile?.name || null);
 const isUpdated = ref<boolean>(false);
@@ -15,34 +11,13 @@ const isUpdated = ref<boolean>(false);
 const errors = ref<string | null>(null);
 const loading = ref<boolean>(false);
 
-const cropAndUpdateImage = async () => {
-  if (!cropper.value) {
-    errors.value = "Something went wrong";
-    return;
-  }
-
-  const result = (cropper.value as any).getResult();
-
-  if (result && result.canvas) {
-    result.canvas.toBlob(async (blob: Blob | null) => {
-      if (blob) {
-        errors.value = null;
-        loading.value = true;
-
-        await updateUser(blob);
-
-        loading.value = false;
-      } else {
-        errors.value = "Something went wrong";
-      }
-    }, "image/png");
-  } else {
-    errors.value = "Something went wrong";
-  }
+const switchModal = (val: boolean) => {
+  $generalStore.bodySwitch(val);
+  $generalStore.isEditProfileOpen = val;
 };
 
 const updateUser = async (blob?: Blob) => {
-  if (!$authStore.profile) {
+  if (!$authStore.profile || !isUpdated.value) {
     return;
   }
 
@@ -53,7 +28,7 @@ const updateUser = async (blob?: Blob) => {
     const profile = await $fetch<IProfile>(`/api/profile/edit/${$authStore.profile?.id}`, {
       method: "PATCH",
       body: {
-        name: isUpdated.value ? userName.value : undefined,
+        name: userName.value !== $authStore.profile.name ? userName.value : undefined,
         avatar: avatar.value[0] ? avatar.value[0] : undefined,
       },
     });
@@ -67,7 +42,7 @@ const updateUser = async (blob?: Blob) => {
     $authStore.profile.name = profile.name;
     $authStore.profile.avatar = profile.avatar;
 
-    $generalStore.isEditProfileOpen = false;
+    switchModal(false);
   } catch (error: any) {
     errors.value = error.statusMessage ?? "Failed to update user";
   } finally {
@@ -76,124 +51,92 @@ const updateUser = async (blob?: Blob) => {
 };
 
 watch(
-  () => userName.value,
+  () => [userName.value, avatar.value],
   () => {
-    if (!userName.value || userName.value === $authStore.profile?.name) {
-      isUpdated.value = false;
-    } else {
-      isUpdated.value = true;
-    }
-  }
+    const isAvatarUpdated = !!avatar.value.length;
+    const isUserNameUpdated = userName.value !== $authStore.profile?.name;
+
+    isUpdated.value = isAvatarUpdated || isUserNameUpdated;
+  },
+  { deep: true }
 );
 </script>
 <template>
-  <div
-    v-if="loading"
-    class="fixed flex items-center justify-center top-0 left-0 w-full h-screen bg-black z-50 bg-opacity-50"
-  >
-    <IconsLoader class="animate-spin ml-1 w-20 h-20" />
-  </div>
-  <div
-    id="EditProfileOverlay"
-    class="fixed flex justify-center pt-14 md:pt-[105px] z-40 top-0 left-0 w-full h-full bg-black bg-opacity-50 overflow-auto"
-  >
+  <div v-if="$generalStore.isEditProfileOpen" class="fixed z-40 top-0 left-0 w-full h-full bg-black bg-opacity-50" @click="switchModal(false)"></div>
+
+  <Transition name="edit-modal">
     <div
-      class="relative bg-[#121212] w-full max-w-[700px] sm:h-[580px] h-[655px] mx-3 p-4 rounded-lg mb-10"
-      :class="!avatar[0] ? 'h-[655px]' : 'h-[580px]'"
+      v-if="$generalStore.isEditProfileOpen"
+      class="fixed z-50 bg-[#121212] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-1rem*2)] max-w-[500px] h-[500px] rounded-lg px-4"
     >
-      <div class="absolute flex items-center justify-between w-full p-5 left-0 top-0 border-b border-[#ebebeb6c]">
-        <div class="text-[22px] font-medium">Edit profile</div>
-        <button @click="$generalStore.isEditProfileOpen = false">
+      <div class="flex items-center justify-between p-4 border-b border-[#ebebeb6c]">
+        <div class="text-xl font-medium">Edit profile</div>
+        <button @click="switchModal(false)">
           <IconsClose class="w-7 h-7" />
         </button>
       </div>
-
-      <div class="h-[calc(500px-200px)]" :class="!avatar[0] ? 'mt-16' : 'mt-[58px]'">
-        <div v-if="!avatar[0]">
-          <div id="ProfilePhotoSection" class="flex flex-col sm:h-[118px] h-[145px] px-1.5 py-2 w-full">
-            <div class="font-semibold text-[15px] sm:mb-0 mb-1 text-gray-500 sm:w-[160px] sm:text-left text-center">
-              Profile photo
+      <div class="p-4">
+        <div class="flex flex-col items-center mb-6">
+          <label for="image" class="relative cursor-pointer">
+            <img
+              class="rounded-full w-24 h-24 object-cover"
+              :src="avatar[0]?.content ? avatar[0]?.content : '/upload/avatars/' + $authStore.profile?.avatar"
+            />
+            <div class="flex items-center justify-center absolute bottom-0 right-0 rounded-full bg-white shadow-xl w-8 h-8">
+              <IconsPencil class="text-[#121212] w-5 h-5" />
             </div>
-
-            <div class="flex items-center justify-center sm:-mt-6">
-              <label for="image" class="relative cursor-pointer">
-                <img class="rounded-full" width="95" :src="'/upload/avatars/' + $authStore.profile?.avatar" />
-                <div
-                  class="flex items-center justify-center absolute bottom-0 right-0 rounded-full bg-white shadow-xl w-[32px] aspect-square"
-                >
-                  <IconsPencil class="text-[#121212] w-5 h-5" />
-                </div>
-              </label>
-              <input
-                class="hidden"
-                type="file"
-                id="image"
-                @input="(e) => handleFileInput(e)"
-                accept="image/png, image/jpeg, image/jpg"
-              />
-            </div>
-          </div>
-
-          <div id="UsernameSectionSection" class="flex flex-col sm:h-[130px] px-1.5 py-2 mt-1.5 w-full">
-            <div class="font-semibold text-[15px] sm:mb-0 mb-1 text-gray-500 sm:w-[160px] sm:text-left text-center">
-              Username
-            </div>
-
-            <div class="flex items-center justify-center sm:-mt-6">
-              <div class="sm:w-[60%] w-full max-w-md">
-                <TextInput placeholder="Username" v-model:input="userName" inputType="text" max="30" />
-                <div class="text-[11px] text-gray-500 mt-4">
-                  Usernames can only contain letters, numbers, underscores, and periods. Changing your username will
-                  also change your profile link.
-                </div>
-              </div>
-            </div>
-          </div>
-          <span v-if="errors" class="text-center flex items-center justify-center mt-4 text-red-500">
-            {{ errors }}
-          </span>
+          </label>
+          <input class="hidden" type="file" id="image" @input="(e) => handleFileInput(e)" accept="image/png, image/jpeg, image/jpg" />
         </div>
 
-        <div v-else class="w-full h-[430px]">
-          <Cropper class="h-[430px]" ref="cropper" :stencil-component="CircleStencil" :src="avatar[0].content" />
+        <div class="mb-6">
+          <div class="font-semibold text-sm text-gray-500 mb-2">Username</div>
+          <TextInput placeholder="Username" v-model:input="userName" inputType="text" max="30" class="w-full" />
+          <div class="text-xs text-gray-500 mt-2">
+            Usernames can only contain letters, numbers, underscores, and periods. Changing your username will also change your profile link.
+          </div>
         </div>
+
+        <span v-if="errors" class="text-red-500 text-sm block text-center mt-4">
+          {{ errors }}
+        </span>
       </div>
 
-      <div id="ButtonSection" class="absolute p-5 left-0 bottom-0 border-t border-[#ebebeb6c] w-full">
-        <div id="UpdateInfoButtons" v-if="!avatar[0]" class="flex items-center justify-end">
+      <div class="p-4 border-t border-[#ebebeb6c] absolute bottom-0 right-0 w-full">
+        <div class="flex justify-end gap-3">
           <button
-            @click="$generalStore.isEditProfileOpen = false"
-            class="flex items-center bg-[#3a3a3a] rounded-md px-3 py-[6px] hover:bg-[#303030]"
+            @click="switchModal(false)"
+            class="px-4 py-2 bg-[#3a3a3a] rounded-md hover:-translate-y-1 hover:shadow-2xl transition"
           >
-            <span class="px-2 font-medium text-[15px]">Cancel</span>
+            Cancel
           </button>
-
           <button
             :disabled="!isUpdated"
             @click="updateUser()"
             :class="!isUpdated ? 'bg-gray-200' : 'bg-[#F02C56] '"
-            class="flex items-center bg-[#F02C56] rounded-md ml-3 px-3 py-[6px] disabled:text-[#121212] text-white"
+            class="flex items-center hover:-translate-y-1 hover:shadow-2xl bg-[#F02C56] rounded-md px-5 py-[6px] disabled:text-[#121212] disabled:pointer-events-none text-white"
           >
-            <span class="mx-4 font-medium text-[15px]">Save</span>
-          </button>
-        </div>
-
-        <div id="CropperButtons" v-else class="flex items-center justify-end">
-          <button
-            @click="avatar[0] = null"
-            class="flex items-center bg-[#3a3a3a] rounded-md px-3 py-[6px] hover:bg-[#303030]"
-          >
-            <span class="px-2 font-medium text-[15px]">Cancel</span>
-          </button>
-
-          <button
-            @click="cropAndUpdateImage()"
-            class="flex items-center bg-[#F02C56] rounded-md ml-3 px-3 py-[6px] disabled:text-[#121212] text-white"
-          >
-            <span class="mx-4 font-medium text-[15px]">Save</span>
+            <span class="font-medium text-[15px]">Save</span>
           </button>
         </div>
       </div>
     </div>
+  </Transition>
+
+  <div v-if="loading" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <IconsLoader class="animate-spin w-20 h-20" />
   </div>
 </template>
+
+<style scoped>
+.edit-modal-enter-active,
+.edit-modal-leave-active {
+  transition: opacity 0.2s ease, margin 0.2s ease;
+}
+
+.edit-modal-enter-from,
+.edit-modal-leave-to {
+  opacity: 0;
+  margin: 0px 40px;
+}
+</style>

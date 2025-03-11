@@ -5,6 +5,8 @@ const name = ref("");
 const email = ref("");
 const password = ref("");
 
+const emit = defineEmits(["closeModal"]);
+
 const register = async () => {
   const { handleStatus } = useChat();
 
@@ -54,7 +56,7 @@ const register = async () => {
         :disabled="!name || !email || !password || $authStore.isLoading"
         :class="!name || !email || !password ? 'bg-gray-200' : 'bg-[#F02C56]'"
         @click="register"
-        class="w-full text-[17px] font-semibold text-white bg-[#F02C56] py-3 rounded-md disabled:bg-gray-400"
+        class="w-full text-[17px] font-semibold text-white bg-[#F02C56] hover:bg-[#b02140] py-3 rounded-md disabled:bg-gray-400"
       >
         {{ $authStore.isLoading ? "Loading..." : "Register" }}
       </button>

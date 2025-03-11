@@ -1,4 +1,4 @@
-import { IconsDashboard, IconsPeople, IconsSettings, IconsVideos } from "#components";
+import { IconsDashboard, IconsPeople, IconsVideos } from "#components";
 import type { Component } from "vue";
 
 type Route = {
@@ -26,11 +26,5 @@ export const routes: Route[] = [
     descr: "Manage users",
     path: "/admin/users",
     icon: IconsPeople,
-  },
-  {
-    name: "Settings",
-    descr: "Edit settings",
-    path: "/admin/settings",
-    icon: IconsSettings,
   },
 ];

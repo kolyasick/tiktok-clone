@@ -73,25 +73,22 @@ const clearVideo = () => {
 };
 
 useSeoMeta({
-  title: "Podvodni-Tok | Upload video",
-  ogTitle: "Podvodni-Tok | Upload video",
-  description: "Create and share videos with your friends on Podvodni-Tok",
-  ogDescription: "Create and share videos with your friends on Podvodni-Tok",
+  title: "Clipify | Upload video",
+  ogTitle: "Clipify | Upload video",
+  description: "Create and share videos with your friends on Clipify",
+  ogDescription: "Create and share videos with your friends on Clipify",
   ogImage: "/upload/avatars/default.jpg",
   ogImageHeight: 300,
   ogUrl: import.meta.env.BASE_URL,
 });
 </script>
 <template>
-  <div
-    v-if="loading"
-    class="fixed flex items-center justify-center top-0 left-0 w-full h-screen bg-black z-50 bg-opacity-50"
-  >
+  <div v-if="loading" class="fixed flex items-center justify-center top-0 left-0 w-full h-screen bg-black z-50 bg-opacity-50">
     <IconsLoader class="animate-spin ml-1 w-24 h-24" />
   </div>
 
-  <NuxtLayout>
-    <div class="w-full my-5 bg-[#222222] shadow-lg rounded-md py-6 md:px-10 px-4">
+  <div class="w-full">
+    <div class="my-5 bg-[#222222] shadow-lg rounded-md py-6 md:px-10 px-4">
       <div>
         <div class="text-[23px] font-semibold">Upload video</div>
         <div class="text-gray-400 mt-1">Post a video to your account</div>
@@ -119,17 +116,9 @@ useSeoMeta({
         >
           <img class="absolute z-20 pointer-events-none w-full h-full" src="/mobile-case.png" />
           <img class="absolute right-4 bottom-6 z-20" width="90" src="/tiktok-logo-white.png" />
-          <video
-            autoplay
-            loop
-            muted
-            class="absolute rounded-xl object-cover z-10 p-[13px] w-full h-full"
-            :src="video[0].content?.toString()"
-          />
+          <video autoplay loop muted class="absolute rounded-xl object-cover z-10 p-[13px] w-full h-full" :src="video[0].content?.toString()" />
 
-          <div
-            class="absolute -bottom-12 flex items-center justify-between z-50 rounded-xl border w-full p-2 border-gray-300"
-          >
+          <div class="absolute -bottom-12 flex items-center justify-between z-50 rounded-xl border w-full p-2 border-gray-300">
             <div class="flex items-center truncate">
               <IconsCheck class="w-5 h-5" />
               <div class="text-[11px] pl-1 truncate text-ellipsis">
@@ -148,8 +137,7 @@ useSeoMeta({
             <div>
               <div class="text-semibold text-[15px] mb-1.5">Divide videos and edit</div>
               <div class="text-semibold text-[13px] text-gray-400">
-                You can quickly divide videos into multiple parts, remove redundant parts and turn landscape videos into
-                portrait videos
+                You can quickly divide videos into multiple parts, remove redundant parts and turn landscape videos into portrait videos
               </div>
             </div>
           </div>
@@ -170,16 +158,8 @@ useSeoMeta({
           </div>
 
           <div class="flex gap-3">
-            <button
-              @click="discard()"
-              class="px-10 py-2.5 mt-8 transition bg-[#525252] text-[16px] hover:bg-[#707070] rounded-md"
-            >
-              Discard
-            </button>
-            <button
-              @click="createVideo()"
-              class="px-10 py-2.5 mt-8 transition text-[16px] text-white bg-[#F02C56] hover:bg-[#ff1548] rounded-md"
-            >
+            <button @click="discard()" class="px-10 py-2.5 mt-8 transition bg-[#525252] text-[16px] hover:bg-[#707070] rounded-md">Discard</button>
+            <button @click="createVideo()" class="px-10 py-2.5 mt-8 transition text-[16px] text-white bg-[#F02C56] hover:bg-[#ff1548] rounded-md">
               Post
             </button>
           </div>
@@ -203,6 +183,5 @@ useSeoMeta({
         </div>
       </div>
     </div>
-    <div></div>
-  </NuxtLayout>
+  </div>
 </template>

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { User } from "@prisma/client";
-
 const { $generalStore, $authStore, $videosStore } = useNuxtApp();
 const { user } = useUserSession();
 const { $io: socket } = useNuxtApp();
@@ -11,6 +9,8 @@ if (user.value) {
 }
 
 const handleOffline = async (userId: number) => {
+  if (!userId) return;
+
   if ($generalStore.chats) {
     const user = $generalStore.chats.find((c) => c.companion.id === userId)?.companion;
     const companion = $generalStore.currentChat?.companion;
@@ -25,7 +25,7 @@ const handleOffline = async (userId: number) => {
       companion.updatedAt = new Date();
     }
   }
-
+  console.log("reg1");
   await $fetch(`/api/profile/edit/${userId}`, {
     method: "PATCH",
     body: {
@@ -36,21 +36,27 @@ const handleOffline = async (userId: number) => {
 
 const handleBeforeUnload = async () => {
   if ($authStore.profile) {
+    console.log("reg2");
+
     const r = await $fetch(`/api/profile/edit/${$authStore.profile?.id}`, {
       method: "PATCH",
       body: {
         online: false,
       },
     });
-    // console.log(r)
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
+  const { handleStatus } = useChat();
+
   if ($authStore.profile) {
-    const { handleStatus } = useChat();
     socket.emit("setUser", $authStore.profile.id);
-    handleStatus("online", $authStore.profile);
+    await handleStatus("online", $authStore.profile);
+
+    document.addEventListener("visibilitychange", async () => {
+      await handleStatus(document.visibilityState === "visible" ? "online" : "offline", $authStore.profile!);
+    });
   }
 
   socket.on("connect", () => {
@@ -72,12 +78,14 @@ await $videosStore.getVideos();
 <template>
   <NuxtLoadingIndicator color="#F02C56" />
   <main>
-    <NuxtPage />
-
-    <AuthOverlay />
-
-    <EditProfileOverlay v-if="$generalStore.isEditProfileOpen" />
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
   </main>
+
+  <AuthOverlay />
+
+  <EditProfileOverlay />
 </template>
 
 <style>
@@ -86,8 +94,22 @@ body {
   color: #fff;
 }
 
+.main-pages-enter-active,
+.main-pages-leave-active {
+  transition: all 0.4s;
+}
+.main-pages-enter-from,
+.main-pages-leave-to {
+  opacity: 0;
+  filter: blur(1rem);
+}
+
 * {
   transition: all 0.2s ease;
+}
+
+html {
+  scrollbar-gutter: stable;
 }
 
 button {

@@ -12,7 +12,9 @@ const showModerateModal = (video: IVideo) => {
 };
 </script>
 <template>
-  <AdminStats />
-  <AdminVideos @show-moderate-modal="showModerateModal" />
-  <AdminUsers />
+  <div>
+    <AdminStats />
+    <AdminVideos @show-moderate-modal="showModerateModal" />
+    <AdminUsers />
+  </div>
 </template>

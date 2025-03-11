@@ -23,10 +23,10 @@ if (getVideo) {
 }
 
 useSeoMeta({
-  title: `Podvodni-Tok · ${video.value?.profile?.name}`,
-  ogTitle: `Podvodni-Tok · ${video.value?.profile?.name}`,
-  description: `Podvodni-Tok · ${video.value?.title}`,
-  ogDescription: `Podvodni-Tok · ${video.value?.title}`,
+  title: `Clipify · ${video.value?.profile?.name}`,
+  ogTitle: `Clipify · ${video.value?.profile?.name}`,
+  description: `Clipify · ${video.value?.title}`,
+  ogDescription: `Clipify · ${video.value?.title}`,
   ogImage: "/upload/avatars/" + video.value?.profile?.avatar,
   ogImageHeight: 300,
   ogUrl: `${import.meta.env.BASE_URL}/video/${video.value?.id}`,
@@ -108,10 +108,7 @@ onMounted(() => {
               <IconsClose class="w-6 h-6" />
             </button>
 
-            <div
-              v-if="!isPlaying && !isVideoLoading"
-              class="play-icon absolute inset-0 flex items-center justify-center text-white"
-            >
+            <div v-if="!isPlaying && !isVideoLoading" class="play-icon absolute inset-0 flex items-center justify-center text-white">
               <IconsPlay class="w-20 h-20" />
             </div>
           </div>

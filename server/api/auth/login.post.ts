@@ -1,4 +1,5 @@
 import prisma from "~/server/composables/prisma";
+import { formatDate } from "~/utils/formatDate";
 
 type Body = {
   name: string;
@@ -23,6 +24,7 @@ export default defineEventHandler(async (event) => {
       user: {
         include: {
           role: true,
+          block: true,
         },
       },
       followsAsFollower: true,
@@ -54,7 +56,7 @@ export default defineEventHandler(async (event) => {
   if (profile.user.isBlocked) {
     throw createError({
       statusCode: 403,
-      statusMessage: "User is banned",
+      statusMessage: "User is banned until " + formatDate(profile.user.block?.until!, false, true),
     });
   }
 

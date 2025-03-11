@@ -1,10 +1,11 @@
-import type { Profile, Role, User } from "@prisma/client";
+import type { Block, Profile, Role, User } from "@prisma/client";
 import { defineStore } from "pinia";
 import type { IVideo } from "~/types/user.type";
 
 type UserWithProfile = Profile & {
   user: User & {
     role: Role;
+    block: Block;
   };
 };
 
@@ -32,7 +33,7 @@ export const useAdminStore = defineStore("admin", {
       }
     },
 
-    async blockUser(userId: number, reason: string) {
+    async blockUser(userId: number, reason: string, until: Date) {
       if (!userId) return;
 
       const user = this.users.find((u) => u.userId === userId);
@@ -43,6 +44,7 @@ export const useAdminStore = defineStore("admin", {
         body: {
           userId,
           reason,
+          until: new Date(until),
           info: "Обратитесь в поддержку за подробной информацией",
         },
       });

@@ -20,6 +20,7 @@ export default defineEventHandler(async (event) => {
       user: {
         include: {
           role: true,
+          block: true,
         },
       },
     },

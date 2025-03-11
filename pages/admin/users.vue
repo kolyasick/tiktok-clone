@@ -4,5 +4,7 @@ await $adminStore.getUsers();
 </script>
 
 <template>
-  <AdminUsers />
+  <div>
+    <AdminUsers />
+  </div>
 </template>

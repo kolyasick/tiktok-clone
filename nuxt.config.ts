@@ -3,7 +3,7 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   modules: ["@pinia/nuxt", "@nuxtjs/tailwindcss", "nuxt-auth-utils", "nuxt-file-storage", "nuxt-nodemailer"],
   nodemailer: {
-    from: '"Podvodni-Tok" <killergems122@gmail.com>',
+    from: '"Clipify" <killergems122@gmail.com>',
     host: process.env.SMTP_HOST,
     port: process.env.PORT,
     secure: false,
@@ -31,6 +31,7 @@ export default defineNuxtConfig({
   },
   routeRules: {
     "/admin/*": { ssr: false },
+    "/api/**": { cors: true },
   },
   app: {
     head: {

@@ -4,11 +4,14 @@ const { $authStore } = useNuxtApp();
 const name = ref(null);
 const password = ref(null);
 
+const emit = defineEmits(["closeModal"]);
+
 const login = async () => {
   const { handleStatus } = useChat();
   await $authStore.login(name.value, password.value);
 
   if ($authStore.profile) {
+    emit("closeModal");
     await handleStatus("online", $authStore.profile);
   }
 };
@@ -42,7 +45,7 @@ const login = async () => {
         :disabled="!name || !password || $authStore.isLoading"
         :class="!name || !password ? 'bg-gray-200' : 'bg-[#F02C56]'"
         @click="login"
-        class="w-full text-[17px] transition font-semibold text-white py-3 rounded-md disabled:bg-gray-400"
+        class="w-full text-[17px] transition font-semibold text-white py-3 rounded-md disabled:bg-gray-400 hover:bg-[#b02140]"
       >
         {{ $authStore.isLoading ? "Loading..." : "Log in" }}
       </button>
@@ -50,7 +53,7 @@ const login = async () => {
     <span class="px-6 text-[14px] text-red-600" v-if="$authStore.errors.other">
       {{ $authStore.errors.other }}
     </span>
-     <span class="px-6 text-[14px] text-orange-500" v-if="$authStore.message">
+    <span class="px-6 text-[14px] text-orange-500" v-if="$authStore.message">
       {{ $authStore.message }}
     </span>
   </div>

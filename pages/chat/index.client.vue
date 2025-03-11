@@ -113,10 +113,10 @@ const sendMessage = async (text: string) => {
 };
 
 useSeoMeta({
-  title: "Podvodni-Tok | Chat",
-  ogTitle: "Podvodni-Tok | Chat",
-  description: "Create and share videos with your friends on Podvodni-Tok",
-  ogDescription: "Create and share videos with your friends on Podvodni-Tok",
+  title: "Clipify | Chat",
+  ogTitle: "Clipify | Chat",
+  description: "Create and share videos with your friends on Clipify",
+  ogDescription: "Create and share videos with your friends on Clipify",
   ogImage: "/upload/avatars/default.jpg",
   ogImageHeight: 300,
   ogUrl: import.meta.env.BASE_URL,
