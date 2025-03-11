@@ -1,7 +1,21 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: false },
-  modules: ["@pinia/nuxt", "@nuxtjs/tailwindcss", "nuxt-auth-utils", "nuxt-file-storage", "nuxt-nodemailer"],
+  googleFonts: {
+    preload: true,
+    families: {
+      Montserrat: [900],
+      Inter: [100, 200, 300, 400, 500, 600, 700, 800, 900],
+    },
+  },
+  modules: [
+    "@pinia/nuxt",
+    "@nuxtjs/tailwindcss",
+    "nuxt-auth-utils",
+    "nuxt-file-storage",
+    "nuxt-nodemailer",
+    "@nuxtjs/google-fonts",
+  ],
   nodemailer: {
     from: '"Clipify" <killergems122@gmail.com>',
     host: process.env.SMTP_HOST,

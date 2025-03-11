@@ -11,6 +11,9 @@ const likes = ref<Like[]>([]);
 const route = useRoute();
 const { name } = route.params as Partial<{ name: string }>;
 
+// Добавлено: состояние для активной вкладки
+const activeTab = ref<"videos" | "liked">("videos");
+
 const openEditModal = () => {
   $generalStore.isEditProfileOpen = true;
   $generalStore.bodySwitch(true);
@@ -30,9 +33,7 @@ const loadData = async () => {
     $profileStore.currentVideos = $profileStore.videos;
 
     if ($profileStore.videos) {
-      $profileStore.videos.forEach((video) => {
-        likes.value.push(...(video?.likes || []));
-      });
+      likes.value.push(...$profileStore.videos.flatMap((video) => video?.likes || []));
     }
 
     if (profile.value?.id && $authStore.profile?.id) {
@@ -114,14 +115,19 @@ useSeoMeta({
               </button>
 
               <button
-                v-else-if="$profileStore.friend.friendId === $authStore.profile?.id && $profileStore.friend.status !== 'reply'"
+                v-else-if="
+                  $profileStore.friend.friendId === $authStore.profile?.id && $profileStore.friend.status !== 'reply'
+                "
                 @click="$profileStore.handleFriendAction('reply', profile)"
                 class="flex items-center rounded-md py-1.5 px-8 mt-3 text-[15px] text-white font-semibold bg-[#F02C56]"
               >
                 Follow back
               </button>
 
-              <button @click="chatOpen" class="flex items-center rounded-md py-1.5 px-8 mt-3 text-[15px] text-white font-semibold bg-[#666666]">
+              <button
+                @click="chatOpen"
+                class="flex items-center rounded-md py-1.5 px-8 mt-3 text-[15px] text-white font-semibold bg-[#666666]"
+              >
                 Chat
               </button>
             </template>
@@ -144,15 +150,34 @@ useSeoMeta({
         </div>
       </div>
 
-      <div class="w-full flex items-center pt-4 border-b">
-        <div @click="$profileStore.allVideos" class="w-60 text-center py-2 text-[17px] font-semibold border-b-2 border-b-black cursor-pointer">
+      <div class="w-full flex items-center pt-4 border-b border-[#ebebeb6c] relative">
+        <div
+          class="absolute w-48 bottom-0 left-0 h-[2px] bg-[#F02C56] transition-all duration-300"
+          :class="{
+            'translate-x-48': activeTab === 'liked',
+          }"
+        ></div>
+
+        <div
+          @click="
+            activeTab = 'videos';
+            $profileStore.allVideos();
+          "
+          class="w-48 text-center py-2 text-[17px] font-semibold cursor-pointer transition"
+          :class="{ 'text-[#F02C56]': activeTab === 'videos', 'text-gray-500': activeTab !== 'videos' }"
+        >
           Videos
         </div>
+
         <div
-          @click="$profileStore.liked(profile.id)"
-          class="w-60 text-gray-500 inline-flex items-center gap-2 py-2 text-[17px] font-semibold cursor-pointer"
+          @click="
+            activeTab = 'liked';
+            $profileStore.liked(profile.id);
+          "
+          class="w-48 text-center py-2 text-[17px] font-semibold cursor-pointer transition"
+          :class="{ 'text-[#F02C56]': activeTab === 'liked', 'text-gray-500': activeTab !== 'liked' }"
         >
-          <IconsUnlocked class="w-5 h-5" /> Liked
+          <div class="inline-flex items-center justify-center gap-2"><IconsUnlocked class="w-5 h-5" /> Liked</div>
         </div>
       </div>
 
@@ -168,3 +193,11 @@ useSeoMeta({
     </div>
   </div>
 </template>
+
+<style scoped>
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+</style>

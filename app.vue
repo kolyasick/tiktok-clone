@@ -92,6 +92,7 @@ await $videosStore.getVideos();
 body {
   background-color: #121212;
   color: #fff;
+  font-family: "Inter", sans-serif;
 }
 
 .main-pages-enter-active,

@@ -18,10 +18,8 @@ const errors =
   }) as IErrors) || null;
 
 const caption = ref<string | null>(null);
-const fileDisplay = ref<string | null>(null);
 const succes = ref<string | null>(null);
 const fileName = ref<string>("");
-const fileToUpload = ref<File | null>(null);
 const loading = ref<boolean>(false);
 
 const createVideo = async () => {
@@ -34,7 +32,7 @@ const createVideo = async () => {
     return;
   }
 
-  if (!video.value) {
+  if (!video.value[0]) {
     errors.video = "Please upload a video";
     return;
   }
@@ -67,10 +65,15 @@ const discard = () => {
   fileName.value = "";
 };
 
-const clearVideo = () => {
-  fileDisplay.value = null;
-  fileToUpload.value = null;
-};
+let timeout: NodeJS.Timeout;
+
+watch(errors, () => {
+  clearTimeout(timeout);
+  timeout = setTimeout(() => {
+    errors.video = null;
+    errors.caption = null;
+  }, 500);
+});
 
 useSeoMeta({
   title: "Clipify | Upload video",
@@ -83,7 +86,10 @@ useSeoMeta({
 });
 </script>
 <template>
-  <div v-if="loading" class="fixed flex items-center justify-center top-0 left-0 w-full h-screen bg-black z-50 bg-opacity-50">
+  <div
+    v-if="loading"
+    class="fixed flex items-center justify-center top-0 left-0 w-full h-screen bg-black z-50 bg-opacity-50"
+  >
     <IconsLoader class="animate-spin ml-1 w-24 h-24" />
   </div>
 
@@ -116,16 +122,24 @@ useSeoMeta({
         >
           <img class="absolute z-20 pointer-events-none w-full h-full" src="/mobile-case.png" />
           <img class="absolute right-4 bottom-6 z-20" width="90" src="/tiktok-logo-white.png" />
-          <video autoplay loop muted class="absolute rounded-xl object-cover z-10 p-[13px] w-full h-full" :src="video[0].content?.toString()" />
+          <video
+            autoplay
+            loop
+            muted
+            class="absolute rounded-xl object-cover z-10 p-[13px] w-full h-full"
+            :src="video[0].content?.toString()"
+          />
 
-          <div class="absolute -bottom-12 flex items-center justify-between z-50 rounded-xl border w-full p-2 border-gray-300">
+          <div
+            class="absolute -bottom-12 flex items-center justify-between z-50 rounded-xl border w-full p-2 border-gray-300"
+          >
             <div class="flex items-center truncate">
               <IconsCheck class="w-5 h-5" />
               <div class="text-[11px] pl-1 truncate text-ellipsis">
                 {{ video[0].name }}
               </div>
             </div>
-            <button @click="clearVideo" class="text-[11px] ml-2 font-semibold">Change</button>
+            <button @click="video = []" class="text-[11px] ml-2 font-semibold">Change</button>
           </div>
         </div>
 
@@ -137,7 +151,8 @@ useSeoMeta({
             <div>
               <div class="text-semibold text-[15px] mb-1.5">Divide videos and edit</div>
               <div class="text-semibold text-[13px] text-gray-400">
-                You can quickly divide videos into multiple parts, remove redundant parts and turn landscape videos into portrait videos
+                You can quickly divide videos into multiple parts, remove redundant parts and turn landscape videos into
+                portrait videos
               </div>
             </div>
           </div>
@@ -158,20 +173,27 @@ useSeoMeta({
           </div>
 
           <div class="flex gap-3">
-            <button @click="discard()" class="px-10 py-2.5 mt-8 transition bg-[#525252] text-[16px] hover:bg-[#707070] rounded-md">Discard</button>
-            <button @click="createVideo()" class="px-10 py-2.5 mt-8 transition text-[16px] text-white bg-[#F02C56] hover:bg-[#ff1548] rounded-md">
+            <button
+              @click="discard()"
+              class="px-10 py-2.5 mt-8 transition bg-[#525252] text-[16px] hover:bg-[#707070] rounded-md"
+            >
+              Discard
+            </button>
+            <button
+              @click="createVideo()"
+              class="px-10 py-2.5 mt-8 transition text-[16px] text-white bg-[#F02C56] hover:bg-[#ff1548] rounded-md"
+            >
               Post
             </button>
           </div>
 
-          <div v-if="errors" class="mt-4">
-            <div class="text-red-600" v-if="errors && errors.video">
-              {{ errors.video }}
+          <Transition name="bounce">
+            <div v-if="errors.video || errors.caption" class="mt-4">
+              <div class="text-red-600">
+                {{ errors.video || errors.caption }}
+              </div>
             </div>
-            <div class="text-red-600" v-if="errors && errors.caption">
-              {{ errors.caption }}
-            </div>
-          </div>
+          </Transition>
           <div v-if="succes" class="mt-4">
             <div class="text-green-600">
               {{ succes }}
@@ -185,3 +207,32 @@ useSeoMeta({
     </div>
   </div>
 </template>
+
+<style scoped>
+@keyframes shake {
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-10px);
+  }
+  50% {
+    transform: translateX(10px);
+  }
+  75% {
+    transform: translateX(-10px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.bounce-enter-active {
+  animation: shake 0.5s;
+}
+
+.bounce-leave-active {
+  transition: opacity 0.2s ease;
+  opacity: 0;
+}
+</style>

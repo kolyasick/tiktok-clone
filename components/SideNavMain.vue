@@ -7,9 +7,9 @@ const { user } = useUserSession();
     id="SideNavMain"
     class="sticky top-0 left-0 z-20 bg-[#121212] pt-[70px] hidden sm:block -mt-[70px] h-screen lg:border-r-0 border-r border-[#ebebeb6c] lg:w-[310px] w-[75px]"
   >
-    <div class="w-full">
+    <div class="w-full mt-5">
       <NuxtLink to="/">
-        <div class="w-full flex items-center p-2.5 rounded-md">
+        <div class="w-full flex items-center py-2.5 rounded-md">
           <div class="flex items-center lg:mx-0 mx-auto">
             <IconsHouse class="w-7 h-7" />
             <span class="lg:block text-[#F02C56] hidden pl-[9px] mt-0.5 font-semibold text-[17px]"> For You </span>
@@ -18,7 +18,7 @@ const { user } = useUserSession();
       </NuxtLink>
 
       <NuxtLink to="/">
-        <div class="w-full flex items-center p-2.5 rounded-md">
+        <div class="w-full flex items-center py-2.5 rounded-md">
           <div class="flex items-center lg:mx-0 mx-auto">
             <IconsPeople class="w-7 h-7" />
             <span class="lg:block hidden pl-[9px] mt-0.5 font-semibold text-[17px]"> Following </span>
@@ -27,7 +27,7 @@ const { user } = useUserSession();
       </NuxtLink>
 
       <NuxtLink to="/">
-        <div class="w-full flex items-center p-2.5 rounded-md">
+        <div class="w-full flex items-center py-2.5 rounded-md">
           <div class="flex items-center lg:mx-0 mx-auto">
             <IconsCam class="w-7 h-7" />
             <span class="lg:block hidden pl-[9px] mt-0.5 font-semibold text-[17px]"> Live </span>
@@ -35,7 +35,7 @@ const { user } = useUserSession();
         </div>
       </NuxtLink>
       <NuxtLink v-if="user?.role === 'admin'" to="/admin/dashboard">
-        <div class="w-full flex items-center p-2.5 rounded-md">
+        <div class="w-full flex items-center py-2.5 rounded-md">
           <div class="flex items-center lg:mx-0 mx-auto">
             <IconsAdmin class="w-7 h-7" />
             <span class="lg:block hidden pl-[9px] mt-0.5 font-semibold text-[17px]"> For Admin </span>
@@ -44,19 +44,19 @@ const { user } = useUserSession();
       </NuxtLink>
 
       <div v-if="true">
-        <div class="border-b border-[#ebebeb6c] lg:ml-2 mt-2" />
+        <div class="border-b border-[#ebebeb6c] mt-2" />
 
         <div class="lg:hidden block pt-3" />
 
-        <button class="lg:block hidden text-[#F02C56] pt-1.5 pl-2 text-[13px]">See more</button>
+        <button class="lg:block hidden text-[#F02C56] pt-1.5 text-[13px]">See more</button>
       </div>
-      <div class="lg:block hidden border-b border-[#ebebeb6c] lg:ml-2 mt-2" />
+      <div class="lg:block hidden border-b border-[#ebebeb6c] mt-2" />
 
       <div class="lg:block hidden text-[11px] text-gray-500">
-        <div class="pt-4 px-2">About Newsroom Clipify Shop Contact Careers ByteDance</div>
-        <div class="pt-4 px-2">Clipify for Good Advertise Developers Transparency Clipify Rewards Clipify Browse Clipify Embeds</div>
-        <div class="pt-4 px-2">Help Safety Terms Privacy Creator Portal Community Guidelines</div>
-        <div class="pt-4 px-2">© {{ new Date().getFullYear() }} Clipify</div>
+        <div class="pt-4">About Newsroom Clipify Shop Contact Careers ByteDance</div>
+        <div class="pt-4">Clipify for Good Advertise Developers Transparency Clipify Rewards Clipify Browse Clipify Embeds</div>
+        <div class="pt-4">Help Safety Terms Privacy Creator Portal Community Guidelines</div>
+        <div class="pt-4">© {{ new Date().getFullYear() }} Clipify</div>
       </div>
 
       <div class="pb-14"></div>
