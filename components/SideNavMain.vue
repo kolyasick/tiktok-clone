@@ -1,3 +1,7 @@
+<script setup lang="ts">
+const { user } = useUserSession();
+</script>
+
 <template>
   <div
     id="SideNavMain"
@@ -30,7 +34,7 @@
           </div>
         </div>
       </NuxtLink>
-      <NuxtLink to="/admin/dashboard">
+      <NuxtLink v-if="user?.role === 'admin'" to="/admin/dashboard">
         <div class="w-full flex items-center p-2.5 rounded-md">
           <div class="flex items-center lg:mx-0 mx-auto">
             <IconsAdmin class="w-7 h-7" />
@@ -50,9 +54,7 @@
 
       <div class="lg:block hidden text-[11px] text-gray-500">
         <div class="pt-4 px-2">About Newsroom TikTok Shop Contact Careers ByteDance</div>
-        <div class="pt-4 px-2">
-          TikTok for Good Advertise Developers Transparency TikTok Rewards TikTok Browse TikTok Embeds
-        </div>
+        <div class="pt-4 px-2">TikTok for Good Advertise Developers Transparency TikTok Rewards TikTok Browse TikTok Embeds</div>
         <div class="pt-4 px-2">Help Safety Terms Privacy Creator Portal Community Guidelines</div>
         <div class="pt-4 px-2">© {{ new Date().getFullYear() }} TikTok</div>
       </div>
@@ -61,7 +63,5 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts"></script>
 
 <style scoped></style>

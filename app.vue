@@ -36,12 +36,13 @@ const handleOffline = async (userId: number) => {
 
 const handleBeforeUnload = async () => {
   if ($authStore.profile) {
-    await $fetch(`/api/profile/edit/${$authStore.profile?.id}`, {
+    const r = await $fetch(`/api/profile/edit/${$authStore.profile?.id}`, {
       method: "PATCH",
       body: {
         online: false,
       },
     });
+    // console.log(r)
   }
 };
 
@@ -58,12 +59,12 @@ onMounted(() => {
 
   socket.on("offline", handleOffline);
 
-  window.addEventListener("beforeunload", handleBeforeUnload);
+  window.addEventListener("beforeunload", async () => handleBeforeUnload);
 });
 
 onUnmounted(() => {
   socket.off("offline", handleOffline);
-  window.removeEventListener("beforeunload", handleBeforeUnload);
+  window.removeEventListener("beforeunload", async () => handleBeforeUnload);
 });
 
 await $videosStore.getVideos();

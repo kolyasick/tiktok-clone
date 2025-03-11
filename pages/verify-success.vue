@@ -3,8 +3,12 @@ const router = useRouter();
 
 onMounted(() => {
   setTimeout(() => {
-    router.replace('/');
+    router.replace("/");
   }, 2000);
+});
+
+definePageMeta({
+  middleware: ["verify"],
 });
 </script>
 
@@ -18,12 +22,7 @@ onMounted(() => {
         viewBox="0 0 24 24"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M5 13l4 4L19 7"
-        ></path>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
       </svg>
       <h1 class="mt-4 text-3xl font-bold text-gray-800">Email Successfully Activated!</h1>
       <p class="mt-2 text-gray-600">Your email has been verified. You can now log in to your account.</p>
@@ -47,7 +46,6 @@ onMounted(() => {
 .animate-fade-in {
   animation: fadeIn 0.5s ease-out;
 }
-
 
 @keyframes check {
   0% {
