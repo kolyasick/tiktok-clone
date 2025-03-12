@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const { $generalStore, $authStore, $videosStore } = useNuxtApp();
-const { user } = useUserSession();
+const { user, loggedIn } = useUserSession();
 const { $io: socket } = useNuxtApp();
 
 if (user.value) {
@@ -50,7 +50,7 @@ const handleBeforeUnload = async () => {
 onMounted(async () => {
   const { handleStatus } = useChat();
 
-  if ($authStore.profile) {
+  if (loggedIn.value && $authStore.profile) {
     socket.emit("setUser", $authStore.profile.id);
     await handleStatus("online", $authStore.profile);
 
