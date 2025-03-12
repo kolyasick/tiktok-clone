@@ -50,8 +50,9 @@ model Profile {
   id      Int       @id @default(autoincrement())
   userId  Int       @unique
   user    User      @relation(fields: [userId], references: [id])
-  name    String     @unique
-  avatar  String    @default("default.jpg")
+  name    String    @unique
+  bio     String    @default("No bio yet")
+  avatar  String    @default("avatar.avif")
   online  Boolean   @default(false)
 
   followsAsFollower Follows[] @relation("userFollowers")

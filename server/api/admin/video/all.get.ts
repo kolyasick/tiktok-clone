@@ -7,6 +7,11 @@ export default defineEventHandler(async (event) => {
     include: {
       profile: true,
       status: true,
+      comments: {
+        include: {
+          profile: true,
+        },
+      },
     },
     orderBy: {
       createdAt: "desc",

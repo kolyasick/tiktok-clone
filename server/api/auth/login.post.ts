@@ -24,7 +24,6 @@ export default defineEventHandler(async (event) => {
       user: {
         include: {
           role: true,
-          block: true,
         },
       },
       followsAsFollower: true,
@@ -54,10 +53,19 @@ export default defineEventHandler(async (event) => {
   }
 
   if (profile.user.isBlocked) {
-    throw createError({
-      statusCode: 403,
-      statusMessage: "User is banned until " + formatDate(profile.user.block?.until!, false, true),
+    const block = await prisma.block.findUnique({
+      where: {
+        userId: profile.userId,
+      },
     });
+
+    if (block?.until! > new Date()) {
+      await clearUserSession(event);
+      throw createError({
+        statusCode: 403,
+        statusMessage: "User is banned until " + formatDate(block?.until!, false, true),
+      });
+    }
   }
 
   const session = await setUserSession(event, {

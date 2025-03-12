@@ -81,12 +81,14 @@ useSeoMeta({
     <TopNav />
     <div v-if="profile" class="container mt-5">
       <div class="flex w-full items-center">
-        <img class="rounded-full aspect-square w-32 sm:w-40 object-cover" :src="'/upload/avatars/' + profile?.avatar" />
+        <div class="rounded-full bg-[#3a3a3a] aspect-square w-32 sm:w-40 overflow-hidden flex items-center justify-center">
+          <img class="object-cover scale-110" :src="'/upload/avatars/' + profile.avatar" />
+        </div>
         <div class="ml-5 w-full">
           <div class="text-[30px] font-bold truncate">
             {{ profile?.name }}
           </div>
-          <div class="text-[18px] truncate">{{ profile?.name }}</div>
+          <div class="text-[12px] sm:text-[14px] max-w-[400px]">{{ profile?.bio }}</div>
           <div class="flex items-center gap-3">
             <button
               v-if="profile.id == user?.id"
@@ -115,19 +117,14 @@ useSeoMeta({
               </button>
 
               <button
-                v-else-if="
-                  $profileStore.friend.friendId === $authStore.profile?.id && $profileStore.friend.status !== 'reply'
-                "
+                v-else-if="$profileStore.friend.friendId === $authStore.profile?.id && $profileStore.friend.status !== 'reply'"
                 @click="$profileStore.handleFriendAction('reply', profile)"
                 class="flex items-center rounded-md py-1.5 px-8 mt-3 text-[15px] text-white font-semibold bg-[#F02C56]"
               >
                 Follow back
               </button>
 
-              <button
-                @click="chatOpen"
-                class="flex items-center rounded-md py-1.5 px-8 mt-3 text-[15px] text-white font-semibold bg-[#666666]"
-              >
+              <button @click="chatOpen" class="flex items-center rounded-md py-1.5 px-8 mt-3 text-[15px] text-white font-semibold bg-[#666666]">
                 Chat
               </button>
             </template>
@@ -163,7 +160,7 @@ useSeoMeta({
             activeTab = 'videos';
             $profileStore.allVideos();
           "
-          class="w-48 text-center py-2 text-[17px] font-semibold cursor-pointer transition"
+          class="w-48 text-center py-2 text-[17px] font-semibold cursor-pointer"
           :class="{ 'text-[#F02C56]': activeTab === 'videos', 'text-gray-500': activeTab !== 'videos' }"
         >
           Videos
@@ -174,7 +171,7 @@ useSeoMeta({
             activeTab = 'liked';
             $profileStore.liked(profile.id);
           "
-          class="w-48 text-center py-2 text-[17px] font-semibold cursor-pointer transition"
+          class="w-48 text-center py-2 text-[17px] font-semibold cursor-pointer"
           :class="{ 'text-[#F02C56]': activeTab === 'liked', 'text-gray-500': activeTab !== 'liked' }"
         >
           <div class="inline-flex items-center justify-center gap-2"><IconsUnlocked class="w-5 h-5" /> Liked</div>

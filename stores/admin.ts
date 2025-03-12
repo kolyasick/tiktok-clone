@@ -33,11 +33,32 @@ export const useAdminStore = defineStore("admin", {
       }
     },
 
+    async deleteComment(id: number) {
+      const comment = this.selectedVideo?.comments?.findIndex((c) => c.id === id);
+      if (comment !== undefined && comment !== -1) {
+        this.selectedVideo?.comments?.splice(comment, 1);
+        await $fetch(`/api/admin/video/comment/${id}`, {
+          method: "DELETE",
+        });
+      }
+    },
+
     async blockUser(userId: number, reason: string, until: Date) {
       if (!userId) return;
 
       const user = this.users.find((u) => u.userId === userId);
-      if (user) user.user.isBlocked = true;
+      if (user) {
+        user.user.isBlocked = true;
+        user.user.block = {
+          id: Date.now(),
+          info: "Обратитесь в поддержку за подробной информацией",
+          reason,
+          until,
+          userId,
+          updatedAt: new Date(),
+          createdAt: new Date(),
+        };
+      }
 
       await $fetch("/api/admin/user/block", {
         method: "POST",

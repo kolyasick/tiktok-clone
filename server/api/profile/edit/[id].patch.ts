@@ -5,11 +5,12 @@ type IBody = {
   name?: string;
   avatar?: ServerFile;
   online?: boolean;
+  bio?: string;
 };
 
 export default defineEventHandler(async (event) => {
   const { id } = event.context.params as { id?: string };
-  const { name, avatar, online } = await readBody<IBody>(event);
+  const { name, avatar, online, bio } = await readBody<IBody>(event);
 
   if (!id) {
     throw createError({
@@ -44,6 +45,7 @@ export default defineEventHandler(async (event) => {
       name,
       avatar: file,
       online,
+      bio,
     },
   });
 
