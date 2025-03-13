@@ -85,7 +85,7 @@ await $videosStore.getVideos();
 
   <AuthOverlay />
 
-  <EditProfileOverlay />
+  <EditProfileOverlay  v-if="$generalStore.isEditProfileOpen" />
 </template>
 
 <style>
