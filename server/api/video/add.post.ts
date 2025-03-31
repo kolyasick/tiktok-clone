@@ -1,5 +1,6 @@
 import { ServerFile } from "nuxt-file-storage";
 import prisma from "~/server/composables/prisma";
+import { compressVideo } from "~/server/utils/videoCompression";
 
 interface IBody {
   title: string;
@@ -17,28 +18,47 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const file = await storeFileLocally(body.file, 6, "/videos");
-  const status = await prisma.status.findFirst({
-    where: {
-      title: "new",
-    },
-  });
+  try {
+    const fileData = body.file.content as string;
+    const base64Data = fileData.replace(/^data:video\/mp4;base64,/, "");
+    const buffer = Buffer.from(base64Data, "base64");
 
-  const video = await prisma.video.create({
-    data: {
-      title: body.title,
-      profileId: body.userId,
-      url: file,
-      statusId: status!.id,
-    },
-  });
+    const compressedBuffer = await compressVideo(buffer);
 
-  if (!video.id) {
+    const compressedFile = {
+      ...body.file,
+      content: `data:video/mp4;base64,${compressedBuffer.toString("base64")}`,
+    };
+
+    const file = await storeFileLocally(compressedFile, 6, "/videos");
+    const status = await prisma.status.findFirst({
+      where: {
+        title: "new",
+      },
+    });
+
+    const video = await prisma.video.create({
+      data: {
+        title: body.title,
+        profileId: body.userId,
+        url: file,
+        statusId: status!.id,
+      },
+    });
+
+    if (!video.id) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: "Error creating video",
+      });
+    }
+
+    return video;
+  } catch (error) {
+    console.error("Error processing video:", error);
     throw createError({
       statusCode: 500,
-      statusMessage: "Error creating video",
+      statusMessage: "Error processing video",
     });
   }
-
-  return video;
 });

@@ -25,25 +25,31 @@ const handleOffline = async (userId: number) => {
       companion.updatedAt = new Date();
     }
   }
-  console.log("reg1");
-  await $fetch(`/api/profile/edit/${userId}`, {
-    method: "PATCH",
-    body: {
-      online: false,
-    },
-  });
 };
 
-const handleBeforeUnload = async () => {
-  if ($authStore.profile) {
-    console.log("reg2");
+const handleOnline = async (userId: number) => {
+  if (!userId) return;
 
-    const r = await $fetch(`/api/profile/edit/${$authStore.profile?.id}`, {
-      method: "PATCH",
-      body: {
-        online: false,
-      },
-    });
+  if ($generalStore.chats) {
+    const user = $generalStore.chats.find((c) => c.companion.id === userId)?.companion;
+    const companion = $generalStore.currentChat?.companion;
+
+    if (user) {
+      user.online = true;
+      user.updatedAt = new Date();
+    }
+
+    if (companion && companion.id === userId) {
+      companion.online = true;
+      companion.updatedAt = new Date();
+    }
+  }
+};
+
+const handleBeforeUnload = () => {
+  if ($authStore.profile) {
+    // Just emit offline event, don't try to make HTTP request
+    socket.emit("offline", $authStore.profile.id);
   }
 };
 
@@ -51,26 +57,41 @@ onMounted(async () => {
   const { handleStatus } = useChat();
 
   if (loggedIn.value && $authStore.profile) {
+    // Set up socket event listeners first
+    socket.on("online", handleOnline);
+    socket.on("offline", handleOffline);
+
+    // Then set user status
     socket.emit("setUser", $authStore.profile.id);
     await handleStatus("online", $authStore.profile);
 
-    document.addEventListener("visibilitychange", async () => {
-      await handleStatus(document.visibilityState === "visible" ? "online" : "offline", $authStore.profile!);
+    const handleVisibilityChange = async () => {
+      if (!$authStore.profile) return;
+      const status = document.visibilityState === "visible" ? "online" : "offline";
+      await handleStatus(status, $authStore.profile);
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    socket.on("connect", () => {
+      if ($authStore.profile) {
+        socket.emit("setUser", $authStore.profile.id);
+      }
+    });
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    // Cleanup function
+    onUnmounted(() => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      socket.off("online", handleOnline);
+      socket.off("offline", handleOffline);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      if ($authStore.profile) {
+        handleStatus("offline", $authStore.profile);
+      }
     });
   }
-
-  socket.on("connect", () => {
-    socket.emit("setUser", $authStore.profile?.id);
-  });
-
-  socket.on("offline", handleOffline);
-
-  window.addEventListener("beforeunload", async () => handleBeforeUnload);
-});
-
-onUnmounted(() => {
-  socket.off("offline", handleOffline);
-  window.removeEventListener("beforeunload", async () => handleBeforeUnload);
 });
 
 await $videosStore.getVideos();
@@ -85,7 +106,7 @@ await $videosStore.getVideos();
 
   <AuthOverlay />
 
-  <EditProfileOverlay />
+  <EditProfileOverlay v-if="$generalStore.isEditProfileOpen" />
 </template>
 
 <style>

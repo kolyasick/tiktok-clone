@@ -74,19 +74,19 @@ const handleCancel = () => {
         <h2 class="text-2xl font-bold mb-5">Comments</h2>
         <ul v-if="selectedVideo?.comments?.length" class="mb-5 overflow-y-auto max-h-32 grid gap-3">
           <li class="border rounded-md p-1 border-[#3a3a3a]" v-for="comment in selectedVideo?.comments" :key="comment.id">
-            <NuxtLink :to="'/profile/' + comment.profile?.name">
-              <div class="flex items-center gap-2 relative">
+            <div class="flex items-center gap-2 relative">
+              <NuxtLink :to="'/profile/' + comment.profile?.name">
                 <img class="w-7 aspect-square object-cover rounded-full" :src="'/upload/avatars/' + comment.profile?.avatar" alt="" />
-                <div>
-                  <p class="text-sm text-gray-600">{{ comment.profile?.name }}</p>
-                  <p class="text-sm">{{ comment.text }}</p>
-                </div>
-                <div class="absolute bottom-0 right-0 flex items-center gap-1">
-                  <p class="text-[12px] text-gray-600">{{ formatDate(comment.createdAt) }}</p>
-                  <IconsTrash @click="deleteComment(comment.id)" class="w-5 h-5 text-red-500 ml-auto cursor-pointer" />
-                </div>
+              </NuxtLink>
+              <div>
+                <p class="text-sm text-gray-600">{{ comment.profile?.name }}</p>
+                <p class="text-sm">{{ comment.text }}</p>
               </div>
-            </NuxtLink>
+              <div class="absolute bottom-0 right-0 flex items-center gap-1">
+                <p class="text-[12px] text-gray-600">{{ formatDate(comment.createdAt) }}</p>
+                <IconsTrash @click="deleteComment(comment.id)" class="w-5 h-5 text-red-500 ml-auto cursor-pointer" />
+              </div>
+            </div>
           </li>
         </ul>
         <p v-else class="text-sm text-gray-600 text-center">No comments</p>
@@ -155,7 +155,7 @@ const handleCancel = () => {
           <h3 class="text-xl font-bold mb-4">Type a reason of blocking</h3>
           <textarea
             v-model="blockReason"
-            class="w-full p-2 bg-[#2a2a2a] text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full p-2 bg-[#2a2a2a] text-white rounded-lg focus:outline-none "
             placeholder="Type a reason..."
             rows="4"
           ></textarea>

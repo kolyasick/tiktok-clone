@@ -2,6 +2,7 @@
 import type { Chat, Profile } from "@prisma/client";
 import UserOverlay from "~/components/chat/UserOverlay.vue";
 import type { IMessage } from "~/types/user.type";
+
 interface IChat extends Chat {
   messages: IMessage[];
   companion: Profile & { online: boolean };
@@ -158,7 +159,7 @@ onUnmounted(() => {
 
       <template v-else-if="!$generalStore.currentChat">
         <div class="h-full bg-[#191919] w-3/4 hidden sm:flex items-center justify-center max-[600px]:w-full">
-          <h3 class="py-1 px-3 bg-[#222222] rounded-full">Выберите, кому хотели бы написать</h3>
+          <h3 class="py-1 px-3 bg-[#222222] rounded-full">Select a chat to start messaging</h3>
         </div>
       </template>
 
