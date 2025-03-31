@@ -11,7 +11,7 @@ defineProps({
     <h1 class="mb-2 text-9xl font-bold">
       {{ error?.statusCode }}
     </h1>
-    <p class="mb-10 text-xl sm:text-3xl">{{ error?.statusMessage ?? error?.message }}</p>
+    <p class="mb-10 text-xl sm:text-3xl">{{ error }}</p>
     <a href="/" class="px-4 py-2 text-white bg-[#2a2a2a] rounded-md text-lg cursor-pointer">Go home</a>
   </section>
 </template>
