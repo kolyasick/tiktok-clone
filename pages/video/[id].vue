@@ -57,6 +57,7 @@ const toggleVideo = () => {
 
 const toggleMute = () => {
   if (!videoplay.value) return;
+
   isMuted.value = !isMuted.value;
   videoplay.value.muted = isMuted.value;
   videoplay.value.volume = isMuted.value ? 0 : volume.value / 100;
@@ -69,14 +70,15 @@ const goBack = async () => {
 onMounted(() => {
   if (videoplay.value) {
     videoplay.value.play();
+    isPlaying.value = true;
   }
 });
 </script>
 
 <template>
   <TopNav />
-  <div class="container flex flex-col lg:flex-row justify-between items-center gap-5 mt-5 bg-[#121212]">
-    <div class="lg:w-1/2 lg:h-[calc(100vh-90px)] h-[600px]">
+  <div class="container flex flex-col lg:flex-row justify-between items-center gap-5 py-5 bg-light dark:bg-dark">
+    <div class="lg:w-1/2 lg:h-[calc(100vh-90px-40px)] h-[600px]">
       <div class="video-container flex justify-center items-center h-full">
         <div :id="`PostMain-${video?.id}`" ref="videoContainer" class="postmain h-full w-full">
           <div class="video-wrapper h-full relative flex items-center bg-black rounded-xl cursor-pointer">
@@ -96,20 +98,21 @@ onMounted(() => {
             ></video>
 
             <button
-              class="text-center absolute top-4 right-4 rounded-full flex items-center bg-[#3a3a3a] p-2 cursor-pointer w-[41px] aspect-square"
+              class="text-center absolute top-4 right-4 rounded-full flex items-center justify-center bg-gray-100 dark:bg-[#3a3a3a] p-2 cursor-pointer w-[41px] aspect-square hover:bg-gray-200 dark:hover:bg-[#303030]"
               @click="toggleMute"
             >
-              <IconsMute :muted="isMuted" class="w-6 h-6" />
-            </button>
-            <button
-              @click="goBack"
-              class="absolute flex cursor-pointer justify-self-start text-white left-4 top-4 z-20 rounded-full bg-[#3a3a3a] p-2 w-[41px] aspect-square"
-            >
-              <IconsClose class="w-6 h-6" />
+              <IconsMute :muted="isMuted" class="w-5 h-5 text-gray-900 dark:text-white" />
             </button>
 
-            <div v-if="!isPlaying && !isVideoLoading" class="play-icon absolute inset-0 flex items-center justify-center text-white">
-              <IconsPlay class="w-20 h-20" />
+            <button
+              class="text-center absolute top-4 left-4 rounded-full flex items-center justify-center bg-gray-100 dark:bg-[#3a3a3a] p-2 cursor-pointer w-[41px] aspect-square hover:bg-gray-200 dark:hover:bg-[#303030]"
+              @click="goBack"
+            >
+              <IconsArrow class="w-5 h-5 text-gray-900 dark:text-white" />
+            </button>
+
+            <div @click="toggleVideo()" v-if="!isPlaying" class="absolute inset-0 flex items-center justify-center">
+              <IconsPlay class="w-20 h-20 text-white opacity-80" />
             </div>
           </div>
         </div>
@@ -127,7 +130,7 @@ onMounted(() => {
       </div>
     </div>
 
-    <div class="flex-1 w-full lg:w-1/2 lg:h-[calc(100vh-90px)]">
+    <div class="flex-1 w-full lg:w-1/2 lg:h-[calc(100vh-90px-40px)]">
       <VideoOverlay :video="video!" />
     </div>
   </div>

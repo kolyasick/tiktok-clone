@@ -91,28 +91,15 @@ watch(
   <Transition name="edit-modal">
     <div
       v-if="$generalStore.isEditProfileOpen"
-      class="fixed z-50 bg-[#121212] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-1rem*2)] max-w-[500px] pb-14 rounded-lg px-4"
+      class="fixed z-50 bg-light dark:bg-dark top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[500px] w-full h-[500px] mx-auto rounded-lg"
     >
-      <div class="flex items-center justify-between p-4 border-b border-[#ebebeb6c]">
-        <div class="text-xl font-medium">Edit profile</div>
-        <button @click="switchModal(false)">
+      <div class="w-full flex justify-end">
+        <button @click="switchModal(false)" class="p-3">
           <IconsClose class="w-7 h-7" />
         </button>
       </div>
-      <div class="p-4">
-        <div class="flex flex-col items-center mb-6">
-          <label for="image" class="relative cursor-pointer">
-            <img
-              class="rounded-full w-24 h-24 object-cover"
-              :src="avatar[0]?.content ? (avatar[0]?.content) as string : '/upload/avatars/' + $authStore.profile?.avatar"
-            />
-            <div class="flex items-center justify-center absolute bottom-0 right-0 rounded-full bg-white shadow-xl w-8 h-8">
-              <IconsPencil class="text-[#121212] w-5 h-5" />
-            </div>
-          </label>
-          <input class="hidden" type="file" id="image" @input="(e) => handleFileInput(e)" accept="image/png, image/jpeg, image/jpg" />
-        </div>
 
+      <div class="px-6">
         <div class="mb-6">
           <div class="font-semibold text-sm text-gray-500 mb-2">Username</div>
           <TextInput placeholder="Username" v-model:input="userName" inputType="text" max="30" class="w-full" />
@@ -130,7 +117,7 @@ watch(
             placeholder="Bio"
             maxlength="100"
             v-model="bio"
-            class="w-full block bg-[#222222] text-white rounded-md py-2.5 px-3 focus:outline-none"
+            class="w-full block bg-gray-100 dark:bg-[#222222] text-gray-900 dark:text-white rounded-md py-2.5 px-3 focus:outline-none"
           ></textarea>
           <span v-if="bioError" class="text-red-500 text-sm block mt-1">
             {{ bioError }}
@@ -142,16 +129,19 @@ watch(
         </span>
       </div>
 
-      <div class="p-4 border-t border-[#ebebeb6c] absolute bottom-0 right-0 w-full">
+      <div class="p-4 border-t border-gray-200 dark:border-[#ebebeb6c] absolute bottom-0 right-0 w-full">
         <div class="flex justify-end gap-3">
-          <button @click="switchModal(false)" class="px-4 py-2 bg-[#3a3a3a] rounded-md hover:-translate-y-1 hover:shadow-2xl transition">
+          <button
+            @click="switchModal(false)"
+            class="px-4 py-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-md hover:bg-gray-200 dark:hover:bg-[#303030] transition"
+          >
             Cancel
           </button>
           <button
             :disabled="!isUpdated"
             @click="updateUser()"
-            :class="!isUpdated ? 'bg-gray-200' : 'bg-[#F02C56] '"
-            class="flex items-center hover:-translate-y-1 hover:shadow-2xl bg-[#F02C56] rounded-md px-5 py-[6px] disabled:text-[#121212] disabled:pointer-events-none text-white"
+            :class="!isUpdated ? 'bg-gray-200' : 'bg-[#F02C56]'"
+            class="flex items-center hover:-translate-y-1 hover:shadow-2xl bg-[#F02C56] rounded-md px-5 py-[6px] disabled:text-gray-900 dark:disabled:text-[#121212] disabled:pointer-events-none text-white"
           >
             <span class="font-medium text-[15px]">Save</span>
           </button>

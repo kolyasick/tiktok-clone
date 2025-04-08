@@ -46,7 +46,7 @@ onMounted(() => {
 });
 </script>
 <template>
-  <div ref="scrollContainer">
+  <div ref="scrollContainer ">
     <PostMain v-if="$videosStore.videos.length" v-for="video in $videosStore.videos" :key="video.id" :video="video" />
     <div ref="loadMoreTrigger"></div>
     <div v-if="$videosStore.isLoading" class="flex justify-center">

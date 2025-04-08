@@ -72,10 +72,10 @@ const onVideoLoaded = () => {
 </script>
 
 <template>
-  <div :id="`PostMain-${video.id}`" ref="videoContainer" class="postmain flex">
+  <div :id="`PostMain-${video.id}`" ref="videoContainer" class="postmain ">
     <div class="mt-2.5 flex">
       <div
-        class="video-wrapper relative w-full lg:w-[80%] aspect-6/12 h-[calc(100vh-111px)] sm:min-h-[700px] max-h-[500px] sm:max-h-full flex items-center bg-black rounded-xl cursor-pointer"
+        class="video-wrapper relative w-full lg:w-[60%] aspect-6/12 h-[calc(100vh-111px)] sm:min-h-[700px] max-h-[500px] sm:max-h-full flex items-center bg-black rounded-xl cursor-pointer"
       >
         <div v-if="false" class="loader absolute inset-0 flex items-center justify-center bg-black rounded-xl">
           <IconsLoader class="animate-spin w-12 h-12" />
@@ -117,29 +117,37 @@ const onVideoLoaded = () => {
             <button
               :disabled="isLiking"
               @click="$videosStore.toggleLike(video)"
-              class="rounded-full flex items-center bg-[#3a3a3a] p-2 cursor-pointer disabled:bg-gray-300 w-[41px] aspect-square"
+              class="rounded-full flex items-center bg-gray-200 hover:bg-gray-300 dark:hover:bg-neutral-700 dark:bg-neutral-800 p-2 cursor-pointer disabled:bg-gray-300 w-[41px] aspect-square"
             >
               <IconsHeart :class="video.liked ? 'text-red-500' : ''" class="transition w-6 h-6" />
             </button>
-            <span class="text-xs text-[#EBEBEB] font-semibold">{{ video.likes?.length }}</span>
+            <span class="text-xs dark:text-[#EBEBEB] text-[#3a3a3a] font-semibold">{{ video.likes?.length }}</span>
           </div>
 
           <div class="pb-4 text-center">
-            <button class="rounded-full flex items-center bg-[#3a3a3a] p-2 cursor-pointer w-[41px] aspect-square">
+            <button
+              class="rounded-full flex items-center bg-gray-200 hover:bg-gray-300 dark:hover:bg-neutral-700 dark:bg-neutral-800 p-2 cursor-pointer w-[41px] aspect-square"
+            >
               <IconsComment class="w-6 h-6" @click="navigateTo(`/video/${video.id}`)" />
             </button>
-            <span class="text-xs text-[#EBEBEB] font-semibold">{{ video.comments?.length }}</span>
+            <span class="text-xs dark:text-[#EBEBEB] text-[#3a3a3a] font-semibold">{{ video.comments?.length }}</span>
           </div>
 
           <div class="pb-4 text-center">
-            <button @click="shareVideo(video)" class="rounded-full flex items-center bg-[#3a3a3a] p-2 cursor-pointer w-[41px] aspect-square">
+            <button
+              @click="shareVideo(video)"
+              class="rounded-full flex items-center bg-gray-200 hover:bg-gray-300 dark:hover:bg-neutral-700 dark:bg-neutral-800 p-2 cursor-pointer w-[41px] aspect-square"
+            >
               <IconsShare class="w-6 h-6" />
             </button>
-            <span class="text-xs text-[#EBEBEB] font-semibold">0</span>
+            <span class="text-xs dark:text-[#EBEBEB] text-[#3a3a3a] font-semibold">0</span>
           </div>
 
           <div class="text-center mb-2">
-            <button class="rounded-full flex items-center bg-[#3a3a3a] p-2 cursor-pointer w-[41px] aspect-square" @click="toggleMute">
+            <button
+              class="rounded-full flex items-center bg-gray-200 hover:bg-gray-300 dark:hover:bg-neutral-700 dark:bg-neutral-800 p-2 cursor-pointer w-[41px] aspect-square"
+              @click="toggleMute"
+            >
               <IconsMute :muted="isMuted" class="w-6 h-6" />
             </button>
           </div>
@@ -153,7 +161,7 @@ const onVideoLoaded = () => {
 
   <transition name="modal">
     <div v-if="isModalVisible" class="modal fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
-      <div class="bg-[#2a2a2a] p-4 rounded shadow-lg">
+      <div class="p-4 rounded shadow-lg dark:bg-neutral-800 bg-gray-50 text-gray-900 dark:text-white">
         <p>Video link copied to clipboard!</p>
       </div>
     </div>
@@ -163,9 +171,9 @@ const onVideoLoaded = () => {
 <style scoped>
 .modal-enter-active,
 .modal-leave-active {
-  transition: opacity 0.5s;
+  transition: all 0.3s;
 }
-.modal-enter,
+.modal-enter-from,
 .modal-leave-to {
   opacity: 0;
 }

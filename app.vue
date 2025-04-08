@@ -98,7 +98,7 @@ await $videosStore.getVideos();
 </script>
 <template>
   <NuxtLoadingIndicator color="#F02C56" />
-  <main>
+  <main class="bg-light dark:bg-dark text-gray-900 dark:text-white">
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
@@ -106,18 +106,13 @@ await $videosStore.getVideos();
 
   <AuthOverlay />
 
-<<<<<<< HEAD
   <EditProfileOverlay v-if="$generalStore.isEditProfileOpen" />
-=======
-  <EditProfileOverlay  v-if="$generalStore.isEditProfileOpen" />
->>>>>>> 904310922f45fdf9d20e1e728ee021f7b20e7dfb
 </template>
 
 <style>
 body {
-  background-color: #121212;
-  color: #fff;
   font-family: "Inter", sans-serif;
+  @apply dark:bg-dark bg-gray-50;
 }
 
 .main-pages-enter-active,
@@ -150,21 +145,38 @@ button {
 
 ::-webkit-scrollbar {
   width: 12px;
-  background-color: #333;
+  background-color: theme("colors.light.darker");
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #555;
+  background-color: theme("colors.light.darkest");
   border-radius: 10px;
-  border: 2px solid #333;
+  border: 2px solid theme("colors.light.darker");
+}
+
+.dark ::-webkit-scrollbar {
+  background-color: theme("colors.dark.lighter");
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background-color: theme("colors.dark.lightest");
+  border: 2px solid theme("colors.dark.lighter");
 }
 
 ::-webkit-scrollbar-track {
-  background-color: #333;
+  background-color: theme("colors.light.darker");
+}
+
+.dark ::-webkit-scrollbar-track {
+  background-color: theme("colors.dark.lighter");
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #777;
+  background-color: theme("colors.light.darkest");
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background-color: theme("colors.dark.lightest");
 }
 
 .modal-fadeenter-active,

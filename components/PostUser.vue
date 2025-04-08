@@ -43,7 +43,7 @@ const isHover = (bool: boolean) => {
     >
       <IconsLoader class="animate-spin ml-1 text-white w-24 h-24" />
     </div>
-    <div class="border rounded border-[#2a2a2a] aspect-[3/4] object-cover">
+    <div class="rounded aspect-[3/4] object-cover">
       <video
         ref="videoRef"
         muted

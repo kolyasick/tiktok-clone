@@ -15,7 +15,12 @@ const lastMessage = computed(() => {
 });
 
 const isFavorite = computed(() => {
-  return props.chat.companion.id === $authStore.profile?.id;
+  if (props.chat.companion.id === $authStore.profile?.id) {
+    props.chat.companion.name = "Saved Messages";
+    return true;
+  } else {
+    return false;
+  }
 });
 
 const chatOpen = async () => {
@@ -28,8 +33,8 @@ const chatOpen = async () => {
   <ul class="overflow-y-auto">
     <li
       @click="chatOpen"
-      :class="{ 'bg-[#3a3a3a]': $route.query.chatId as string == chat.id.toString() }"
-      class="flex items-center gap-3 p-4 cursor-pointer hover:bg-[#3a3a3a] transition-colors duration-200 overflow-hidden"
+      :class="{ 'dark:bg-[#3a3a3a] bg-gray-200': $route.query.chatId as string == chat.id.toString() }"
+      class="flex items-center gap-3 p-4 cursor-pointer dark:hover:bg-[#3a3a3a] hover:bg-gray-200 transition-colors duration-200 overflow-hidden"
     >
       <div class="w-10 h-10 object-cover relative shrink-0">
         <img
@@ -42,14 +47,14 @@ const chatOpen = async () => {
 
       <div class="flex flex-col justify-between w-full">
         <div class="flex justify-between items-center">
-          <span class="text-white font-medium text-md">{{ !isFavorite ? chat.companion.name : "Saved Messages" }}</span>
+          <span class="dark:text-white text-gray-800 font-medium text-md">{{ !isFavorite ? chat.companion.name : "Saved Messages" }}</span>
         </div>
 
         <div v-if="lastMessage" class="text-gray-400 text-sm flex gap-2">
           <p>
             {{ lastMessage?.sender?.id === $authStore.profile?.id ? "You: " : lastMessage?.sender?.name + ": " }}
           </p>
-          <span class="text-gray-300 truncate max-w-[90%] flex items-center justify-between w-full">
+          <span class="dark:text-gray-300 text-gray-600 truncate max-w-[90%] flex items-center justify-between w-full">
             <p class="truncate max-w-20">{{ lastMessage.text }}</p>
             <p class="text-gray-500">{{ formatDate(lastMessage.createdAt) }}</p>
           </span>

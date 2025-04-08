@@ -16,6 +16,16 @@ const { $authStore, $generalStore } = useNuxtApp();
 const isLoading = ref<boolean>(false);
 const route = useRoute();
 const { $io: socket } = useNuxtApp();
+const query = ref<string>("");
+
+const filteredChats = computed(() => {
+  return $generalStore.chats?.filter((chat) => {
+    return (
+      chat.companion.name.toLowerCase().includes(query.value.toLowerCase()) ||
+      chat.messages.some((message) => message.text.toLowerCase().includes(query.value.toLowerCase()))
+    );
+  });
+});
 
 socket.on("chatOpen", async (chat: IChat) => {
   const isChatExist = $generalStore.chats?.some((c) => c.id === chat.id);
@@ -142,12 +152,20 @@ onUnmounted(() => {
   <div>
     <TopNav />
     <div class="container flex h-[calc(100vh-61px)]">
-      <div class="w-full sm:w-1/4 bg-[#222222] relative mr-[1px]">
+      <div class="w-full sm:w-1/4 dark:bg-neutral-800 bg-gray-100 relative mr-[1px]">
         <form class="flex justify-center items-center h-[64px] mx-4">
-          <input class="bg-[#3a3a3a] py-2 px-4 rounded-md w-full focus:outline-none" type="text" placeholder="Поиск" />
+          <input
+            class="dark:bg-[#3a3a3a] dark:text-white bg-white text-gray-900 py-2 px-4 rounded-md w-full focus:outline-none"
+            type="text"
+            placeholder="Поиск"
+            v-model="query"
+          />
         </form>
         <ul>
-          <UserOverlay v-for="chat in $generalStore.chats" :key="chat.id" :chat="chat" />
+          <UserOverlay v-if="filteredChats?.length" v-for="chat in filteredChats" :key="chat.id" :chat="chat" />
+          <div v-else class="flex items-center justify-center text-gray-600 dark:text-gray-400">
+            <h3>No chats found</h3>
+          </div>
         </ul>
       </div>
 
@@ -158,8 +176,8 @@ onUnmounted(() => {
       </template>
 
       <template v-else-if="!$generalStore.currentChat">
-        <div class="h-full bg-[#191919] w-3/4 hidden sm:flex items-center justify-center max-[600px]:w-full">
-          <h3 class="py-1 px-3 bg-[#222222] rounded-full">Select a chat to start messaging</h3>
+        <div class="h-full dark:bg-neutral-900 bg-gray-200 w-3/4 hidden sm:flex items-center justify-center max-[600px]:w-full">
+          <h3 class="py-1 px-3 dark:bg-neutral-800 text-white bg-gray-300 rounded-full">Select a chat to start messaging</h3>
         </div>
       </template>
 

@@ -91,7 +91,7 @@ useSeoMeta({
   </div>
 
   <div class="w-full">
-    <div class="my-5 bg-[#222222] shadow-lg rounded-md py-6 md:px-10 px-4">
+    <div class="my-5 dark:bg-neutral-800/30 bg-gray-100 shadow-lg rounded-md py-6 md:px-10 px-4">
       <div>
         <div class="text-[23px] font-semibold">Upload video</div>
         <div class="text-gray-400 mt-1">Post a video to your account</div>
@@ -101,7 +101,7 @@ useSeoMeta({
         <label
           v-if="!video[0]"
           for="fileInput"
-          class="md:mx-0 mx-auto mt-4 mb-6 flex flex-col items-center justify-center w-full max-w-[260px] transition h-[470px] text-center p-3 border-2 border-dashed border-gray-300 rounded-lg hover:bg-[#161616] cursor-pointer"
+          class="md:mx-0 mx-auto mt-4 mb-6 flex flex-col items-center justify-center w-full max-w-[260px] transition h-[470px] text-center p-3 border-2 border-dashed border-gray-300 rounded-lg hover:bg-white dark:hover:bg-[#161616] cursor-pointer"
         >
           <IconsUpload class="w-12 h-12" />
           <div class="mt-4 text-[17px]">Select video to upload</div>
@@ -133,7 +133,7 @@ useSeoMeta({
         </div>
 
         <div class="mt-4 mb-6">
-          <div class="flex bg-bg-[#222222] py-4 px-6">
+          <div class="flex dark:bg-[#222222] bg-gray-200 py-4 px-6">
             <div>
               <IconsCutter class="w-5 h-5 mr-4" />
             </div>
@@ -156,12 +156,12 @@ useSeoMeta({
               maxlength="150"
               placeholder="Add a title"
               type="text"
-              class="w-full border p-2.5 rounded-md focus:outline-none bg-[#222222]"
+              class="w-full border border-gray-300 dark:border-neutral-700 p-2.5 rounded-md focus:outline-none bg-gray-200 dark:bg-[#222222]"
             />
           </div>
 
           <div class="flex gap-3">
-            <button @click="discard()" class="px-10 py-2.5 mt-8 transition bg-[#525252] text-[16px] hover:bg-[#707070] rounded-md">Discard</button>
+            <button @click="discard()" class="px-10 py-2.5 mt-8 transition dark:bg-[#525252] bg-gray-300 text-[16px] dark:hover:bg-[#707070] hover:bg-gray-400 rounded-md">Discard</button>
             <button @click="createVideo()" class="px-10 py-2.5 mt-8 transition text-[16px] text-white bg-[#F02C56] hover:bg-[#ff1548] rounded-md">
               Post
             </button>

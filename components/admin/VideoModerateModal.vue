@@ -82,12 +82,6 @@ const handleCancel = () => {
       <div class="p-4">
         <h2 class="text-2xl font-bold mb-5">Comments</h2>
         <ul v-if="selectedVideo?.comments?.length" class="mb-5 overflow-y-auto max-h-32 grid gap-3">
-<<<<<<< HEAD
-          <li class="border rounded-md p-1 border-[#3a3a3a]" v-for="comment in selectedVideo?.comments" :key="comment.id">
-            <div class="flex items-center gap-2 relative">
-              <NuxtLink :to="'/profile/' + comment.profile?.name">
-                <img class="w-7 aspect-square object-cover rounded-full" :src="'/upload/avatars/' + comment.profile?.avatar" alt="" />
-=======
           <li
             class="border rounded-md p-1 border-[#3a3a3a]"
             v-for="comment in selectedVideo?.comments"
@@ -100,7 +94,6 @@ const handleCancel = () => {
                   :src="'/upload/avatars/' + comment.profile?.avatar"
                   alt=""
                 />
->>>>>>> 904310922f45fdf9d20e1e728ee021f7b20e7dfb
               </NuxtLink>
               <div>
                 <p class="text-sm text-gray-600">{{ comment.profile?.name }}</p>

@@ -8,7 +8,15 @@ export default defineNuxtConfig({
       Inter: [100, 200, 300, 400, 500, 600, 700, 800, 900],
     },
   },
-  modules: ["@pinia/nuxt", "@nuxtjs/tailwindcss", "nuxt-auth-utils", "nuxt-file-storage", "nuxt-nodemailer", "@nuxtjs/google-fonts"],
+  modules: [
+    "@pinia/nuxt",
+    "@nuxtjs/tailwindcss",
+    "nuxt-auth-utils",
+    "nuxt-file-storage",
+    "nuxt-nodemailer",
+    "@nuxtjs/google-fonts",
+    "@nuxtjs/color-mode",
+  ],
   nodemailer: {
     from: '"Clipify" <killergems122@gmail.com>',
     host: process.env.SMTP_HOST,
@@ -71,6 +79,11 @@ export default defineNuxtConfig({
       },
     },
   },
-
+  colorMode: {
+    preference: "system",
+    fallback: "dark",
+    classSuffix: "",
+    storageKey: "tiktok-clone-theme",
+  },
   compatibilityDate: "2025-02-22",
 });
