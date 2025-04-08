@@ -3,6 +3,7 @@ import type { IProfile } from "~/types/user.type";
 
 const { $generalStore, $authStore } = useNuxtApp();
 const { loggedIn, user } = useUserSession();
+const colorMode = useColorMode();
 
 const router = useRouter();
 
@@ -25,6 +26,10 @@ const logout = async () => {
   const { handleStatus } = useChat();
   await handleStatus("offline", $authStore.profile as IProfile);
   await $authStore.logout();
+};
+
+const toggleTheme = () => {
+  colorMode.preference = colorMode.value === "dark" ? "light" : "dark";
 };
 </script>
 <template>
@@ -76,11 +81,19 @@ const logout = async () => {
                   <IconsUser class="w-5 h-5" />
                   <span class="pl-2 font-semibold text-sm">Profile</span>
                 </NuxtLink>
-                <hr />
-                <div @click="logout" class="flex items-center justify-start rounded-b-md py-3 px-2 dark:hover:bg-neutral-600 hover:bg-gray-200 cursor-pointer">
+                <hr class="border-gray-200 dark:border-neutral-600" />
+                <div @click="logout" class="flex items-center justify-start py-3 px-2 dark:hover:bg-neutral-600 hover:bg-gray-200 cursor-pointer">
                   <IconsLogout class="w-5 h-5" />
                   <span class="pl-2 font-semibold text-sm">Log out</span>
                 </div>
+                <hr class="border-gray-200 dark:border-neutral-600" />
+                <button
+                  @click="toggleTheme"
+                  class="flex items-center w-full justify-start rounded-b-md py-3 px-2 dark:hover:bg-neutral-600 hover:bg-gray-200 cursor-pointer"
+                >
+                  <ThemeSwitcher />
+                  <span class="pl-2 font-semibold text-sm">{{ colorMode.value === "dark" ? "Light Mode" : "DarkMode" }}</span>
+                </button>
               </div>
             </Transition>
           </div>

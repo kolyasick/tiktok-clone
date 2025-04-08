@@ -1,5 +1,15 @@
 <script setup lang="ts">
-const emit = defineEmits(["send-message"]);
+import type { Chat, Profile } from "@prisma/client";
+import type { IMessage } from "~/types/user.type";
+
+const emit = defineEmits(["send-message", "clear-current-chat"]);
+
+interface IChat extends Chat {
+  messages: IMessage[];
+  companion: Profile;
+}
+
+const props = defineProps<{ currentChat: IChat }>();
 const { $authStore, $generalStore } = useNuxtApp();
 
 let text = ref<string>("");
@@ -9,15 +19,15 @@ const { $io: socket } = useNuxtApp();
 
 const handleSend = () => {
   emit("send-message", text.value);
-  socket.emit("stopTyping", $generalStore.currentChat?.id.toString());
-  socket.emit("chatOpen", $generalStore.currentChat);
+  socket.emit("stopTyping", props.currentChat?.id.toString());
+  socket.emit("chatOpen", props.currentChat);
   text.value = "";
 };
 
 const handleTyping = () => {
   const data = {
     name: $authStore.profile?.name,
-    chatId: $generalStore.currentChat?.id.toString(),
+    chatId: props.currentChat?.id.toString(),
   };
 
   socket.emit("typing", data);
@@ -31,7 +41,7 @@ const handleTyping = () => {
 const messagesContainer = ref<HTMLDivElement | null>(null);
 
 watch(
-  () => [$generalStore.currentChat?.messages, typingUser],
+  () => [props.currentChat?.messages, typingUser],
   async () => {
     await nextTick();
     if (messagesContainer.value) {
@@ -61,20 +71,19 @@ onUnmounted(() => {
 });
 
 const goBack = async () => {
-  socket.emit("leaveChat", $generalStore.currentChat?.id.toString());
+  socket.emit("leaveChat", props.currentChat?.id.toString());
 
   await navigateTo("/chat");
-  $generalStore.currentChat = null;
+  emit("clear-current-chat");
 };
 
 const companion = computed(() => {
-  return $generalStore.currentChat?.companion;
+  return props.currentChat?.companion;
 });
 
 const isFavorite = computed(() => {
   return companion.value?.id === $authStore.profile?.id;
 });
-
 </script>
 
 <template>
@@ -96,7 +105,7 @@ const isFavorite = computed(() => {
     </div>
     <div ref="messagesContainer" class="flex-1 overflow-y-auto p-6 mt-14 sm:mt-0">
       <div
-        v-for="message in $generalStore.currentChat?.messages"
+        v-for="message in props.currentChat?.messages"
         :key="message.id"
         class="flex items-start mb-1"
         :class="{

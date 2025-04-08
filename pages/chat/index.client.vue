@@ -5,21 +5,24 @@ import type { IMessage } from "~/types/user.type";
 
 interface IChat extends Chat {
   messages: IMessage[];
-  companion: Profile & { online: boolean };
+  companion: Profile;
 }
 
 definePageMeta({
   middleware: ["auth", "chat"],
 });
 
-const { $authStore, $generalStore } = useNuxtApp();
+const { $authStore } = useNuxtApp();
+const { $io: socket } = useNuxtApp();
+
+const { chats, currentChat, updateChatStatus } = useChat();
+
 const isLoading = ref<boolean>(false);
 const route = useRoute();
-const { $io: socket } = useNuxtApp();
 const query = ref<string>("");
 
 const filteredChats = computed(() => {
-  return $generalStore.chats?.filter((chat) => {
+  return chats.value?.filter((chat) => {
     return (
       chat.companion.name.toLowerCase().includes(query.value.toLowerCase()) ||
       chat.messages.some((message) => message.text.toLowerCase().includes(query.value.toLowerCase()))
@@ -28,7 +31,7 @@ const filteredChats = computed(() => {
 });
 
 socket.on("chatOpen", async (chat: IChat) => {
-  const isChatExist = $generalStore.chats?.some((c) => c.id === chat.id);
+  const isChatExist = chats.value?.some((c) => c.id === chat.id);
 
   if (!isChatExist) {
     await fetchChats();
@@ -51,7 +54,7 @@ const fetchChats = async () => {
   });
 
   const sortedChats = sortChatsByLastMessage(chatItems);
-  $generalStore.$patch({ chats: sortedChats });
+  chats.value = sortedChats;
 };
 
 const sortChatsByLastMessage = (chats: IChat[]): IChat[] => {
@@ -66,10 +69,10 @@ const sortChatsByLastMessage = (chats: IChat[]): IChat[] => {
 await fetchChats();
 
 watch(
-  () => $generalStore.currentChat?.messages,
+  () => currentChat.value?.messages,
   () => {
-    const sortedChats = sortChatsByLastMessage($generalStore.chats!);
-    $generalStore.$patch({ chats: sortedChats });
+    const sortedChats = sortChatsByLastMessage(chats.value!);
+    chats.value = sortedChats;
   },
   { deep: true }
 );
@@ -78,11 +81,22 @@ watch(
   () => route.query.chatId,
   async (chatId, oldId) => {
     if (!chatId) {
-      $generalStore.$patch({ currentChat: null });
+      currentChat.value = null;
       return;
     }
 
-    isLoading.value = true;
+    try {
+      isLoading.value = true;
+      const chat = await $fetch<IChat>(`/api/chat/${chatId}`, {
+        query: { userId: $authStore.profile?.id },
+      });
+      currentChat.value = chat;
+    } catch (e) {
+      console.log(e);
+      await navigateTo("/chat");
+    } finally {
+      isLoading.value = false;
+    }
 
     if (oldId) {
       socket.emit("stopTyping", oldId);
@@ -99,11 +113,11 @@ watch(
 const sendMessage = async (text: string) => {
   if (!text.trim()) return;
 
-  if (!$generalStore.currentChat || !$authStore.profile) return;
+  if (!currentChat.value || !$authStore.profile) return;
 
   const message: IMessage = {
     id: Date.now(),
-    chatId: $generalStore.currentChat?.id,
+    chatId: currentChat.value?.id,
     senderId: $authStore.profile?.id,
     text,
     createdAt: new Date(),
@@ -118,7 +132,7 @@ const sendMessage = async (text: string) => {
     body: {
       text,
       senderId: $authStore.profile?.id,
-      chatId: $generalStore.currentChat?.id,
+      chatId: currentChat.value?.id,
     },
   });
 };
@@ -135,16 +149,26 @@ useSeoMeta({
 
 onMounted(() => {
   socket.on("chatMessage", (message: IMessage) => {
-    const chat = $generalStore.chats?.find((chat) => chat.id === message.chatId);
+    const chat = chats.value?.find((chat) => chat.id === message.chatId);
     if (chat) chat.messages.push(message);
-    if ($generalStore.currentChat?.id === message.chatId) {
-      $generalStore.currentChat.messages.push(message);
+    if (currentChat.value?.id === message.chatId) {
+      currentChat.value.messages.push(message);
     }
+  });
+
+  socket.on("online", (userId: number) => {
+    updateChatStatus(userId, true);
+  });
+
+  socket.on("offline", (userId: number) => {
+    updateChatStatus(userId, false);
   });
 });
 
 onUnmounted(() => {
   socket.off("chatMessage");
+  socket.off("online");
+  socket.off("offline");
 });
 </script>
 
@@ -175,14 +199,14 @@ onUnmounted(() => {
         </div>
       </template>
 
-      <template v-else-if="!$generalStore.currentChat">
+      <template v-else-if="!currentChat">
         <div class="h-full dark:bg-neutral-900 bg-gray-200 w-3/4 hidden sm:flex items-center justify-center max-[600px]:w-full">
           <h3 class="py-1 px-3 dark:bg-neutral-800 text-white bg-gray-300 rounded-full">Select a chat to start messaging</h3>
         </div>
       </template>
 
       <template v-else>
-        <ChatOverlay @send-message="sendMessage" />
+        <ChatOverlay :current-chat="currentChat" @send-message="sendMessage" @clear-current-chat="currentChat = null" />
       </template>
     </div>
   </div>

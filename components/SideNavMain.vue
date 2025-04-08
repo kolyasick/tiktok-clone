@@ -42,7 +42,6 @@ const { user } = useUserSession();
           </div>
         </div>
       </NuxtLink>
-      <ThemeSwitcher />
 
       <div v-if="true">
         <div class="border-b border-gray-200 dark:border-[#ebebeb6c] mt-2" />

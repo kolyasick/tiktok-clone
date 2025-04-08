@@ -3,10 +3,8 @@ import { Server as Engine } from "engine.io";
 import { Server, Socket } from "socket.io";
 import { defineEventHandler } from "h3";
 import { IMessage } from "~/types/user.type";
-import { Chat, User } from "@prisma/client";
 import prisma from "~/server/composables/prisma";
 
-// Keep track of connected users
 const connectedUsers = new Map<number, Set<string>>();
 
 export default defineNitroPlugin((nitroApp: NitroApp) => {
@@ -15,25 +13,27 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
 
   io.bind(engine);
 
+
   io.on("connection", (socket: Socket) => {
     socket.on("setUser", async (userId: number) => {
       if (!userId) return;
 
       socket.data.userId = userId;
+      socket.data.lastHeartbeat = Date.now();
 
-      // Add user to connected users
       if (!connectedUsers.has(userId)) {
         connectedUsers.set(userId, new Set());
       }
       connectedUsers.get(userId)?.add(socket.id);
 
-      // Update user status in database
       try {
         await prisma.profile.update({
           where: { id: userId },
-          data: { online: true },
+          data: {
+            online: true,
+            updatedAt: new Date(),
+          },
         });
-        // Notify others that user is online
         io.emit("online", userId);
       } catch (error) {
         console.error("Failed to update online status:", error);
@@ -67,7 +67,6 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
     socket.on("online", async (userId: number) => {
       if (!userId) return;
 
-      // Add user to connected users if not already present
       if (!connectedUsers.has(userId)) {
         connectedUsers.set(userId, new Set());
       }
@@ -87,10 +86,8 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
     socket.on("offline", async (userId: number) => {
       if (!userId) return;
 
-      // Remove socket from connected users
       connectedUsers.get(userId)?.delete(socket.id);
 
-      // Only update status if user has no other active connections
       if (connectedUsers.get(userId)?.size === 0) {
         try {
           await prisma.profile.update({
@@ -108,15 +105,16 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
       const userId = socket.data.userId;
       if (!userId) return;
 
-      // Remove socket from connected users
       connectedUsers.get(userId)?.delete(socket.id);
 
-      // Only update status if user has no other active connections
       if (connectedUsers.get(userId)?.size === 0) {
         try {
           await prisma.profile.update({
             where: { id: userId },
-            data: { online: false },
+            data: {
+              online: false,
+              updatedAt: new Date(),
+            },
           });
           io.emit("offline", userId);
         } catch (error) {
@@ -126,21 +124,6 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
     });
   });
 
-  // Handle server shutdown gracefully
-  process.on("SIGTERM", async () => {
-    // Update all connected users to offline
-    for (const [userId] of connectedUsers) {
-      try {
-        await prisma.profile.update({
-          where: { id: userId },
-          data: { online: false },
-        });
-        io.emit("offline", userId);
-      } catch (error) {
-        console.error(`Failed to update offline status for user ${userId}:`, error);
-      }
-    }
-  });
 
   nitroApp.router.use(
     "/socket.io/",

@@ -8,89 +8,74 @@ if (user.value) {
   $authStore.profile = profile;
 }
 
+const { handleStatus } = useChat();
+
 const handleOffline = async (userId: number) => {
   if (!userId) return;
+  const { chats } = useChat();
 
-  if ($generalStore.chats) {
-    const user = $generalStore.chats.find((c) => c.companion.id === userId)?.companion;
-    const companion = $generalStore.currentChat?.companion;
+  if (chats.value) {
+    const user = chats.value.find((c) => c.companion.id === userId)?.companion;
 
     if (user) {
       user.online = false;
       user.updatedAt = new Date();
-    }
-
-    if (companion && companion.id === userId) {
-      companion.online = false;
-      companion.updatedAt = new Date();
     }
   }
 };
 
 const handleOnline = async (userId: number) => {
   if (!userId) return;
+  const { chats } = useChat();
 
-  if ($generalStore.chats) {
-    const user = $generalStore.chats.find((c) => c.companion.id === userId)?.companion;
-    const companion = $generalStore.currentChat?.companion;
+  if (chats.value) {
+    const user = chats.value.find((c) => c.companion.id === userId)?.companion;
 
     if (user) {
       user.online = true;
       user.updatedAt = new Date();
-    }
-
-    if (companion && companion.id === userId) {
-      companion.online = true;
-      companion.updatedAt = new Date();
     }
   }
 };
 
 const handleBeforeUnload = () => {
   if ($authStore.profile) {
-    // Just emit offline event, don't try to make HTTP request
     socket.emit("offline", $authStore.profile.id);
   }
 };
 
-onMounted(async () => {
-  const { handleStatus } = useChat();
+const handleVisibilityChange = async () => {
+  if (!$authStore.profile) return;
+  const status = document.visibilityState === "visible" ? "online" : "offline";
+  await handleStatus(status, $authStore.profile);
+};
 
+onMounted(async () => {
   if (loggedIn.value && $authStore.profile) {
-    // Set up socket event listeners first
     socket.on("online", handleOnline);
     socket.on("offline", handleOffline);
 
-    // Then set user status
     socket.emit("setUser", $authStore.profile.id);
     await handleStatus("online", $authStore.profile);
 
-    const handleVisibilityChange = async () => {
-      if (!$authStore.profile) return;
-      const status = document.visibilityState === "visible" ? "online" : "offline";
-      await handleStatus(status, $authStore.profile);
-    };
-
     document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("beforeunload", handleBeforeUnload);
 
     socket.on("connect", () => {
       if ($authStore.profile) {
         socket.emit("setUser", $authStore.profile.id);
       }
     });
+  }
+});
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
-    // Cleanup function
-    onUnmounted(() => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-      socket.off("online", handleOnline);
-      socket.off("offline", handleOffline);
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-      if ($authStore.profile) {
-        handleStatus("offline", $authStore.profile);
-      }
-    });
+onUnmounted(() => {
+  if (loggedIn.value && $authStore.profile) {
+    socket.off("online");
+    socket.off("offline");
+    socket.off("connect");
+    document.removeEventListener("visibilitychange", handleVisibilityChange);
+    window.removeEventListener("beforeunload", handleBeforeUnload);
   }
 });
 

@@ -9,8 +9,6 @@ export const useGeneralStore = defineStore("gen", {
   state: () => ({
     isLoginOpen: false as boolean,
     isEditProfileOpen: false as boolean,
-    chats: null as IChat[] | null,
-    currentChat: null as IChat | null,
   }),
   actions: {
     bodySwitch(val: boolean) {
