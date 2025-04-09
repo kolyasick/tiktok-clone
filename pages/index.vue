@@ -15,44 +15,34 @@ useSeoMeta({
   ogUrl: import.meta.env.BASE_URL,
 });
 
-const scrollContainer = ref(null);
-const loadMoreTrigger = ref(null);
 
-const handleIntersection = async (entries: IntersectionObserverEntry[], observer: IntersectionObserver) => {
-  const [entry] = entries;
-  if (entry.isIntersecting) {
-    await $videosStore.getVideos();
-  }
-};
-
-onMounted(() => {
-  const observer = new IntersectionObserver(handleIntersection, {
-    root: null,
-    threshold: 1.0,
-  });
-
-  if (loadMoreTrigger.value) {
-    observer.observe(loadMoreTrigger.value);
-  }
-
-  watch(
-    () => $videosStore.isLoading,
-    (newValue) => {
-      if (!newValue && loadMoreTrigger.value) {
-        observer.observe(loadMoreTrigger.value);
-      }
-    }
-  );
-});
 </script>
+
 <template>
-  <div ref="scrollContainer ">
-    <PostMain v-if="$videosStore.videos.length" v-for="video in $videosStore.videos" :key="video.id" :video="video" />
-    <div ref="loadMoreTrigger"></div>
-    <div v-if="$videosStore.isLoading" class="flex justify-center">
-      <IconsLoader class="animate-spin ml-1 w-24 h-24" />
-    </div>
+  <div class="h-screen">
+    <h1>Главная</h1>
   </div>
 </template>
 
-<style scoped></style>
+<style>
+/* Hide scrollbar for Chrome, Safari and Opera */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+* {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.snap-y {
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+
+.snap-start {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+</style>

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { IVideo } from "~/types/user.type";
-const { $videosStore } = useNuxtApp();
+const { $videosStore, $authStore } = useNuxtApp();
 
 type Props = {
   video: IVideo;
 };
-defineProps<Props>();
+const props = defineProps<Props>();
 
 let videoplay = ref<HTMLVideoElement | null>(null);
 let videoContainer = ref(null);
@@ -13,6 +13,7 @@ let isMuted = ref(true);
 let volume = ref(5);
 let isLiking = ref(false);
 let isVideoLoading = ref(true);
+let isCommentsVisible = ref(false);
 
 const loadMoreTrigger = ref(null);
 const isModalVisible = ref(false);
@@ -53,6 +54,14 @@ const shareVideo = async (video: IVideo) => {
   }
 };
 
+const toggleComments = () => {
+  isCommentsVisible.value = !isCommentsVisible.value;
+};
+
+const closeComments = () => {
+  isCommentsVisible.value = false;
+};
+
 onMounted(() => {
   if (videoplay.value) {
     videoplay.value.volume = volume.value / 100;
@@ -72,8 +81,8 @@ const onVideoLoaded = () => {
 </script>
 
 <template>
-  <div :id="`PostMain-${video.id}`" ref="videoContainer" class="postmain ">
-    <div class="mt-2.5 flex">
+  <div :id="`PostMain-${video.id}`" ref="videoContainer" class="postmain">
+    <div class="mt-2.5 flex relative">
       <div
         class="video-wrapper relative w-full lg:w-[60%] aspect-6/12 h-[calc(100vh-111px)] sm:min-h-[700px] max-h-[500px] sm:max-h-full flex items-center bg-black rounded-xl cursor-pointer"
       >
@@ -82,7 +91,6 @@ const onVideoLoaded = () => {
         </div>
 
         <video
-          @click="navigateTo(`/video/${video.id}`)"
           ref="videoplay"
           preload="auto"
           loop
@@ -111,24 +119,25 @@ const onVideoLoaded = () => {
           </div>
         </div>
       </div>
-      <div class="relative mr-[50px]">
+      <div class="relative mr-[60px]">
         <div class="absolute bottom-0 pl-2">
           <div class="pb-4 text-center">
             <button
               :disabled="isLiking"
               @click="$videosStore.toggleLike(video)"
-              class="rounded-full flex items-center bg-gray-200 hover:bg-gray-300 dark:hover:bg-neutral-700 dark:bg-neutral-800 p-2 cursor-pointer disabled:bg-gray-300 w-[41px] aspect-square"
+              class="rounded-full flex items-center justify-center bg-gray-200 hover:bg-gray-300 dark:hover:bg-neutral-700 dark:bg-neutral-800 p-2 cursor-pointer disabled:bg-gray-300 w-[48px] aspect-square"
             >
-              <IconsHeart :class="video.liked ? 'text-red-500' : ''" class="transition w-6 h-6" />
+              <IconsHeart :class="video.liked ? 'text-red-500' : ''" class="transition w-7 h-7 aspect-square" />
             </button>
             <span class="text-xs dark:text-[#EBEBEB] text-[#3a3a3a] font-semibold">{{ video.likes?.length }}</span>
           </div>
 
           <div class="pb-4 text-center">
             <button
-              class="rounded-full flex items-center bg-gray-200 hover:bg-gray-300 dark:hover:bg-neutral-700 dark:bg-neutral-800 p-2 cursor-pointer w-[41px] aspect-square"
+              class="rounded-full flex items-center justify-center bg-gray-200 hover:bg-gray-300 dark:hover:bg-neutral-700 dark:bg-neutral-800 p-2 cursor-pointer w-[48px] aspect-square"
+              @click="toggleComments"
             >
-              <IconsComment class="w-6 h-6" @click="navigateTo(`/video/${video.id}`)" />
+              <IconsComment class="w-7 h-7 aspect-square" />
             </button>
             <span class="text-xs dark:text-[#EBEBEB] text-[#3a3a3a] font-semibold">{{ video.comments?.length }}</span>
           </div>
@@ -136,23 +145,26 @@ const onVideoLoaded = () => {
           <div class="pb-4 text-center">
             <button
               @click="shareVideo(video)"
-              class="rounded-full flex items-center bg-gray-200 hover:bg-gray-300 dark:hover:bg-neutral-700 dark:bg-neutral-800 p-2 cursor-pointer w-[41px] aspect-square"
+              class="rounded-full flex items-center justify-center bg-gray-200 hover:bg-gray-300 dark:hover:bg-neutral-700 dark:bg-neutral-800 p-2 cursor-pointer w-[48px] aspect-square"
             >
-              <IconsShare class="w-6 h-6" />
+              <IconsShare class="w-7 h-7 aspect-square" />
             </button>
             <span class="text-xs dark:text-[#EBEBEB] text-[#3a3a3a] font-semibold">0</span>
           </div>
 
           <div class="text-center mb-2">
             <button
-              class="rounded-full flex items-center bg-gray-200 hover:bg-gray-300 dark:hover:bg-neutral-700 dark:bg-neutral-800 p-2 cursor-pointer w-[41px] aspect-square"
+              class="rounded-full flex items-center justify-center bg-gray-200 hover:bg-gray-300 dark:hover:bg-neutral-700 dark:bg-neutral-800 p-2 cursor-pointer w-[48px] aspect-square"
               @click="toggleMute"
             >
-              <IconsMute :muted="isMuted" class="w-6 h-6" />
+              <IconsMute :muted="isMuted" class="w-7 h-7 aspect-square" />
             </button>
           </div>
         </div>
       </div>
+      <Transition name="slide">
+        <CommentsSection v-if="isCommentsVisible" :video-id="video.id" :is-visible="isCommentsVisible" @close="closeComments" />
+      </Transition>
     </div>
   </div>
   <div>
@@ -169,6 +181,16 @@ const onVideoLoaded = () => {
 </template>
 
 <style scoped>
+.slide-enter-active,
+.slide-leave-active {
+  transition: transform 0.3s ease;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+  transform: translateX(100%);
+}
+
 .modal-enter-active,
 .modal-leave-active {
   transition: all 0.3s;

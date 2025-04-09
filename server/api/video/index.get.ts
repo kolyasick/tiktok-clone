@@ -1,51 +1,31 @@
 import prisma from "~/server/composables/prisma";
 
-type Query = {
-  userId?: string;
-  offset?: string;
-  limit?: string;
-};
-
 export default defineEventHandler(async (event) => {
-  const { userId, offset, limit } = getQuery<Query>(event);
+  const { offset = 0, limit = 5, excludeId } = getQuery<{ offset: string; limit: string; excludeId: string }>(event);
 
-  let videos;
-  if (userId) {
-    videos = await prisma.video.findMany({
-      where: {
-        profileId: parseInt(userId),
-        status: {
-          title: "published",
+  const videos = await prisma.video.findMany({
+    where: excludeId
+      ? {
+          id: {
+            not: excludeId,
+          },
+        }
+      : undefined,
+    skip: Number(offset),
+    take: Number(limit),
+    include: {
+      profile: true,
+      likes: {
+        include: {
+          profile: true,
         },
       },
-      include: {
-        profile: true,
-        comments: true,
-        likes: true,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-  } else {
-    videos = await prisma.video.findMany({
-      include: {
-        profile: true,
-        comments: true,
-        likes: true,
-      },
-      where: {
-        status: {
-          title: "published",
-        },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      skip: typeof offset === "string" ? parseInt(offset) : offset,
-      take: typeof limit === "string" ? parseInt(limit) : limit,
-    });
-  }
+      comments: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 
-  return videos ?? [];
+  return videos;
 });

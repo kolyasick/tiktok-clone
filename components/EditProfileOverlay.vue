@@ -86,17 +86,32 @@ watch(
 </script>
 
 <template>
-  <div v-if="$generalStore.isEditProfileOpen" class="fixed z-40 top-0 left-0 w-full h-full bg-black bg-opacity-50" @click="switchModal(false)"></div>
+  <div class="fixed z-40 top-0 left-0 w-full h-full bg-black bg-opacity-50" @click="switchModal(false)"></div>
 
   <Transition name="edit-modal">
     <div
-      v-if="$generalStore.isEditProfileOpen"
       class="fixed z-50 bg-light dark:bg-dark top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[500px] w-full h-[500px] mx-auto rounded-lg"
     >
       <div class="w-full flex justify-end">
         <button @click="switchModal(false)" class="p-3">
-          <IconsClose class="w-7 h-7" />
+          <IconsClose class="w-7 h-7 dark:text-white text-black" />
         </button>
+      </div>
+
+      <h2 class="font-semibold text-2xl ps-6">Edit profile</h2>
+
+      <div class="flex items-center justify-center">
+        <div class="relative">
+          <img
+            class="w-24 h-24 rounded-full object-cover"
+            :src="(avatar[0]?.content as string) ?? '/upload/avatars/' + $authStore.profile?.avatar"
+            alt=""
+          />
+          <label for="image" @clikc="handleFileInput" class="dark:text-white text-black absolute -bottom-2 -right-2 cursor-pointer">
+            <IconsPencil class="w-7 h-7" />
+            <input class="hidden" type="file" id="image" @input="(e) => handleFileInput(e)" accept="image/png, image/jpeg, image/jpg" />
+          </label>
+        </div>
       </div>
 
       <div class="px-6">
@@ -133,7 +148,7 @@ watch(
         <div class="flex justify-end gap-3">
           <button
             @click="switchModal(false)"
-            class="px-4 py-2 bg-gray-100 dark:bg-[#3a3a3a] rounded-md hover:bg-gray-200 dark:hover:bg-[#303030] transition"
+            class="px-4 py-2 text-black dark:text-white bg-gray-100 dark:bg-[#3a3a3a] rounded-md hover:bg-gray-200 dark:hover:bg-[#303030] transition"
           >
             Cancel
           </button>

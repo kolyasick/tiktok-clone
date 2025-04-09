@@ -65,6 +65,7 @@ model Profile {
   videos   Video[]
   comments Comment[]
   likes    Like[]
+  commentLikes CommentLike[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -77,7 +78,7 @@ model Role {
 }
 
 model Video {
-  id       Int      @id @default(autoincrement())
+  id       String      @id @default(uuid())
   title    String
   url      String?
   isBlocked Boolean @default(false)
@@ -106,11 +107,22 @@ model Like {
   id        Int      @id @default(autoincrement())
   profileId Int
   profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  videoId   Int
+  videoId   String
   video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([profileId, videoId])
+}
+
+model CommentLike {
+  id        Int      @id @default(autoincrement())
+  commentId Int
+  reaction  Int @default(0) 
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  profileId Int
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
 }
 
 model Comment {
@@ -118,11 +130,13 @@ model Comment {
   text      String
   profileId Int
   profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  videoId   Int
+  videoId   String
   video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  likes CommentLike[]
 }
 
 model Follows {

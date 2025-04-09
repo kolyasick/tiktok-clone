@@ -1,7 +1,7 @@
 import prisma from "~/server/composables/prisma";
 
 interface IBody {
-  videoId: number;
+  videoId: string;
   profileId: number;
 }
 
@@ -15,15 +15,12 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const like = await prisma.like.findFirst({
-    where: {
-      videoId,
-      profileId,
-    },
-  });
   const unlike = await prisma.like.delete({
     where: {
-      id: like?.id,
+      profileId_videoId: {
+        profileId,
+        videoId,
+      },
     },
   });
 
@@ -33,5 +30,5 @@ export default defineEventHandler(async (event) => {
       statusMessage: "Error deleting like",
     });
   }
-  return like;
+  return unlike;
 });

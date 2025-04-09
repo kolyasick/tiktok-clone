@@ -2,7 +2,7 @@ import prisma from "~/server/composables/prisma";
 
 interface IBody {
   senderId: number;
-  videoId: number;
+  videoId: string;
   text: string;
 }
 export default defineEventHandler(async (event) => {
@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   if (!videoId || !senderId || !text) {
     throw createError({
       statusCode: 400,
-      statusMessage: "Chat id, senderId and text required",
+      statusMessage: "Video id, senderId and text required",
     });
   }
 
@@ -20,6 +20,10 @@ export default defineEventHandler(async (event) => {
       videoId,
       profileId: senderId,
       text,
+    },
+    include: {
+      profile: true,
+      likes: true,
     },
   });
 

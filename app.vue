@@ -78,8 +78,6 @@ onUnmounted(() => {
     window.removeEventListener("beforeunload", handleBeforeUnload);
   }
 });
-
-await $videosStore.getVideos();
 </script>
 <template>
   <NuxtLoadingIndicator color="#F02C56" />
@@ -114,9 +112,9 @@ body {
   transition: all 0.2s ease;
 }
 
-html {
+/* html {
   scrollbar-gutter: stable;
-}
+} */
 
 button {
   white-space: nowrap;

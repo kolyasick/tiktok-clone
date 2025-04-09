@@ -11,7 +11,7 @@ export const useVideosStore = defineStore("general", {
   }),
 
   actions: {
-    async getVideos() {
+    async getVideos(excludeId?: string) {
       if (this.isLoading || !this.hasMore) return;
 
       this.isLoading = true;
@@ -22,6 +22,7 @@ export const useVideosStore = defineStore("general", {
           query: {
             offset: this.offset,
             limit: this.limit,
+            excludeId: excludeId,
           },
         });
 

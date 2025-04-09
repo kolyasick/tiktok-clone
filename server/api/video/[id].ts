@@ -10,20 +10,14 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const parsedId = parseInt(id);
-
   const video = await prisma.video.findUnique({
     where: {
-      id: parsedId,
+      id,
     },
     include: {
       profile: true,
-      comments: {
-        include: {
-          profile: true,
-        },
-      },
       likes: true,
+      comments: true,
     },
   });
 
