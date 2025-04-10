@@ -25,12 +25,22 @@ export default defineEventHandler(async (event) => {
           profile: true,
         },
       },
-      comments: true,
+      _count: {
+        select: {
+          comments: true,
+        },
+      },
     },
     orderBy: {
       createdAt: "desc",
     },
   });
 
-  return videos;
+  return videos.map((video) => {
+    return {
+      ...video,
+      commentsCount: video._count?.comments || 0, // Добавляем количество комментариев
+      _count: undefined, // Удаляем лишнее поле _count из ответа
+    };
+  });
 });

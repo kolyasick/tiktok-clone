@@ -71,6 +71,7 @@ onMounted(async () => {
   }
 });
 
+
 onUnmounted(() => {
   if (loggedIn.value && $authStore.profile) {
     socket.off("online");

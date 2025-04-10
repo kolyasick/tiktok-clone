@@ -17,7 +17,11 @@ export default defineEventHandler(async (event) => {
     include: {
       profile: true,
       likes: true,
-      comments: true,
+      _count: {
+        select: {
+          comments: true,
+        },
+      },
     },
   });
 
@@ -28,5 +32,9 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  return video;
+  return {
+    ...video,
+    commentsCount: video._count?.comments || 0, // Добавляем количество комментариев
+    _count: undefined, // Удаляем лишнее поле _count из ответа
+  };
 });

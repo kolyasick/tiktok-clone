@@ -79,15 +79,13 @@ const onVideoLoaded = () => {
 };
 
 const addComment = (comment: IComment) => {
-  if (!comment) return;
-  props.video.comments?.push(comment);
+  if (!comment || !props.video.commentsCount) return;
+  props.video.commentsCount += 1;
 };
 
 const isFollowed = (userId: number) => {
   return computed(() => {
-    return $authStore.followers.some(
-      (follower) => follower.userId === userId || follower.friendId === userId
-    );
+    return $authStore.followers.some((follower) => follower.userId === userId || follower.friendId === userId);
   });
 };
 const isFollowing = ref(false);
@@ -120,13 +118,8 @@ const handleFollow = async () => {
       @timeupdate="onVideoLoaded"
       :src="'/upload/videos/' + video.url || ''"
     />
-    <div
-      class="absolute xl:bottom-5 xl:left-5 bottom-2 left-2 grid gap-1 text-white dark:text-white"
-    >
-      <NuxtLink
-        :to="`/profile/${video.profile?.name}`"
-        class="font-semibold text-lg hover:underline"
-      >
+    <div class="absolute xl:bottom-5 xl:left-5 bottom-2 left-2 grid gap-1 text-white dark:text-white">
+      <NuxtLink :to="`/profile/${video.profile?.name}`" class="font-semibold text-lg hover:underline">
         {{ video.profile?.name }}
       </NuxtLink>
       <p class="max-w-[200px] xl:max-w-[300px]">{{ video.title }}</p>
@@ -135,11 +128,7 @@ const handleFollow = async () => {
       class="absolute xl:bottom-5 xl:right-5 bottom-2 right-2 grid gap-2 place-items-center dark:text-white text-white"
     >
       <div class="relative mb-5">
-        <img
-          :src="'/upload/avatars/' + video.profile?.avatar"
-          class="w-12 aspect-square rounded-full border"
-          alt=""
-        />
+        <img :src="'/upload/avatars/' + video.profile?.avatar" class="w-12 aspect-square rounded-full border" alt="" />
         <button
           @click="handleFollow"
           v-if="!isFollowing"
@@ -160,11 +149,9 @@ const handleFollow = async () => {
             class="transition w-full aspect-square"
           />
         </button>
-        <span
-          style="filter: drop-shadow(0px 0px 1px black)"
-          class="text-xs text-white font-semibold"
-          >{{ video.likes?.length }}</span
-        >
+        <span style="filter: drop-shadow(0px 0px 1px black)" class="text-xs text-white font-semibold">{{
+          video.likes?.length
+        }}</span>
       </div>
 
       <div class="text-center">
@@ -172,16 +159,11 @@ const handleFollow = async () => {
           class="rounded-full flex items-center justify-center cursor-pointer aspect-square w-8"
           @click="toggleComments"
         >
-          <IconsComment
-            style="filter: drop-shadow(0px 0px 1px black)"
-            class="w-full aspect-square"
-          />
+          <IconsComment style="filter: drop-shadow(0px 0px 1px black)" class="w-full aspect-square" />
         </button>
-        <span
-          style="filter: drop-shadow(0px 0px 1px black)"
-          class="text-xs text-white font-semibold"
-          >{{ video.comments?.length }}</span
-        >
+        <span style="filter: drop-shadow(0px 0px 1px black)" class="text-xs text-white font-semibold">{{
+          video.commentsCount
+        }}</span>
       </div>
 
       <div class="text-center">
@@ -198,11 +180,7 @@ const handleFollow = async () => {
           class="rounded-full flex items-center justify-center cursor-pointer aspect-square w-8"
           @click="toggleMute"
         >
-          <IconsMute
-            style="filter: drop-shadow(0px 0px 1px black)"
-            :muted="isMuted"
-            class="w-full aspect-square"
-          />
+          <IconsMute style="filter: drop-shadow(0px 0px 1px black)" :muted="isMuted" class="w-full aspect-square" />
         </button>
       </div>
     </div>
@@ -212,6 +190,7 @@ const handleFollow = async () => {
         v-if="isCommentsVisible"
         :is-visible="isCommentsVisible"
         :video-id="video.id"
+        :comments-count="video.commentsCount || 0"
         @close="closeComments"
         @add-comment="addComment"
       />

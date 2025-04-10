@@ -2,6 +2,7 @@
 import type { IVideo } from "~/types/user.type";
 
 const { $videosStore, $authStore } = useNuxtApp();
+const localePath = useLocalePath();
 
 definePageMeta({
   layout: "main-layout",
@@ -22,6 +23,8 @@ const { data } = await useFetch<IVideo>(`/api/video/${route.params.id}`, {
     };
   },
 });
+
+console.log(data.value);
 
 if (data.value) {
   $videosStore.videos = [data.value];
@@ -68,7 +71,7 @@ const handleScroll = async (e: WheelEvent) => {
         block: currentVideoIndex.value === 0 ? "end" : "center",
       });
       const currentVideo = $videosStore.videos[nextIndex];
-      window.history.replaceState({}, "", `/video/${currentVideo.id}`);
+      window.history.replaceState({}, "", localePath(`/video/${currentVideo.id}`));
 
       useSeoMeta({
         title: "Clipify | " + currentVideo.title,
@@ -121,7 +124,7 @@ const handleTouchMove = async (e: TouchEvent) => {
         });
 
         const currentVideo = $videosStore.videos[nextIndex];
-        window.history.replaceState({}, "", `/video/${currentVideo.id}`);
+        window.history.replaceState({}, "", localePath(`/video/${currentVideo.id}`));
 
         useSeoMeta({
           title: "Clipify | " + currentVideo.title,
@@ -177,10 +180,7 @@ onUnmounted(() => {
     >
       <PostMain class="mb-5" :video="video" />
     </div>
-    <div
-      v-if="$videosStore.isLoading"
-      class="flex justify-center items-center h-[calc(100vh-24px)] snap-start"
-    >
+    <div v-if="$videosStore.isLoading" class="flex justify-center items-center h-[calc(100vh-24px)] snap-start">
       <IconsLoader class="animate-spin ml-1 w-24 h-24" />
     </div>
   </div>

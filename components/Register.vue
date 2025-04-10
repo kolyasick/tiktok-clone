@@ -8,6 +8,7 @@ const password = ref("");
 const emit = defineEmits(["closeModal"]);
 
 const register = async () => {
+  console.log('123')
   const { handleStatus } = useChat();
 
   await $authStore.register(name.value, email.value, password.value);

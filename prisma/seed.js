@@ -14,7 +14,17 @@ async function main() {
 
   // await prisma.message.deleteMany()
   // await prisma.chat.deleteMany()
-  
+
+  // await prisma.comment.createMany({
+  //   data: Array.from({ length: 100000 }, () => {
+  //     return {
+  //       text: "asd",
+  //       videoId: "a73f9c3e-fd53-4dac-afa7-bfd7c5c301e7",
+  //       profileId: 1,
+  //     };
+  //   }),
+  // });
+  await prisma.comment.deleteMany()
 }
 
 main()

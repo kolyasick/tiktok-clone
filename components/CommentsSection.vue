@@ -5,6 +5,7 @@ const { $authStore, $generalStore } = useNuxtApp();
 
 type Props = {
   videoId: string;
+  commentsCount: number;
   isVisible: boolean;
 };
 
@@ -124,10 +125,7 @@ const dislikeComment = async (comment: IComment) => {
             ...c,
             liked: false,
             disliked: reaction === -1,
-            likes:
-              reaction === -1
-                ? c.likes?.filter((like) => like.profileId !== $authStore.profile?.id)
-                : c.likes,
+            likes: reaction === -1 ? c.likes?.filter((like) => like.profileId !== $authStore.profile?.id) : c.likes,
             dislikes:
               reaction === -1
                 ? [
@@ -168,21 +166,15 @@ const dislikeComment = async (comment: IComment) => {
       <h2 class="xl:text-xl text-lg font-semibold dark:text-white">
         {{ $t("comments") }}
         <span class="text-gray-400 font-normal">
-          {{ comments.length }}
+          {{ commentsCount }}
         </span>
       </h2>
-      <button
-        @click="$emit('close')"
-        class="p-2 hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-full"
-      >
+      <button @click="$emit('close')" class="p-2 hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-full">
         <IconsClose class="w-6 h-6" />
       </button>
     </div>
 
-    <div
-      v-if="isCimmentsLoading"
-      class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-    >
+    <div v-if="isCimmentsLoading" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
       <IconsLoader class="w-20 h-20 animate-spin" />
     </div>
 
@@ -218,25 +210,17 @@ const dislikeComment = async (comment: IComment) => {
                 class="font-semibold dark:text-white hover:underline"
                 >{{ comment.profile?.name }}</NuxtLink
               >
-              <span class="text-gray-500 dark:text-gray-400 text-xs">{{
-                formatRelativeTime(comment.createdAt)
-              }}</span>
+              <span class="text-gray-500 dark:text-gray-400 text-xs">{{ formatRelativeTime(comment.createdAt) }}</span>
             </div>
             <p class="text-gray-600 dark:text-gray-300 break-words whitespace-pre-wrap">
               {{ comment.text }}
             </p>
             <div class="flex items-start gap-2 mt-1">
-              <button
-                @click="likeComment(comment)"
-                class="hover:text-gray-400 flex items-center gap-1"
-              >
+              <button @click="likeComment(comment)" class="hover:text-gray-400 flex items-center gap-1">
                 <IconsLike class="w-6 h-6" :class="{ 'text-red-500': comment.liked }" />
                 <span class="text-xs">{{ comment.likes?.length || "" }}</span>
               </button>
-              <button
-                @click="dislikeComment(comment)"
-                class="hover:text-gray-400 flex items-center gap-1"
-              >
+              <button @click="dislikeComment(comment)" class="hover:text-gray-400 flex items-center gap-1">
                 <IconsDislike class="w-6 h-6" :class="{ 'text-red-500': comment.disliked }" />
                 <span class="text-xs">{{ comment.dislikes?.length || "" }}</span>
               </button>

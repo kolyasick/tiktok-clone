@@ -3,7 +3,7 @@ import type { Video, Like, Comment, Profile, Message, Chat, Follows, Status, Com
 export interface IVideo extends Video {
   profile?: Profile;
   likes?: ILike[];
-  comments?: IComment[];
+  commentsCount?: number;
   status?: Status;
   liked?: boolean;
 }

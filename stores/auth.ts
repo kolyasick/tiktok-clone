@@ -28,12 +28,12 @@ export const useAuthStore = defineStore("auth", {
 
     async register(name: string, email: string, password: string) {
       this.clearErrors();
-      if (
-        !validateName(name, this.errors) ||
-        !validateEmail(email, this.errors) ||
-        !validatePassword(password, this.errors)
-      )
-        return;
+      // if (
+      //   !validateName(name, this.errors) ||
+      //   !validateEmail(email, this.errors) ||
+      //   !validatePassword(password, this.errors)
+      // )
+      //   return;
 
       try {
         this.isLoading = true;

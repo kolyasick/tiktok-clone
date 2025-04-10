@@ -11,6 +11,7 @@ export default defineEventHandler(async (event) => {
       profile: true,
       likes: true,
     },
+    take: 50,
   });
 
   return comments.map((c) => {
