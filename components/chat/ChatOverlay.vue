@@ -10,7 +10,8 @@ interface IChat extends Chat {
 }
 
 const props = defineProps<{ currentChat: IChat }>();
-const { $authStore, $generalStore } = useNuxtApp();
+const { $authStore } = useNuxtApp();
+const localePath = useLocalePath();
 
 let text = ref<string>("");
 let typingTimeout: NodeJS.Timeout;
@@ -73,7 +74,7 @@ onUnmounted(() => {
 const goBack = async () => {
   socket.emit("leaveChat", props.currentChat?.id.toString());
 
-  await navigateTo("/chat");
+  await navigateTo(localePath("/chat"));
   emit("clear-current-chat");
 };
 
@@ -87,20 +88,37 @@ const isFavorite = computed(() => {
 </script>
 
 <template>
-  <div class="absolute top-0 right-0 h-full w-full sm:static sm:w-3/4 flex flex-col max-[600px]:w-full bg-light dark:bg-[#191919] z-20">
-    <div class="sticky min-h-[64px] top-[61px] left-0 w-full py-2 px-6 bg-gray-100 dark:bg-[#222222] flex items-center z-10">
+  <div
+    class="absolute top-0 right-0 h-full w-full sm:static sm:w-3/4 flex flex-col max-[600px]:w-full bg-light dark:bg-[#191919] z-20"
+  >
+    <div
+      class="sticky min-h-[64px] top-[61px] left-0 w-full py-2 px-6 bg-gray-100 dark:bg-[#222222] flex items-center z-10"
+    >
       <button @click="goBack" class="inline-flex items-center">
         <IconsArrow class="w-6 h-6" />
       </button>
       <span class="flex-1 text-center">
-        <h1 class="text-xl text-gray-900 dark:text-white">{{ !isFavorite ? companion?.name : "Saved Messages" }}</h1>
+        <h1 class="text-xl text-gray-900 dark:text-white">
+          {{ !isFavorite ? companion?.name : $t("savedMessages") }}
+        </h1>
         <p v-if="!isFavorite" class="text-sm text-gray-500 dark:text-gray-400">
-          {{ companion?.online ? "Online" : "last seen" }}
-          {{ !companion?.online ? formatDate(companion!.updatedAt) : "" }}
+          {{ companion?.online ? $t("online") : $t("lastSeen") }}
+          {{ !companion?.online ? formatRelativeTime(companion!.updatedAt) : "" }}
         </p>
       </span>
-      <NuxtLink :to="'/profile/' + companion?.name">
-        <img class="rounded-full" width="40" :src="'/upload/avatars/' + (!isFavorite ? companion?.avatar : 'fav.jpeg')" />
+      <NuxtLink
+        :to="
+          $localePath({
+            name: 'profile-name',
+            params: { name: $authStore.profile?.name },
+          })
+        "
+      >
+        <img
+          class="rounded-full"
+          width="40"
+          :src="'/upload/avatars/' + (!isFavorite ? companion?.avatar : 'fav.jpeg')"
+        />
       </NuxtLink>
     </div>
     <div ref="messagesContainer" class="flex-1 overflow-y-auto p-6 mt-14 sm:mt-0">
@@ -116,7 +134,8 @@ const isFavorite = computed(() => {
         <div class="flex items-start">
           <div
             :class="{
-              'bg-[#F02C56] text-white rounded-tl-xl rounded-tr-xl rounded-bl-xl': message.senderId === $authStore.profile?.id,
+              'bg-[#F02C56] text-white rounded-tl-xl rounded-tr-xl rounded-bl-xl':
+                message.senderId === $authStore.profile?.id,
               'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-tr-xl rounded-tl-xl rounded-br-xl':
                 message.senderId !== $authStore.profile?.id,
             }"
@@ -127,13 +146,19 @@ const isFavorite = computed(() => {
             </span>
 
             <span class="text-xs text-gray-300/60 dark:text-gray-400 absolute bottom-1 right-1">{{
-              new Date(message.createdAt).getHours() + ":" + new Date(message.createdAt).getMinutes()
+              new Date(message.createdAt).toLocaleTimeString("ru-RU", {
+                hour: "numeric",
+                minute: "numeric",
+              })
             }}</span>
           </div>
         </div>
       </div>
-      <div v-if="typingUser && typingUser !== $authStore.profile?.name" class="typing-animation mt-5">
-        {{ typingUser }} is typing<span></span><span></span><span></span>
+      <div
+        v-if="typingUser && typingUser !== $authStore.profile?.name"
+        class="typing-animation mt-5"
+      >
+        {{ typingUser }} {{ $t("isTyping") }}<span></span><span></span><span></span>
       </div>
     </div>
 
@@ -142,7 +167,7 @@ const isFavorite = computed(() => {
         @keyup.enter="handleSend"
         type="text"
         @input="handleTyping"
-        placeholder="Type a message..."
+        :placeholder="$t('typeMessage')"
         v-model="text"
         class="flex-1 px-4 py-2 transition text-gray-900 dark:text-white bg-white dark:bg-[#222222] rounded border border-gray-300 dark:border-gray-600 shadow-sm focus:ring-2 focus:ring-[#F02C56] focus:outline-none"
       />
@@ -151,7 +176,7 @@ const isFavorite = computed(() => {
         :disabled="!text"
         class="ml-3 bg-[#F02C56] hover:bg-[#F02C56] text-white px-5 py-2 rounded shadow-lg transition-all disabled:bg-gray-400"
       >
-        Send
+        {{ $t("send") }}
       </button>
     </div>
   </div>

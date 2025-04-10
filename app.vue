@@ -1,5 +1,7 @@
 <script setup lang="ts">
-const { $generalStore, $authStore, $videosStore } = useNuxtApp();
+import type { Follows } from "@prisma/client";
+
+const { $generalStore, $authStore } = useNuxtApp();
 const { user, loggedIn } = useUserSession();
 const { $io: socket } = useNuxtApp();
 
@@ -78,6 +80,14 @@ onUnmounted(() => {
     window.removeEventListener("beforeunload", handleBeforeUnload);
   }
 });
+
+const { data: followers } = await useFetch<Follows[]>(`/api/friend/all`, {
+  query: {
+    userId: $authStore.profile?.id,
+  },
+});
+
+$authStore.followers = followers.value || [];
 </script>
 <template>
   <NuxtLoadingIndicator color="#F02C56" />
@@ -97,6 +107,15 @@ body {
   font-family: "Inter", sans-serif;
   @apply dark:bg-dark bg-gray-50;
 }
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+* {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
 
 .main-pages-enter-active,
 .main-pages-leave-active {
@@ -112,9 +131,9 @@ body {
   transition: all 0.2s ease;
 }
 
-/* html {
+html {
   scrollbar-gutter: stable;
-} */
+}
 
 button {
   white-space: nowrap;

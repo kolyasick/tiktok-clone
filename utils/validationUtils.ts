@@ -1,35 +1,38 @@
-
-export function validateEmail(
-	email: string,
-	errors: { email: string | null }
-): boolean {
-	const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-	if (!email) {
-		errors.email = "Email is required";
-		return false;
-	}
-	if (!emailPattern.test(email)) {
-		errors.email = "Invalid email address";
-		return false;
-	}
-	return true;
+export function validateEmail(email: string, errors: { email: string | null }): boolean {
+  const { t } = useI18n();
+  
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email) {
+    errors.email = t("emailRequired")
+    return false;
+  }
+  if (!emailPattern.test(email)) {
+    errors.email = t("invalidEmail");
+    return false;
+  }
+  return true;
 }
 
-export function validatePassword(
-	password: string,
-	errors: { password: string | null }
-): boolean {
-	if (!password || password.length < 6 || password.length > 15) {
-		errors.password = "Password must be 6-15 characters";
-		return false;
-	}
-	return true;
+export function validatePassword(password: string, errors: { password: string | null }): boolean {
+	const { t } = useI18n();
+  if (!password || password.length < 6 || password.length > 15) {
+    errors.password = t("passwordLength");
+    return false;
+  }
+  return true;
 }
 
 export function validateName(name: string, errors: { name: string | null }): boolean {
-	if (!name || name.length < 3 || name.length > 10) {
-		errors.name = "Name must be 3-10 characters";
-		return false
-	}
-	return true
+	const { t } = useI18n();
+	const namePattern = /^[a-zA-Z0-9]$/
+  if (!name || name.length < 3 || name.length > 10) {
+    errors.name = t("nameLength");
+    return false;
+  }
+
+  if (!namePattern.test(name)) {
+	errors.name = t("namePattern");
+	return false;
+  }
+  return true;
 }

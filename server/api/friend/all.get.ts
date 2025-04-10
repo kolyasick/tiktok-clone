@@ -17,23 +17,21 @@ export default defineEventHandler(async (event) => {
   const parsedUserId = parseInt(userId);
 
   const friends = await prisma.follows.findMany({
-		where: {
-			OR: [
-				{
-					userId: parsedUserId,
-					status: "accepted",
-				},
-				{
-					friendId: parsedUserId,
-					status: "accepted",
-				},
-			],
-		},
-		include: {
-			user: true,
-			friend: true,
-		},
-  })
+    where: {
+      OR: [
+        {
+          userId: parsedUserId,
+        },
+        {
+          friendId: parsedUserId,
+        },
+      ],
+    },
+    include: {
+      user: true,
+      friend: true,
+    },
+  });
 
   const filteredFriends = friends.map((friendship) => {
     if (friendship.userId === parsedUserId) {
@@ -43,5 +41,5 @@ export default defineEventHandler(async (event) => {
     }
   });
 
-  return filteredFriends || [];
+  return friends || [];
 });

@@ -25,7 +25,9 @@ const filteredChats = computed(() => {
   return chats.value?.filter((chat) => {
     return (
       chat.companion.name.toLowerCase().includes(query.value.toLowerCase()) ||
-      chat.messages.some((message) => message.text.toLowerCase().includes(query.value.toLowerCase()))
+      chat.messages.some((message) =>
+        message.text.toLowerCase().includes(query.value.toLowerCase())
+      )
     );
   });
 });
@@ -181,14 +183,19 @@ onUnmounted(() => {
           <input
             class="dark:bg-[#3a3a3a] dark:text-white bg-white text-gray-900 py-2 px-4 rounded-md w-full focus:outline-none"
             type="text"
-            placeholder="Поиск"
+            :placeholder="$t('search')"
             v-model="query"
           />
         </form>
         <ul>
-          <UserOverlay v-if="filteredChats?.length" v-for="chat in filteredChats" :key="chat.id" :chat="chat" />
+          <UserOverlay
+            v-if="filteredChats?.length"
+            v-for="chat in filteredChats"
+            :key="chat.id"
+            :chat="chat"
+          />
           <div v-else class="flex items-center justify-center text-gray-600 dark:text-gray-400">
-            <h3>No chats found</h3>
+            <h3>{{ $t("noChats") }}</h3>
           </div>
         </ul>
       </div>
@@ -200,13 +207,21 @@ onUnmounted(() => {
       </template>
 
       <template v-else-if="!currentChat">
-        <div class="h-full dark:bg-neutral-900 bg-gray-200 w-3/4 hidden sm:flex items-center justify-center max-[600px]:w-full">
-          <h3 class="py-1 px-3 dark:bg-neutral-800 text-white bg-gray-300 rounded-full">Select a chat to start messaging</h3>
+        <div
+          class="h-full dark:bg-neutral-900 bg-gray-200 w-3/4 hidden sm:flex items-center justify-center max-[600px]:w-full"
+        >
+          <h3 class="py-1 px-3 dark:bg-neutral-800 text-white bg-gray-300 rounded-full">
+            {{ $t("startMessaging") }}
+          </h3>
         </div>
       </template>
 
       <template v-else>
-        <ChatOverlay :current-chat="currentChat" @send-message="sendMessage" @clear-current-chat="currentChat = null" />
+        <ChatOverlay
+          :current-chat="currentChat"
+          @send-message="sendMessage"
+          @clear-current-chat="currentChat = null"
+        />
       </template>
     </div>
   </div>

@@ -3,6 +3,7 @@ import type { IProfile } from "~/types/user.type";
 
 const { $generalStore, $authStore } = useNuxtApp();
 const { handleFileInput, files: avatar } = useFileStorage();
+const localePath = useLocalePath();
 const router = useRouter();
 
 const userName = ref<string>($authStore.profile!.name);
@@ -61,8 +62,10 @@ const updateUser = async () => {
       return;
     }
 
-    await router.replace(`/profile/${profile.name}`);
-    $authStore.$patch({ profile: { avatar: profile.avatar, bio: profile.bio, name: profile.name } });
+    await router.replace(localePath(`/profile/${profile.name}`));
+    $authStore.$patch({
+      profile: { avatar: profile.avatar, bio: profile.bio, name: profile.name },
+    });
 
     switchModal(false);
   } catch (error: any) {
@@ -86,11 +89,14 @@ watch(
 </script>
 
 <template>
-  <div class="fixed z-40 top-0 left-0 w-full h-full bg-black bg-opacity-50" @click="switchModal(false)"></div>
+  <div
+    class="fixed z-40 top-0 left-0 w-full h-full bg-black bg-opacity-50"
+    @click="switchModal(false)"
+  ></div>
 
   <Transition name="edit-modal">
     <div
-      class="fixed z-50 bg-light dark:bg-dark top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[500px] w-full h-[500px] mx-auto rounded-lg"
+      class="fixed z-50 bg-light dark:bg-dark top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[500px] w-full min-h-[500px] mx-auto rounded-lg"
     >
       <div class="w-full flex justify-end">
         <button @click="switchModal(false)" class="p-3">
@@ -98,7 +104,9 @@ watch(
         </button>
       </div>
 
-      <h2 class="font-semibold text-2xl ps-6">Edit profile</h2>
+      <h2 class="font-semibold text-2xl ps-6 text-black dark:text-white">
+        {{ $t("editProfile") }}
+      </h2>
 
       <div class="flex items-center justify-center">
         <div class="relative">
@@ -107,23 +115,41 @@ watch(
             :src="(avatar[0]?.content as string) ?? '/upload/avatars/' + $authStore.profile?.avatar"
             alt=""
           />
-          <label for="image" @clikc="handleFileInput" class="dark:text-white text-black absolute -bottom-2 -right-2 cursor-pointer">
+          <label
+            for="image"
+            @clikc="handleFileInput"
+            class="dark:text-white text-black absolute -bottom-2 -right-2 cursor-pointer"
+          >
             <IconsPencil class="w-7 h-7" />
-            <input class="hidden" type="file" id="image" @input="(e) => handleFileInput(e)" accept="image/png, image/jpeg, image/jpg" />
+            <input
+              class="hidden"
+              type="file"
+              id="image"
+              @input="(e) => handleFileInput(e)"
+              accept="image/png, image/jpeg, image/jpg"
+            />
           </label>
         </div>
       </div>
 
       <div class="px-6">
         <div class="mb-6">
-          <div class="font-semibold text-sm text-gray-500 mb-2">Username</div>
-          <TextInput placeholder="Username" v-model:input="userName" inputType="text" max="30" class="w-full" />
+          <div class="font-semibold text-sm text-gray-500 mb-2">{{ $t("userName") }}</div>
+          <TextInput
+            placeholder="Username"
+            v-model:input="userName"
+            inputType="text"
+            max="30"
+            class="w-full"
+          />
           <span v-if="nameError" class="text-red-500 text-sm block mt-1">
             {{ nameError }}
           </span>
-          <div class="text-xs text-gray-500 mt-2">Changing your username will also change your profile link.</div>
+          <div class="text-xs text-gray-500 mt-2">
+            {{ $t("nicknameWarning") }}
+          </div>
           <div class="flex items-end gap-2 my-2">
-            <div class="font-semibold text-sm text-gray-500">Bio</div>
+            <div class="font-semibold text-sm text-gray-500">{{ $t("bio") }}</div>
             <div class="text-gray-400 text-[12px]">{{ bio ? bio.length : 0 }}/100</div>
           </div>
 
@@ -144,13 +170,15 @@ watch(
         </span>
       </div>
 
-      <div class="p-4 border-t border-gray-200 dark:border-[#ebebeb6c] absolute bottom-0 right-0 w-full">
+      <div
+        class="p-4 border-t border-gray-200 dark:border-[#ebebeb6c] absolute bottom-0 right-0 w-full"
+      >
         <div class="flex justify-end gap-3">
           <button
             @click="switchModal(false)"
             class="px-4 py-2 text-black dark:text-white bg-gray-100 dark:bg-[#3a3a3a] rounded-md hover:bg-gray-200 dark:hover:bg-[#303030] transition"
           >
-            Cancel
+            {{ $t("cancel") }}
           </button>
           <button
             :disabled="!isUpdated"
@@ -158,15 +186,18 @@ watch(
             :class="!isUpdated ? 'bg-gray-200' : 'bg-[#F02C56]'"
             class="flex items-center hover:-translate-y-1 hover:shadow-2xl bg-[#F02C56] rounded-md px-5 py-[6px] disabled:text-gray-900 dark:disabled:text-[#121212] disabled:pointer-events-none text-white"
           >
-            <span class="font-medium text-[15px]">Save</span>
+            <span class="font-medium text-[15px]">{{ $t("save") }}</span>
           </button>
         </div>
       </div>
     </div>
   </Transition>
 
-  <div v-if="loading" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-    <IconsLoader class="animate-spin w-20 h-20" />
+  <div
+    v-if="loading"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+  >
+    <IconsLoader class="animate-spin w-20 h-20 text-black dark:text-white" />
   </div>
 </template>
 

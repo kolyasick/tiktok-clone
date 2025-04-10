@@ -1,8 +1,10 @@
 export default defineNuxtRouteMiddleware(async (to, from) => {
   const { $videosStore } = useNuxtApp();
 
-  if (to.path === "/") {
+  if (to.path === "/" || to.path === "/en" || to.path === "/video") {
     await $videosStore.getVideos();
-    return navigateTo(`/video/${$videosStore.videos[0]?.id}`);
+    return navigateTo(
+      `${to.path.startsWith("/en") ? "/en/" : "/"}video/${$videosStore.videos[0]?.id}`
+    );
   }
 });

@@ -18,21 +18,20 @@ const login = async () => {
 </script>
 <template>
   <div>
-    <div class="text-center text-[28px] mb-4 font-bold">Log in</div>
+    <div class="text-center text-[28px] mb-4 font-bold text-black dark:text-white">{{ $t('login') }}</div>
     <div class="px-6 pb-2">
       <TextInput
-        placeholder="Username"
+        :placeholder="$t('userName')"
         @input="$authStore.errors.name = ''"
         v-model:input="name"
         inputType="text"
-        :autoFocus="true"
         :error="$authStore.errors.name ? $authStore.errors.name : ''"
       />
     </div>
 
     <div class="px-6 pb-2">
       <TextInput
-        placeholder="Password"
+        :placeholder="$t('password')"
         @input="$authStore.errors.password = ''"
         v-model:input="password"
         inputType="password"
@@ -47,7 +46,7 @@ const login = async () => {
         @click="login"
         class="w-full text-[17px] transition font-semibold text-white py-3 rounded-md disabled:bg-gray-400 hover:bg-[#b02140]"
       >
-        {{ $authStore.isLoading ? "Loading..." : "Log in" }}
+        {{ $authStore.isLoading ? $t('loading') : $t('login') }}
       </button>
     </div>
     <span class="px-6 text-[14px] text-red-600" v-if="$authStore.errors.other">

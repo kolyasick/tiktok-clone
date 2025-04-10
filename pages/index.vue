@@ -14,8 +14,6 @@ useSeoMeta({
   ogImageHeight: 300,
   ogUrl: import.meta.env.BASE_URL,
 });
-
-
 </script>
 
 <template>
@@ -26,15 +24,6 @@ useSeoMeta({
 
 <style>
 /* Hide scrollbar for Chrome, Safari and Opera */
-::-webkit-scrollbar {
-  display: none;
-}
-
-/* Hide scrollbar for IE, Edge and Firefox */
-* {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
-}
 
 .snap-y {
   scroll-snap-type: y mandatory;

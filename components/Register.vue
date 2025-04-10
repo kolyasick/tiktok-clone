@@ -19,21 +19,22 @@ const register = async () => {
 
 <template>
   <div>
-    <div class="text-center text-[28px] mb-4 font-bold">Sign up</div>
+    <div class="text-center text-[28px] mb-4 font-bold text-black dark:text-white">
+      {{ $t("register") }}
+    </div>
     <div class="px-6 pb-2">
       <TextInput
-        placeholder="Full name"
+        :placeholder="$t('userName')"
         @update:input="$authStore.errors.name = ''"
         v-model:input="name"
         inputType="text"
-        :autoFocus="true"
         :error="$authStore.errors ? $authStore.errors.name : ''"
       />
     </div>
 
     <div class="px-6 pb-2">
       <TextInput
-        placeholder="Email address"
+        :placeholder="$t('email')"
         @update:input="$authStore.errors.email = ''"
         v-model:input="email"
         inputType="email"
@@ -43,7 +44,7 @@ const register = async () => {
 
     <div class="px-6 pb-2">
       <TextInput
-        placeholder="Password"
+        :placeholder="$t('password')"
         @update:input="$authStore.errors.password = ''"
         v-model:input="password"
         inputType="password"
@@ -58,7 +59,7 @@ const register = async () => {
         @click="register"
         class="w-full text-[17px] font-semibold text-white bg-[#F02C56] hover:bg-[#b02140] py-3 rounded-md disabled:bg-gray-400"
       >
-        {{ $authStore.isLoading ? "Loading..." : "Register" }}
+        {{ $authStore.isLoading ? $t("loading") : $t("register") }}
       </button>
     </div>
     <span class="px-6 text-[14px] text-red-500" v-if="$authStore.errors.other">

@@ -9,7 +9,6 @@ definePageMeta({
 
 const scrollContainer = ref<HTMLElement | null>(null);
 const currentVideoIndex = ref(0);
-const router = useRouter();
 const route = useRoute();
 
 let isScrolling = false;
@@ -36,7 +35,23 @@ if (data.value) {
   }, 100);
 }
 
+let startY: number = 0;
+let isTouchScrolling: boolean = false;
+
+const handleTouchStart = (e: TouchEvent) => {
+  const commentsSection = document.getElementById("commentsSection");
+  if (commentsSection && commentsSection.contains(e.target as Node)) {
+    return;
+  }
+  startY = e.touches[0].clientY;
+  isTouchScrolling = true;
+};
+
 const handleScroll = async (e: WheelEvent) => {
+  const commentsSection = document.getElementById("commentsSection");
+  if (commentsSection && commentsSection.contains(e.target as Node)) {
+    return;
+  }
   e.preventDefault();
   if (isScrolling) return;
   isScrolling = true;
@@ -48,7 +63,10 @@ const handleScroll = async (e: WheelEvent) => {
     currentVideoIndex.value = nextIndex;
     const targetElement = document.getElementById(`video-${nextIndex}`);
     if (targetElement) {
-      targetElement.scrollIntoView({ behavior: "smooth" });
+      targetElement.scrollIntoView({
+        behavior: "smooth",
+        block: currentVideoIndex.value === 0 ? "end" : "center",
+      });
       const currentVideo = $videosStore.videos[nextIndex];
       window.history.replaceState({}, "", `/video/${currentVideo.id}`);
 
@@ -74,57 +92,96 @@ const handleScroll = async (e: WheelEvent) => {
   }, 500);
 };
 
+const handleTouchMove = async (e: TouchEvent) => {
+  if (!isTouchScrolling) return;
+
+  const commentsSection = document.getElementById("commentsSection");
+  if (commentsSection && commentsSection.contains(e.target as Node)) {
+    return;
+  }
+
+  e.preventDefault();
+  if (isScrolling) return;
+
+  const currentY = e.touches[0].clientY;
+  const deltaY = startY - currentY;
+
+  if (Math.abs(deltaY) > 30) {
+    isScrolling = true;
+    const direction = deltaY > 0 ? 1 : -1;
+    const nextIndex = currentVideoIndex.value + direction;
+
+    if (nextIndex >= 0 && nextIndex < $videosStore.videos.length) {
+      currentVideoIndex.value = nextIndex;
+      const targetElement = document.getElementById(`video-${nextIndex}`);
+      if (targetElement) {
+        targetElement.scrollIntoView({
+          behavior: "smooth",
+          block: currentVideoIndex.value === 0 ? "end" : "center",
+        });
+
+        const currentVideo = $videosStore.videos[nextIndex];
+        window.history.replaceState({}, "", `/video/${currentVideo.id}`);
+
+        useSeoMeta({
+          title: "Clipify | " + currentVideo.title,
+          ogTitle: "Clipify | " + currentVideo.title,
+          description: currentVideo.title,
+          ogDescription: currentVideo.title,
+          ogImage: "/upload/avatars/default.jpg",
+          ogImageHeight: 300,
+          ogUrl: import.meta.env.BASE_URL,
+        });
+      }
+    }
+
+    if (nextIndex >= $videosStore.videos.length - 2 && $videosStore.hasMore) {
+      await $videosStore.getVideos(route.params.id as string);
+    }
+
+    isTouchScrolling = false;
+    setTimeout(() => {
+      isScrolling = false;
+    }, 500);
+  }
+};
+
 onMounted(() => {
   if (scrollContainer.value) {
-    scrollContainer.value.addEventListener("wheel", handleScroll, { passive: false });
+    window.addEventListener("wheel", handleScroll, { passive: false });
+    window.addEventListener("touchstart", handleTouchStart, { passive: false });
+    window.addEventListener("touchmove", handleTouchMove, { passive: false });
   }
 });
 
 onUnmounted(() => {
   if (scrollContainer.value) {
-    scrollContainer.value.removeEventListener("wheel", handleScroll);
+    window.removeEventListener("wheel", handleScroll);
+    window.removeEventListener("touchstart", handleTouchStart);
+    window.removeEventListener("touchmove", handleTouchMove);
   }
   if (scrollTimeout) clearTimeout(scrollTimeout);
 });
 </script>
 
 <template>
-  <div ref="scrollContainer" class="h-[calc(100dvh-24px)] overflow-y-auto snap-y snap-mandatory mt-6">
+  <div
+    ref="scrollContainer"
+    class="h-[calc(100dvh-24px)] overflow-y-scroll overflow-x-visible snap-y snap-mandatory mt-6"
+  >
     <div
       v-for="(video, index) in $videosStore.videos"
       :id="`video-${index}`"
       :key="video.id"
-      class="h-[calc(100dvh-24px)] w-full snap-start flex items-center justify-center"
+      class="w-full snap-start flex items-center justify-center"
     >
-      <PostMain :video="video" />
+      <PostMain class="mb-5" :video="video" />
     </div>
-    <div v-if="$videosStore.isLoading" class="flex justify-center items-center h-[calc(100vh-24px)] snap-start">
+    <div
+      v-if="$videosStore.isLoading"
+      class="flex justify-center items-center h-[calc(100vh-24px)] snap-start"
+    >
       <IconsLoader class="animate-spin ml-1 w-24 h-24" />
     </div>
   </div>
-  <!-- <Transition name="slide">
-    <CommentsSection
-      v-if="isCommentsVisible && currentVideoId"
-      :video-id="currentVideoId"
-      :is-visible="isCommentsVisible"
-      @close="isCommentsVisible = false"
-    />
-  </Transition> -->
 </template>
-
-<!-- <style scoped>
-/* Hide scrollbar for Chrome, Safari and Opera */
-
-
-/* Hide scrollbar for IE, Edge and Firefox */
-
-.snap-y {
-  scroll-snap-type: y mandatory;
-  scroll-behavior: smooth;
-}
-
-.snap-start {
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
-}
-</style> -->

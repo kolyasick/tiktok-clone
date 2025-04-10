@@ -25,10 +25,10 @@ const closeModal = () => {
   <Transition name="modal-fade">
     <div
       v-if="$generalStore.isLoginOpen"
-      class="absolute z-50 bg-light dark:bg-dark top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[500px] w-full h-[500px] mx-auto rounded-lg"
+      class="absolute z-50 bg-light dark:bg-dark top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[500px] w-[95%] h-[500px] mx-auto rounded-lg"
     >
       <div class="w-full flex justify-end">
-        <button @click="closeModal" class="p-3">
+        <button @click="closeModal" class="p-3 text-black dark:text-white">
           <IconsClose class="w-7 h-7" />
         </button>
       </div>
@@ -39,11 +39,15 @@ const closeModal = () => {
       </Transition>
 
       <Transition name="form-switch" mode="out-in">
-        <div class="absolute flex items-center justify-center py-5 left-0 bottom-0 border-t border-gray-200 dark:border-[#ebebeb6c] w-full">
-          <span class="text-[14px] text-gray-500">{{ isRegister ? "Already have an account?" : "Don't have an account?" }}</span>
+        <div
+          class="absolute flex items-center justify-center py-5 left-0 bottom-0 border-t border-gray-200 dark:border-[#ebebeb6c] w-full"
+        >
+          <span class="text-[14px] text-gray-500">{{
+            isRegister ? $t('haveAcc')  :  $t('dHaveAcc')
+          }}</span>
           <button @click="switchForm" class="text-[14px] text-[#F02C56] font-semibold pl-1">
-            <span v-if="isRegister">Sign up</span>
-            <span v-else>Log in</span>
+            <span v-if="isRegister">{{ $t('register') }}</span>
+            <span v-else>{{ $t('login') }}</span>
           </button>
         </div>
       </Transition>

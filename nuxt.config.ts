@@ -16,7 +16,20 @@ export default defineNuxtConfig({
     "nuxt-nodemailer",
     "@nuxtjs/google-fonts",
     "@nuxtjs/color-mode",
+    "@nuxtjs/i18n",
   ],
+  i18n: {
+    defaultLocale: "ru",
+    locales: [
+      { code: "en", name: "English", file: "en.json" },
+      { code: "ru", name: "Русский", file: "ru.json" },
+    ],
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: "i18n_redirected",
+      redirectOn: "root", 
+    },
+  },
   nodemailer: {
     from: '"Clipify" <killergems122@gmail.com>',
     host: process.env.SMTP_HOST,

@@ -2,6 +2,9 @@
 import type { Chat, Profile } from "@prisma/client";
 import type { IMessage } from "~/types/user.type";
 
+const { t } = useI18n();
+const localePath = useLocalePath();
+
 interface IChat extends Chat {
   messages: IMessage[];
   companion: Profile & { online: boolean };
@@ -16,7 +19,7 @@ const lastMessage = computed(() => {
 
 const isFavorite = computed(() => {
   if (props.chat.companion.id === $authStore.profile?.id) {
-    props.chat.companion.name = "Saved Messages";
+    props.chat.companion.name = t("savedMessages");
     return true;
   } else {
     return false;
@@ -24,7 +27,7 @@ const isFavorite = computed(() => {
 });
 
 const chatOpen = async () => {
-  await navigateTo(`/chat?chatId=${props.chat.id}`);
+  await navigateTo(localePath(`/chat?chatId=${props.chat.id}`));
   socket.emit("chatOpen", props.chat);
 };
 </script>
@@ -42,26 +45,37 @@ const chatOpen = async () => {
           class="rounded-full aspect-square object-cover"
           alt="Avatar"
         />
-        <span class="status w-2 h-2 bg-green-500 rounded-full absolute bottom-0 right-0" v-if="!isFavorite ? chat.companion.online : false"></span>
+        <span
+          class="status w-2 h-2 bg-green-500 rounded-full absolute bottom-0 right-0"
+          v-if="!isFavorite ? chat.companion.online : false"
+        ></span>
       </div>
 
       <div class="flex flex-col justify-between w-full">
         <div class="flex justify-between items-center">
-          <span class="dark:text-white text-gray-800 font-medium text-md">{{ !isFavorite ? chat.companion.name : "Saved Messages" }}</span>
+          <span class="dark:text-white text-gray-800 font-medium text-md">{{
+            !isFavorite ? chat.companion.name : $t("savedMessages")
+          }}</span>
         </div>
 
         <div v-if="lastMessage" class="text-gray-400 text-sm flex gap-2">
           <p>
-            {{ lastMessage?.sender?.id === $authStore.profile?.id ? "You: " : lastMessage?.sender?.name + ": " }}
+            {{
+              lastMessage?.sender?.id === $authStore.profile?.id
+                ? `${$t("you")}: `
+                : lastMessage?.sender?.name + ": "
+            }}
           </p>
-          <span class="dark:text-gray-300 text-gray-600 truncate max-w-[90%] flex items-center justify-between w-full">
+          <span
+            class="dark:text-gray-300 text-gray-600 truncate max-w-[90%] flex items-center justify-between w-full"
+          >
             <p class="truncate max-w-20">{{ lastMessage.text }}</p>
             <p class="text-gray-500">{{ formatDate(lastMessage.createdAt) }}</p>
           </span>
         </div>
 
-        <div v-else-if="!lastMessage && !isFavorite">
-          <p class="text-gray-400 text-sm">Say hi to {{ chat.companion.name }}</p>
+        <div v-else-if="!lastMessage && !isFavorite && !isFavorite">
+          <p class="text-gray-400 text-sm">{{ $t("sayHi") }} {{ chat.companion.name }}</p>
         </div>
       </div>
     </li>

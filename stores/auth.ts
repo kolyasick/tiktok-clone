@@ -1,7 +1,6 @@
-import type { Profile } from "@prisma/client";
+import type { Follows } from "@prisma/client";
 import { defineStore } from "pinia";
 import type { IProfile } from "~/types/user.type";
-import { validateEmail, validatePassword, validateName } from "~/utils/validationUtils";
 
 interface IErrors {
   email: string | null;
@@ -17,6 +16,7 @@ export const useAuthStore = defineStore("auth", {
     isLoading: false,
     status: "offline" as string,
     message: null as string | null,
+    followers: [] as Follows[],
   }),
   actions: {
     clearErrors() {
@@ -28,7 +28,12 @@ export const useAuthStore = defineStore("auth", {
 
     async register(name: string, email: string, password: string) {
       this.clearErrors();
-      if (!validateName(name, this.errors) || !validateEmail(email, this.errors) || !validatePassword(password, this.errors)) return;
+      if (
+        !validateName(name, this.errors) ||
+        !validateEmail(email, this.errors) ||
+        !validatePassword(password, this.errors)
+      )
+        return;
 
       try {
         this.isLoading = true;
@@ -88,8 +93,9 @@ export const useAuthStore = defineStore("auth", {
     },
 
     async logout() {
+      const localePath = useLocalePath();
       await useUserSession().clear();
-      await navigateTo("/");
+      await navigateTo(localePath("/"));
       this.$patch({ profile: null });
     },
   },

@@ -15,6 +15,7 @@
     "@ffmpeg/util": "^0.12.2",
     "@nuxtjs/color-mode": "^3.5.2",
     "@nuxtjs/google-fonts": "^3.2.0",
+    "@nuxtjs/i18n": "npm:@nuxtjs/i18n-edge",
     "@pinia/nuxt": "^0.10.1",
     "@prisma/client": "^6.5.0",
     "@types/fluent-ffmpeg": "^2.1.27",

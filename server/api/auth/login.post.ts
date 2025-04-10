@@ -1,6 +1,7 @@
 import prisma from "~/server/composables/prisma";
 import { formatDate } from "~/utils/formatDate";
 
+
 type Body = {
   name: string;
   password: string;
@@ -87,8 +88,14 @@ export default defineEventHandler(async (event) => {
 
   const mappedProfile = {
     ...profile,
-    following: [...profile.followsAsFollower, ...profile.followsAsFollowing.filter((f) => f.status === "accepted")],
-    followers: [...profile.followsAsFollowing, ...profile.followsAsFollower.filter((f) => f.status === "accepted")],
+    following: [
+      ...profile.followsAsFollower,
+      ...profile.followsAsFollowing.filter((f) => f.status === "accepted"),
+    ],
+    followers: [
+      ...profile.followsAsFollowing,
+      ...profile.followsAsFollower.filter((f) => f.status === "accepted"),
+    ],
   };
 
   // @ts-ignore

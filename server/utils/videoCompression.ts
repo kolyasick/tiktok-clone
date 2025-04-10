@@ -15,27 +15,29 @@ export async function compressVideo(inputBuffer: Buffer): Promise<Buffer> {
       .then(() => {
         ffmpeg(tempInputPath)
           .outputOptions([
-            "-c:v libx264", // Use H.264 codec
-            "-crf 28", // Constant Rate Factor (18-28 is good, higher = more compression)
-            "-preset medium", // Encoding speed preset
-            "-c:a aac", // Use AAC audio codec
-            "-b:a 128k", // Audio bitrate
-            "-movflags +faststart", // Enable fast start for web playback
-            "-vf scale=720:-2", // Scale to 720p height while maintaining aspect ratio
-            "-max_muxing_queue_size 1024", // Prevent queue overflow errors
+            "-c:v libx264", // Кодек H.264
+            "-crf 23", // Более высокое качество (18-23 для HD)
+            "-preset faster", // Более быстрый пресет
+            "-tune fastdecode", // Оптимизация для быстрого декодирования
+            "-x264-params ref=4:deblock=-1,-1", // Оптимизации кодирования
+            "-c:a aac", // Аудио кодек
+            "-b:a 128k", // Битрейт аудио
+            "-movflags +faststart", // Быстрый старт для веба
+            "-vf scale=1080:-2:flags=lanczos", // Масштабирование с лучшим алгоритмом
+            "-max_muxing_queue_size 1024", // Предотвращение ошибок
+            "-threads 0", // Использовать все доступные ядра CPU
+            "-pix_fmt yuv420p", // Универсальный формат пикселей
           ])
           .on("start", (commandLine) => {
             console.log("FFmpeg started with command:", commandLine);
           })
           .on("progress", (progress) => {
-            console.log("Processing: " + progress.currentKbps + "done");
+            console.log(`Processing: ${Math.round(progress.percent)}% done`);
           })
           .on("end", async () => {
             try {
               const compressedBuffer = await readFile(tempOutputPath);
               await Promise.all([unlink(tempInputPath), unlink(tempOutputPath)]);
-              console.log("Temporary files cleaned up");
-
               resolve(compressedBuffer);
             } catch (error) {
               console.error("Error in compression end handler:", error);

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { IVideo } from "~/types/user.type";
-const { $videosStore, $authStore } = useNuxtApp();
+import type { IComment, IProfile, IVideo } from "~/types/user.type";
+const { $videosStore, $authStore, $profileStore } = useNuxtApp();
 
 type Props = {
   video: IVideo;
@@ -15,7 +15,6 @@ let isLiking = ref(false);
 let isVideoLoading = ref(true);
 let isCommentsVisible = ref(false);
 
-const loadMoreTrigger = ref(null);
 const isModalVisible = ref(false);
 
 const toggleMute = () => {
@@ -78,106 +77,146 @@ onMounted(() => {
 const onVideoLoaded = () => {
   isVideoLoading.value = false;
 };
+
+const addComment = (comment: IComment) => {
+  if (!comment) return;
+  props.video.comments?.push(comment);
+};
+
+const isFollowed = (userId: number) => {
+  return computed(() => {
+    return $authStore.followers.some(
+      (follower) => follower.userId === userId || follower.friendId === userId
+    );
+  });
+};
+const isFollowing = ref(false);
+
+isFollowing.value = isFollowed(props.video.profileId).value;
+
+const handleFollow = async () => {
+  try {
+    await $profileStore.handleFriendAction("add", props.video.profile as IProfile);
+
+    isFollowing.value = !isFollowing.value;
+  } catch (error) {
+    console.error("Error updating follow status:", error);
+  }
+};
 </script>
 
 <template>
-  <div :id="`PostMain-${video.id}`" ref="videoContainer" class="postmain">
-    <div class="mt-2.5 flex relative">
-      <div
-        class="video-wrapper relative w-full lg:w-[60%] aspect-6/12 h-[calc(100vh-111px)] sm:min-h-[700px] max-h-[500px] sm:max-h-full flex items-center bg-black rounded-xl cursor-pointer"
+  <div
+    ref="videoContainer"
+    class="xl:w-[65%] md:w-[70%] w-full xl:h-[calc(100dvh-150px)] h-[80dvh] xl:max-h-[800px] max-h-[650px] relative overflow-hidden"
+  >
+    <video
+      ref="videoplay"
+      preload="auto"
+      loop
+      muted
+      playsinline
+      class="rounded-xl border dark:border-neutral-800 border-gray-200 aspect-video object-cover w-full h-full"
+      @timeupdate="onVideoLoaded"
+      :src="'/upload/videos/' + video.url || ''"
+    />
+    <div
+      class="absolute xl:bottom-5 xl:left-5 bottom-2 left-2 grid gap-1 text-white dark:text-white"
+    >
+      <NuxtLink
+        :to="`/profile/${video.profile?.name}`"
+        class="font-semibold text-lg hover:underline"
       >
-        <div v-if="false" class="loader absolute inset-0 flex items-center justify-center bg-black rounded-xl">
-          <IconsLoader class="animate-spin w-12 h-12" />
-        </div>
-
-        <video
-          ref="videoplay"
-          preload="auto"
-          loop
-          muted
-          playsinline
-          class="rounded-xl aspect-video object-cover mx-auto h-full w-full"
-          @timeupdate="onVideoLoaded"
-          :src="'/upload/videos/' + video.url || ''"
-        ></video>
-
-        <div class="video-info absolute bottom-4 left-4 z-10 text-white w-[250px] md:w-[400px]">
-          <div class="flex items-center gap-2 mb-2">
-            <NuxtLink :to="`/profile/${video.profile?.name}`" class="flex items-center gap-2">
-              <img class="rounded-full aspect-square object-cover" width="33" :src="'/upload/avatars/' + video.profile?.avatar" />
-              <span class="font-bold hover:underline cursor-pointer">
-                {{ video.profile?.name }}
-              </span>
-            </NuxtLink>
-          </div>
-
-          <div class="text-[15px] pb-1 break-words">{{ video.title }}</div>
-          <div class="text-[14px] text-gray-300 pb-1">#fun #cool #SuperAwesome</div>
-          <div class="text-[14px] flex items-center font-semibold">
-            <IconsMusic class="w-4 h-4" />
-            <div class="px-1">{{ video.profile?.name }}'s sound</div>
-          </div>
-        </div>
-      </div>
-      <div class="relative mr-[60px]">
-        <div class="absolute bottom-0 pl-2">
-          <div class="pb-4 text-center">
-            <button
-              :disabled="isLiking"
-              @click="$videosStore.toggleLike(video)"
-              class="rounded-full flex items-center justify-center bg-gray-200 hover:bg-gray-300 dark:hover:bg-neutral-700 dark:bg-neutral-800 p-2 cursor-pointer disabled:bg-gray-300 w-[48px] aspect-square"
-            >
-              <IconsHeart :class="video.liked ? 'text-red-500' : ''" class="transition w-7 h-7 aspect-square" />
-            </button>
-            <span class="text-xs dark:text-[#EBEBEB] text-[#3a3a3a] font-semibold">{{ video.likes?.length }}</span>
-          </div>
-
-          <div class="pb-4 text-center">
-            <button
-              class="rounded-full flex items-center justify-center bg-gray-200 hover:bg-gray-300 dark:hover:bg-neutral-700 dark:bg-neutral-800 p-2 cursor-pointer w-[48px] aspect-square"
-              @click="toggleComments"
-            >
-              <IconsComment class="w-7 h-7 aspect-square" />
-            </button>
-            <span class="text-xs dark:text-[#EBEBEB] text-[#3a3a3a] font-semibold">{{ video.comments?.length }}</span>
-          </div>
-
-          <div class="pb-4 text-center">
-            <button
-              @click="shareVideo(video)"
-              class="rounded-full flex items-center justify-center bg-gray-200 hover:bg-gray-300 dark:hover:bg-neutral-700 dark:bg-neutral-800 p-2 cursor-pointer w-[48px] aspect-square"
-            >
-              <IconsShare class="w-7 h-7 aspect-square" />
-            </button>
-            <span class="text-xs dark:text-[#EBEBEB] text-[#3a3a3a] font-semibold">0</span>
-          </div>
-
-          <div class="text-center mb-2">
-            <button
-              class="rounded-full flex items-center justify-center bg-gray-200 hover:bg-gray-300 dark:hover:bg-neutral-700 dark:bg-neutral-800 p-2 cursor-pointer w-[48px] aspect-square"
-              @click="toggleMute"
-            >
-              <IconsMute :muted="isMuted" class="w-7 h-7 aspect-square" />
-            </button>
-          </div>
-        </div>
-      </div>
-      <Transition name="slide">
-        <CommentsSection v-if="isCommentsVisible" :video-id="video.id" :is-visible="isCommentsVisible" @close="closeComments" />
-      </Transition>
+        {{ video.profile?.name }}
+      </NuxtLink>
+      <p class="max-w-[200px] xl:max-w-[300px]">{{ video.title }}</p>
     </div>
-  </div>
-  <div>
-    <div ref="loadMoreTrigger" class="h-10"></div>
-  </div>
+    <div
+      class="absolute xl:bottom-5 xl:right-5 bottom-2 right-2 grid gap-2 place-items-center dark:text-white text-white"
+    >
+      <div class="relative mb-5">
+        <img
+          :src="'/upload/avatars/' + video.profile?.avatar"
+          class="w-12 aspect-square rounded-full border"
+          alt=""
+        />
+        <button
+          @click="handleFollow"
+          v-if="!isFollowing"
+          class="absolute left-1/2 -translate-x-1/2 -bottom-2 bg-red-500 p-[1px] rounded-full"
+        >
+          <IconsPlus />
+        </button>
+      </div>
+      <div class="text-center">
+        <button
+          :disabled="isLiking"
+          @click="$videosStore.toggleLike(video)"
+          class="rounded-full flex items-center justify-center cursor-pointer aspect-square w-8"
+        >
+          <IconsHeart
+            style="filter: drop-shadow(0px 0px 1px black)"
+            :class="video.liked ? 'text-red-500' : 'text-white '"
+            class="transition w-full aspect-square"
+          />
+        </button>
+        <span
+          style="filter: drop-shadow(0px 0px 1px black)"
+          class="text-xs text-white font-semibold"
+          >{{ video.likes?.length }}</span
+        >
+      </div>
 
-  <transition name="modal">
-    <div v-if="isModalVisible" class="modal fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50">
-      <div class="p-4 rounded shadow-lg dark:bg-neutral-800 bg-gray-50 text-gray-900 dark:text-white">
-        <p>Video link copied to clipboard!</p>
+      <div class="text-center">
+        <button
+          class="rounded-full flex items-center justify-center cursor-pointer aspect-square w-8"
+          @click="toggleComments"
+        >
+          <IconsComment
+            style="filter: drop-shadow(0px 0px 1px black)"
+            class="w-full aspect-square"
+          />
+        </button>
+        <span
+          style="filter: drop-shadow(0px 0px 1px black)"
+          class="text-xs text-white font-semibold"
+          >{{ video.comments?.length }}</span
+        >
+      </div>
+
+      <div class="text-center">
+        <button
+          @click="shareVideo(video)"
+          class="rounded-full flex items-center justify-center cursor-pointer aspect-square w-8"
+        >
+          <IconsShare style="filter: drop-shadow(0px 0px 1px black)" class="w-full aspect-square" />
+        </button>
+      </div>
+
+      <div class="text-center mb-2">
+        <button
+          class="rounded-full flex items-center justify-center cursor-pointer aspect-square w-8"
+          @click="toggleMute"
+        >
+          <IconsMute
+            style="filter: drop-shadow(0px 0px 1px black)"
+            :muted="isMuted"
+            class="w-full aspect-square"
+          />
+        </button>
       </div>
     </div>
-  </transition>
+
+    <Transition name="slide">
+      <CommentsSection
+        v-if="isCommentsVisible"
+        :is-visible="isCommentsVisible"
+        :video-id="video.id"
+        @close="closeComments"
+        @add-comment="addComment"
+      />
+    </Transition>
+  </div>
 </template>
 
 <style scoped>
@@ -188,7 +227,7 @@ const onVideoLoaded = () => {
 
 .slide-enter-from,
 .slide-leave-to {
-  transform: translateX(100%);
+  transform: translateY(100%);
 }
 
 .modal-enter-active,

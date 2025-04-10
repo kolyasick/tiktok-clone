@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { IVideo } from "~/types/user.type";
+const localPath = useLocalePath();
 
 interface Props {
   video: IVideo;
@@ -32,7 +33,7 @@ const isHover = (bool: boolean) => {
 </script>
 <template>
   <div
-    @click="navigateTo(`/video/${video.id}`)"
+    @click="navigateTo(localPath(`/video/${video.id}`))"
     @mouseenter="isHover(true)"
     @mouseleave="isHover(false)"
     class="relative brightness-90 hover:brightness-[1.1] cursor-pointer"
