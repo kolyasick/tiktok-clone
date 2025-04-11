@@ -4,14 +4,16 @@ import type { IChat, IProfile, IVideo } from "~/types/user.type";
 
 const { $authStore, $generalStore, $profileStore } = useNuxtApp();
 const { user } = useUserSession();
-const localePath = useLocalePath()
+const localePath = useLocalePath();
 
 const profile = ref<IProfile>();
 
 const likes = ref<Like[]>([]);
 
 const route = useRoute();
-const { name } = route.params as Partial<{ name: string }>;
+const { name } = route.params as Partial<{
+  name: string;
+}>;
 
 const activeTab = ref<"videos" | "liked">("videos");
 
@@ -29,7 +31,9 @@ const loadData = async () => {
     }
 
     $profileStore.videos = await $fetch<IVideo[]>("/api/video", {
-      query: { userId: profile.value?.id },
+      query: {
+        userId: profile.value?.id,
+      },
     });
     $profileStore.currentVideos = $profileStore.videos;
 
@@ -66,6 +70,28 @@ const chatOpen = async () => {
   }
 };
 
+const isUnfollowButtonShow = computed(() => {
+  return (
+    ($profileStore.friend?.userId === $authStore.profile?.id && $profileStore.friend?.isFollowing) ||
+    ($profileStore.friend?.friendId === $authStore.profile?.id && $profileStore.friend?.status === "accepted")
+  );
+});
+
+const isFollowButtonShow = computed(() => {
+  if (!$profileStore.friend || !$authStore.profile) {
+    return true;
+  }
+  return $profileStore.friend.userId === $authStore.profile.id && !$profileStore.friend.isFollowing;
+});
+
+const isFollowBackButtonShow = computed(() => {
+  return $profileStore.friend?.friendId === $authStore.profile?.id && $profileStore.friend?.status === "pending";
+});
+
+const isFriend = computed(() => {
+  return $profileStore.friend?.isFriend;
+});
+
 useSeoMeta({
   title: `Clipify | ${profile.value?.name}'s profile`,
   ogTitle: `Clipify | ${profile.value?.name}'s profile`,
@@ -90,6 +116,7 @@ useSeoMeta({
         <div class="ml-5 w-full">
           <div class="text-[30px] font-bold truncate text-gray-900 dark:text-white">
             {{ profile?.name }}
+            <span class="text-sm font-light text-[#F02C56]">{{ isFriend ? "В друзьях" : "" }}</span>
           </div>
           <div class="text-[12px] sm:text-[14px] max-w-[400px] text-gray-600 dark:text-gray-300">
             {{ profile?.bio }}
@@ -101,35 +128,37 @@ useSeoMeta({
               class="flex items-center gap-2 rounded-md py-1.5 px-3.5 mt-3 text-[15px] font-semibold bg-gray-100 dark:bg-[#3a3a3a] hover:bg-gray-200 dark:hover:bg-[#303030] text-gray-900 dark:text-white"
             >
               <IconsPencil class="w-5 h-5" />
-              <div>{{ $t("editProfile") }}</div>
+              <div>
+                {{ $t("editProfile") }}
+              </div>
             </button>
 
             <template v-else>
               <button
-                v-if="!$profileStore.friend || !$authStore.profile"
+                v-if="isFollowButtonShow"
                 @click="$profileStore.handleFriendAction('add', profile)"
                 class="flex items-center rounded-md py-1.5 px-8 mt-3 text-[15px] text-white font-semibold bg-[#F02C56] hover:bg-[#e02c56]"
               >
-                {{ $t("follow") }}
+                <IconsLoader class="w-6 aspect-square animate-spin" v-if="$profileStore.isFollowLoading" />
+                <span v-else>{{ $t("follow") }}</span>
               </button>
 
               <button
-                v-else-if="$profileStore.friend.userId === $authStore.profile?.id"
-                disabled
-                class="flex items-center rounded-md py-1.5 px-8 mt-3 text-[15px] text-white font-semibold bg-gray-200 dark:bg-[#222222]"
+                v-else-if="isUnfollowButtonShow"
+                @click="$profileStore.handleFriendAction('unfollow', profile)"
+                class="flex items-center rounded-md py-1.5 px-8 mt-3 text-[15px] text-black font-semibold bg-white hover:bg-gray-400"
               >
-                {{ $t("followed") }}
+                <IconsLoader class="w-6 aspect-square animate-spin" v-if="$profileStore.isFollowLoading" />
+                <span v-else>{{ $t("unfollow") }}</span>
               </button>
 
               <button
-                v-else-if="
-                  $profileStore.friend.friendId === $authStore.profile?.id &&
-                  $profileStore.friend.status !== 'reply'
-                "
+                v-else-if="isFollowBackButtonShow"
                 @click="$profileStore.handleFriendAction('reply', profile)"
                 class="flex items-center rounded-md py-1.5 px-8 mt-3 text-[15px] text-white font-semibold bg-[#F02C56] hover:bg-[#e02c56]"
               >
-                {{ $t("followBack") }}
+                <IconsLoader class="w-6 aspect-square animate-spin" v-if="$profileStore.isFollowLoading" />
+                <span v-else>{{ $t("followBack") }}</span>
               </button>
 
               <button
@@ -145,15 +174,11 @@ useSeoMeta({
 
       <div class="flex items-center pt-4">
         <div class="mr-4">
-          <span class="font-bold text-gray-900 dark:text-white">{{
-            profile?.following?.length ?? 0
-          }}</span>
+          <span class="font-bold text-gray-900 dark:text-white">{{ profile?.following?.length ?? 0 }}</span>
           <span class="text-gray-500 font-light text-[15px] pl-1.5">{{ $t("following") }}</span>
         </div>
         <div class="mr-4">
-          <span class="font-bold text-gray-900 dark:text-white">{{
-            profile?.followers?.length ?? 0
-          }}</span>
+          <span class="font-bold text-gray-900 dark:text-white">{{ profile?.followers?.length ?? 0 }}</span>
           <span class="text-gray-500 font-light text-[15px] pl-1.5">{{ $t("followers") }}</span>
         </div>
         <div class="mr-4">
@@ -162,9 +187,7 @@ useSeoMeta({
         </div>
       </div>
 
-      <div
-        class="w-full flex items-center pt-4 border-b border-gray-200 dark:border-[#ebebeb6c] relative"
-      >
+      <div class="w-full flex items-center pt-4 border-b border-gray-200 dark:border-[#ebebeb6c] relative">
         <div
           class="absolute w-48 bottom-0 left-0 h-[2px] bg-[#F02C56] transition-all duration-300"
           :class="{
@@ -198,7 +221,8 @@ useSeoMeta({
           }"
         >
           <div class="inline-flex items-center justify-center gap-2">
-            <IconsUnlocked class="w-5 h-5" /> {{ $t("liked") }}
+            <IconsUnlocked class="w-5 h-5" />
+            {{ $t("liked") }}
           </div>
         </div>
       </div>
@@ -207,16 +231,8 @@ useSeoMeta({
         v-if="$profileStore.currentVideos.length > 0"
         class="mt-4 grid 2xl:grid-cols-6 xl:grid-cols-5 lg:grid-cols-4 md:grid-cols-3 grid-cols-2 gap-3"
       >
-        <IconsLoader
-          v-if="$profileStore.isLoading"
-          class="animate-spin ml-1 w-20 h-20 text-gray-900 dark:text-white"
-        />
-        <PostUser
-          v-else
-          v-for="video in $profileStore.currentVideos"
-          :key="video.id"
-          :video="video"
-        />
+        <IconsLoader v-if="$profileStore.isLoading" class="animate-spin ml-1 w-20 h-20 text-gray-900 dark:text-white" />
+        <PostUser v-else v-for="video in $profileStore.currentVideos" :key="video.id" :video="video" />
       </div>
 
       <div v-else class="mt-4 text-[15px] text-gray-500">No videos</div>

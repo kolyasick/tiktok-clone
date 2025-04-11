@@ -79,15 +79,18 @@ const onVideoLoaded = () => {
 };
 
 const addComment = (comment: IComment) => {
-  if (!comment || !props.video.commentsCount) return;
+  if (!comment || props.video.commentsCount === undefined) return;
   props.video.commentsCount += 1;
 };
 
 const isFollowed = (userId: number) => {
   return computed(() => {
-    return $authStore.followers.some((follower) => follower.userId === userId || follower.friendId === userId);
+    return $authStore.followers.some(
+      (follower) => (follower.userId === userId || follower.friendId === userId) && follower.isFollowing
+    );
   });
 };
+
 const isFollowing = ref(false);
 
 isFollowing.value = isFollowed(props.video.profileId).value;
@@ -95,7 +98,6 @@ isFollowing.value = isFollowed(props.video.profileId).value;
 const handleFollow = async () => {
   try {
     await $profileStore.handleFriendAction("add", props.video.profile as IProfile);
-
     isFollowing.value = !isFollowing.value;
   } catch (error) {
     console.error("Error updating follow status:", error);
@@ -127,7 +129,10 @@ const handleFollow = async () => {
     <div
       class="absolute xl:bottom-5 xl:right-5 bottom-2 right-2 grid gap-2 place-items-center dark:text-white text-white"
     >
-      <div class="relative mb-5">
+      <div
+        @click.self="navigateTo($localePath(`/profile/${video.profile?.name}`))"
+        class="relative mb-5 cursor-pointer"
+      >
         <img :src="'/upload/avatars/' + video.profile?.avatar" class="w-12 aspect-square rounded-full border" alt="" />
         <button
           @click="handleFollow"

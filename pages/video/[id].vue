@@ -24,7 +24,6 @@ const { data } = await useFetch<IVideo>(`/api/video/${route.params.id}`, {
   },
 });
 
-console.log(data.value);
 
 if (data.value) {
   $videosStore.videos = [data.value];

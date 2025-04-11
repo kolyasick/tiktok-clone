@@ -1,50 +1,66 @@
 import type { Follows } from "@prisma/client";
 import { defineStore } from "pinia";
-import type { IProfile, IVideo } from "~/types/user.type";
+import type { IProfile, IVideo, IFollows } from "~/types/user.type";
 
 export const useProfileStore = defineStore("profile", {
   state: () => ({
     videos: [] as IVideo[],
     currentVideos: [] as IVideo[],
     isLoading: false,
-    friend: null as Follows | null,
+    isFollowLoading: false,
+    friend: null as IFollows | null,
   }),
   actions: {
-    async handleFriendAction(action: "add" | "reply", profile: IProfile) {
+    async handleFriendAction(action: "add" | "reply" | "unfollow", profile: IProfile) {
       const { $authStore, $generalStore } = useNuxtApp();
+
       if (!$authStore.profile) {
         $generalStore.isLoginOpen = true;
         return;
       }
+
       try {
+        this.isFollowLoading = true;
+        const { id: userId } = $authStore.profile;
+        const friendId = profile.id;
+
+        if (action === "unfollow") {
+          const res = await $fetch<IFollows | null>("/api/friend/unfollow", {
+            method: "PATCH",
+            body: { userId, friendId },
+          });
+
+          this.friend = res;
+          const index = profile.followers?.findIndex((f) => f.userId === userId || f.friendId === userId);
+
+          if (index !== undefined && index !== -1) {
+            profile.followers?.splice(index, 1);
+          }
+          return;
+        }
+
+        const endpoint = action === "add" ? "/api/friend/add" : "/api/friend/reply";
+        const method = action === "add" ? "POST" : "PATCH";
+
+        this.friend = await $fetch<IFollows>(endpoint, {
+          method,
+          body: { userId, friendId },
+        });
+
         profile?.followers?.push({
-          id: new Date().getTime(),
-          status: "accept",
-          userId: $authStore.profile.id,
-          friendId: profile?.id,
+          id: Date.now(),
+          status: action === "add" ? "pending" : "accepted",
+          userId,
+          friendId,
+          isFollowing: true,
+          isFriend: action === "reply",
           createdAt: new Date(),
           updatedAt: new Date(),
         });
-
-        if (action === "add") {
-          this.friend = await $fetch<Follows>("/api/friend/add", {
-            method: "POST",
-            body: {
-              userId: $authStore.profile.id,
-              friendId: profile.id,
-            },
-          });
-        } else {
-          this.friend = await $fetch<Follows>("/api/friend/reply", {
-            method: "PATCH",
-            body: {
-              userId: $authStore.profile.id,
-              friendId: profile.id,
-            },
-          });
-        }
       } catch (error) {
         console.error(`Error handling friend action (${action}):`, error);
+      } finally {
+        this.isFollowLoading = false;
       }
     },
 

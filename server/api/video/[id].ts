@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
 
   return {
     ...video,
-    commentsCount: video._count?.comments || 0, // Добавляем количество комментариев
-    _count: undefined, // Удаляем лишнее поле _count из ответа
+    commentsCount: video._count?.comments || 0,
+    _count: undefined, 
   };
 });

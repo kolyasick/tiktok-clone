@@ -22,6 +22,9 @@ export interface IComment extends Comment {
   dislikes?: ICommentLike[];
   liked?: boolean;
   disliked?: boolean;
+  replies?: IComment[];
+  repliesCount?: number;
+  hasReplies: boolean;
 }
 
 export interface IRoom extends Chat {

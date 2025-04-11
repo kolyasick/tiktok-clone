@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import type { IComment, IVideo } from "~/types/user.type";
+import CommentItem from "./comments/CommentItem.vue";
+import CommentReplies from "./comments/CommentReplies.vue";
+import CommentForm from "./comments/CommentForm.vue";
+import { usePlural } from "~/composables/usePlural";
 
 const { $authStore, $generalStore } = useNuxtApp();
+const { plural } = usePlural();
+const { t, locale } = useI18n();
 
 type Props = {
   videoId: string;
@@ -14,8 +20,8 @@ const emits = defineEmits(["close", "addComment"]);
 
 const isCimmentsLoading = ref(false);
 const isFormLoading = ref(false);
-
 const comments = ref<IComment[]>([]);
+const openReplies = ref<Set<number>>(new Set());
 
 onMounted(async () => {
   try {
@@ -35,29 +41,24 @@ onMounted(async () => {
   }
 });
 
-const commentText = ref("");
-
-const addComment = async () => {
-  if (commentText.value.trim()) {
-    try {
-      isFormLoading.value = true;
-      const comment = await $fetch<IComment>("/api/comment/add", {
-        method: "POST",
-        body: {
-          text: commentText.value,
-          videoId: props.videoId,
-          senderId: $authStore.profile?.id!,
-        },
-      });
-      comments.value.push(comment);
-      emits("addComment", comment);
-    } catch (error) {
-      console.error("Error adding comment:", error);
-    } finally {
-      isFormLoading.value = false;
-    }
+const addComment = async (text: string) => {
+  try {
+    isFormLoading.value = true;
+    const comment = await $fetch<IComment>("/api/comment/add", {
+      method: "POST",
+      body: {
+        text,
+        videoId: props.videoId,
+        senderId: $authStore.profile?.id!,
+      },
+    });
+    comments.value.push(comment);
+    emits("addComment", comment);
+  } catch (error) {
+    console.error("Error adding comment:", error);
+  } finally {
+    isFormLoading.value = false;
   }
-  commentText.value = "";
 };
 
 const likeComment = async (comment: IComment) => {
@@ -71,29 +72,19 @@ const likeComment = async (comment: IComment) => {
     comments.value =
       comments.value?.map((c) => {
         if (c.id === comment.id) {
-          const updatedComment = {
-            ...c,
-            liked: reaction === 1,
-            disliked: false,
-            likes:
-              reaction === 1
-                ? [
-                    ...(c.likes || []),
-                    {
-                      id: Date.now(),
-                      profileId: $authStore.profile!.id,
-                      commentId: comment.id,
-                      reaction: 1,
-                    },
-                  ]
-                : c.likes?.filter((like) => like.profileId !== $authStore.profile?.id),
-            dislikes:
-              reaction === 1
-                ? c.dislikes?.filter((dislike) => dislike.profileId !== $authStore.profile?.id)
-                : c.dislikes,
-          };
-          return updatedComment;
+          return updateCommentReactions(c, reaction);
         }
+
+        if (c.replies) {
+          const updatedReplies = c.replies.map((reply) => {
+            if (reply.id === comment.id) {
+              return updateCommentReactions(reply, reaction);
+            }
+            return reply;
+          });
+          return { ...c, replies: updatedReplies };
+        }
+
         return c;
       }) || [];
 
@@ -117,30 +108,22 @@ const dislikeComment = async (comment: IComment) => {
 
   try {
     const reaction = comment.disliked ? 0 : -1;
-
     comments.value =
       comments.value?.map((c) => {
         if (c.id === comment.id) {
-          const updatedComment = {
-            ...c,
-            liked: false,
-            disliked: reaction === -1,
-            likes: reaction === -1 ? c.likes?.filter((like) => like.profileId !== $authStore.profile?.id) : c.likes,
-            dislikes:
-              reaction === -1
-                ? [
-                    ...(c.dislikes || []),
-                    {
-                      id: Date.now(),
-                      profileId: $authStore.profile!.id,
-                      commentId: comment.id,
-                      reaction: -1,
-                    },
-                  ]
-                : c.dislikes?.filter((dislike) => dislike.profileId !== $authStore.profile?.id),
-          };
-          return updatedComment;
+          return updateCommentReactions(c, reaction);
         }
+
+        if (c.replies) {
+          const updatedReplies = c.replies.map((reply) => {
+            if (reply.id === comment.id) {
+              return updateCommentReactions(reply, reaction);
+            }
+            return reply;
+          });
+          return { ...c, replies: updatedReplies };
+        }
+
         return c;
       }) || [];
 
@@ -153,6 +136,98 @@ const dislikeComment = async (comment: IComment) => {
     });
   } catch (error) {
     console.error("Error disliking comment:", error);
+  }
+};
+
+const updateCommentReactions = (comment: IComment, reaction: number) => {
+  const updatedComment = {
+    ...comment,
+    liked: reaction === 1,
+    disliked: reaction === -1,
+    likes:
+      reaction === 1
+        ? [
+            ...(comment.likes || []),
+            {
+              id: Date.now(),
+              profileId: $authStore.profile!.id,
+              commentId: comment.id,
+              reaction: 1,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            },
+          ]
+        : comment.likes?.filter((like) => like.profileId !== $authStore.profile?.id),
+    dislikes:
+      reaction === -1
+        ? [
+            ...(comment.dislikes || []),
+            {
+              id: Date.now(),
+              profileId: $authStore.profile!.id,
+              commentId: comment.id,
+              reaction: -1,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            },
+          ]
+        : comment.dislikes?.filter((dislike) => dislike.profileId !== $authStore.profile?.id),
+  };
+
+  if (reaction === 1) {
+    updatedComment.dislikes = updatedComment.dislikes?.filter(
+      (dislike) => dislike.profileId !== $authStore.profile?.id
+    );
+  } else if (reaction === -1) {
+    updatedComment.likes = updatedComment.likes?.filter((like) => like.profileId !== $authStore.profile?.id);
+  }
+
+  return updatedComment;
+};
+
+const toggleReplies = async (id: number) => {
+  try {
+    const comment = comments.value.find((c) => c.id === id);
+    if (comment?.replies && openReplies.value.has(id)) {
+      openReplies.value.delete(id);
+      return;
+    }
+
+    const data = await $fetch<IComment[]>("/api/comment/replies", {
+      query: {
+        id,
+      },
+    });
+
+    if (data) {
+      const updatedComments = comments.value.map((comment) => {
+        if (comment.id === id) {
+          return {
+            ...comment,
+            replies: data.map((reply) => ({
+              ...reply,
+              liked: reply.likes?.some((like) => like.profileId === $authStore.profile?.id),
+              disliked: reply.dislikes?.some((like) => like.profileId === $authStore.profile?.id),
+            })),
+          };
+        }
+        return comment;
+      });
+      comments.value = updatedComments;
+      openReplies.value.add(id);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const getRepliesText = (count: number) => {
+  const repliesCount = count || 0;
+
+  if (locale.value === "ru") {
+    return plural(repliesCount, [t("replies.one"), t("replies.few"), t("replies.many")]);
+  } else {
+    return plural(repliesCount, [t("replies.one"), t("replies.many"), t("replies.many")]);
   }
 };
 </script>
@@ -183,49 +258,31 @@ const dislikeComment = async (comment: IComment) => {
         {{ $t("noComments") }}
       </div>
       <div v-else class="space-y-4">
-        <div v-for="comment in comments" :key="comment.id" class="flex gap-3 relative">
-          <NuxtLink
-            :to="
-              $localePath({
-                name: 'profile-name',
-                params: { name: $authStore.profile?.name },
-              })
-            "
-          >
-            <img
-              :src="'/upload/avatars/' + comment.profile?.avatar"
-              class="xl:w-10 w-8 aspect-square rounded-full object-cover"
-              :alt="comment.profile?.name"
-            />
-          </NuxtLink>
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2">
-              <NuxtLink
-                :to="
-                  $localePath({
-                    name: 'profile-name',
-                    params: { name: $authStore.profile?.name },
-                  })
-                "
-                class="font-semibold dark:text-white hover:underline"
-                >{{ comment.profile?.name }}</NuxtLink
+        <div v-for="comment in comments" :key="comment.id">
+          <CommentItem :comment="comment" @like="likeComment" @dislike="dislikeComment">
+            <template #replies-button>
+              <button
+                v-if="comment.hasReplies"
+                @click="toggleReplies(comment.id)"
+                class="hover:text-gray-400 flex items-center gap-3 self-end mt-3"
               >
-              <span class="text-gray-500 dark:text-gray-400 text-xs">{{ formatRelativeTime(comment.createdAt) }}</span>
-            </div>
-            <p class="text-gray-600 dark:text-gray-300 break-words whitespace-pre-wrap">
-              {{ comment.text }}
-            </p>
-            <div class="flex items-start gap-2 mt-1">
-              <button @click="likeComment(comment)" class="hover:text-gray-400 flex items-center gap-1">
-                <IconsLike class="w-6 h-6" :class="{ 'text-red-500': comment.liked }" />
-                <span class="text-xs">{{ comment.likes?.length || "" }}</span>
+                <IconsArrow class="w-4 h-4 -rotate-90" :class="{ 'rotate-90': openReplies.has(comment.id) }" />
+                <span class="text-sm font-semibold dark:text-gray-300">
+                  {{ comment.repliesCount || comment.replies?.length || 0 }}
+                </span>
+                <span class="text-sm font-semibold dark:text-gray-300">
+                  {{ getRepliesText(comment.repliesCount || comment.replies?.length || 0) }}
+                </span>
               </button>
-              <button @click="dislikeComment(comment)" class="hover:text-gray-400 flex items-center gap-1">
-                <IconsDislike class="w-6 h-6" :class="{ 'text-red-500': comment.disliked }" />
-                <span class="text-xs">{{ comment.dislikes?.length || "" }}</span>
-              </button>
-            </div>
-          </div>
+            </template>
+          </CommentItem>
+
+          <CommentReplies
+            v-if="openReplies.has(comment.id) && comment.replies"
+            :replies="comment.replies"
+            @like="likeComment"
+            @dislike="dislikeComment"
+          />
         </div>
       </div>
     </div>
@@ -233,22 +290,7 @@ const dislikeComment = async (comment: IComment) => {
     <div
       class="absolute bottom-0 left-0 rounded-b-xl right-0 p-4 border-t dark:border-neutral-800 bg-white dark:bg-neutral-900"
     >
-      <form @submit.prevent="addComment" class="flex gap-2">
-        <input
-          v-model="commentText"
-          type="text"
-          :placeholder="$t('addComment')"
-          class="flex-1 px-4 py-2 rounded-md bg-gray-100 dark:bg-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F02C56]"
-        />
-        <button
-          type="submit"
-          class="px-4 py-2 bg-[#F02C56] text-white rounded-md hover:bg-[#ae1c3c] transition-colors cursor-pointer disabled:bg-gray-400"
-          :disabled="!commentText.trim() || isFormLoading"
-        >
-          <IconsLoader v-if="isFormLoading" class="h-5 w-5 animate-spin" />
-          <span v-else>{{ $t("post") }}</span>
-        </button>
-      </form>
+      <CommentForm :is-form-loading="isFormLoading" @submit="addComment" />
     </div>
   </div>
 </template>

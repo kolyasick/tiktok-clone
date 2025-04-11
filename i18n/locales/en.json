@@ -33,6 +33,7 @@
   "followed": "Followed",
   "following": "Following",
   "followers": "Followers",
+  "unfollow": "Unfollow",
   "likes": "Likes",
   "videos": "Videos",
   "liked": "Liked",
@@ -57,6 +58,12 @@
   "comments": "Comments",
   "noComments": "No comments yet",
   "addComment": "Add a comemnt...",
+  "reply": "Reply",
+  "replyToComment": "Reply to comment",
+  "replies": {
+    "one": "reply",
+    "many": "replies"
+  },
 
   "savedMessages": "Saved Messages",
   "sayHi": "Say hi to",

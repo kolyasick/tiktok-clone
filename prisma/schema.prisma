@@ -118,32 +118,51 @@ model Like {
 
 model CommentLike {
   id        Int      @id @default(autoincrement())
-  commentId Int
-  reaction  Int @default(0) 
-  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
   profileId Int
-  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  commentId Int
+  reaction  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profile   Profile  @relation(fields: [profileId], references: [id])
+  comment   Comment  @relation("CommentLikes", fields: [commentId], references: [id])
+  commentDislike Comment @relation("CommentDislikes", fields: [commentId], references: [id])
+
+  @@unique([profileId, commentId])
+  @@index([profileId])
+  @@index([commentId])
 }
 
 model Comment {
   id        Int      @id @default(autoincrement())
   text      String
-  profileId Int
-  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  videoId   String
-  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  videoId   String
+  profileId  Int
+  parentId  Int?
+  hasReplies Boolean @default(false)
+  
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  profile   Profile  @relation(fields: [profileId], references: [id])
+  parent    Comment? @relation("CommentReplies", fields: [parentId], references: [id])
+  replies   Comment[] @relation("CommentReplies")
+  likes     CommentLike[] @relation("CommentLikes")
+  dislikes  CommentLike[] @relation("CommentDislikes")
 
-  likes CommentLike[]
+  @@index([videoId])
+  @@index([profileId])
+  @@index([parentId])
 }
 
 model Follows {
   id        Int      @id @default(autoincrement())
   userId    Int
   friendId  Int
+
   status    String   @default("pending")
+  isFollowing Boolean @default(false)
+  isFriend   Boolean @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -152,7 +171,6 @@ model Follows {
 
   @@unique([userId, friendId]) 
   @@unique([friendId, userId])
-
 }
 
 model Chat {

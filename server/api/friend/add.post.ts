@@ -4,6 +4,7 @@ interface IBody {
   userId: number;
   friendId: number;
 }
+
 export default defineEventHandler(async (event) => {
   const { userId, friendId } = await readBody<IBody>(event);
 
@@ -30,15 +31,31 @@ export default defineEventHandler(async (event) => {
   });
 
   if (isFriendshipExist) {
+    if (isFriendshipExist.status === "rejected") {
+      const updateFriend = await prisma.follows.update({
+        where: {
+          id: isFriendshipExist.id,
+        },
+        data: {
+          status: "pending",
+          isFollowing: true,
+          isFriend: false,
+        },
+      });
+      return updateFriend;
+    }
     return isFriendshipExist;
-  } else {
-    const friendShip = await prisma.follows.create({
-      data: {
-        userId: userId,
-        friendId: friendId,
-      },
-    });
-
-    return friendShip;
   }
+
+  const friendShip = await prisma.follows.create({
+    data: {
+      userId: userId,
+      friendId: friendId,
+      status: "pending",
+      isFollowing: true,
+      isFriend: false,
+    },
+  });
+
+  return friendShip;
 });

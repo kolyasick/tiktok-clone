@@ -23,14 +23,20 @@ export default defineEventHandler(async (event) => {
   if (!profile) {
     throw createError({
       status: 404,
-      statusMessage: "User not found",
+      message: "User not found",
     });
   }
 
   const mappedProfile = {
     ...profile,
-    following: [...profile.followsAsFollower, ...profile.followsAsFollowing.filter((f) => f.status == "reply")],
-    followers: [...profile.followsAsFollowing, ...profile.followsAsFollower.filter((f) => f.status == "reply")],
+    following: [
+      ...profile.followsAsFollower.filter((f) => f.isFollowing),
+      ...profile.followsAsFollowing.filter((f) => f.isFollowing && f.status === "accepted"),
+    ],
+    followers: [
+      ...profile.followsAsFollowing.filter((f) => f.isFollowing && f.status !== "rejected"),
+      ...profile.followsAsFollower.filter((f) => f.isFollowing && f.status === "accepted"),
+    ],
   };
 
   // @ts-ignore
