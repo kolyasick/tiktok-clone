@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   if (!videoId || !senderId || !text) {
     throw createError({
       statusCode: 400,
-      statusMessage: "Video id, senderId and text required",
+      message: "Video id, senderId and text required",
     });
   }
 

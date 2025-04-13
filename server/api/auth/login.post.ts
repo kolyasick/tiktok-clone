@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
   if (!name || !password) {
     throw createError({
       statusCode: 400,
-      statusMessage: "All fields are required",
+      message: "All fields are required",
     });
   }
 
@@ -34,21 +34,22 @@ export default defineEventHandler(async (event) => {
   if (!profile) {
     throw createError({
       statusCode: 404,
-      statusMessage: "User doesn't exist",
+      message: "User doesn't exist",
     });
   } else if (!profile.user.verified) {
     throw createError({
       statusCode: 403,
-      statusMessage: "Follow the link on your email to verify account",
+      message: "Follow the link on your email to verify account",
     });
   }
 
-  const isPasswordValid = profile?.user && (await verifyPassword(profile.user.password, password));
+  const isPasswordValid =
+    profile?.user && (await verifyPassword(profile.user.password, password));
 
   if (!isPasswordValid) {
     throw createError({
       statusCode: 401,
-      statusMessage: "Invalid credentials",
+      message: "Invalid credentials",
     });
   }
 
@@ -63,7 +64,8 @@ export default defineEventHandler(async (event) => {
       await clearUserSession(event);
       throw createError({
         statusCode: 403,
-        statusMessage: "User is banned until " + formatDate(block?.until!, false, true),
+        message:
+          "User is banned until " + formatDate(block?.until!, false, true),
       });
     }
   }
@@ -81,7 +83,7 @@ export default defineEventHandler(async (event) => {
   if (!session) {
     throw createError({
       statusCode: 500,
-      statusMessage: "Something went wrong",
+      message: "Something went wrong",
     });
   }
 
@@ -89,11 +91,17 @@ export default defineEventHandler(async (event) => {
     ...profile,
     following: [
       ...profile.followsAsFollower.filter((f) => f.isFollowing),
-      ...profile.followsAsFollowing.filter((f) => f.isFollowing && f.status === "accepted"),
+      ...profile.followsAsFollowing.filter(
+        (f) => f.isFollowing && f.status === "accepted"
+      ),
     ],
     followers: [
-      ...profile.followsAsFollowing.filter((f) => f.isFollowing && f.status !== "rejected"),
-      ...profile.followsAsFollower.filter((f) => f.isFollowing && f.status === "accepted"),
+      ...profile.followsAsFollowing.filter(
+        (f) => f.isFollowing && f.status !== "rejected"
+      ),
+      ...profile.followsAsFollower.filter(
+        (f) => f.isFollowing && f.status === "accepted"
+      ),
     ],
   };
 

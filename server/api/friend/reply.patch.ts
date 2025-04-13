@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   if (!userId || !friendId) {
     throw createError({
       statusCode: 400,
-      statusMessage: "User ids are required",
+      message: "User ids are required",
     });
   }
 
@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
   if (!findFriendShip) {
     throw createError({
       statusCode: 404,
-      statusMessage: "Friendship not found",
+      message: "Friendship not found",
     });
   }
 

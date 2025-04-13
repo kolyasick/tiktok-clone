@@ -28,12 +28,13 @@ export const useAuthStore = defineStore("auth", {
 
     async register(name: string, email: string, password: string) {
       this.clearErrors();
-      // if (
-      //   !validateName(name, this.errors) ||
-      //   !validateEmail(email, this.errors) ||
-      //   !validatePassword(password, this.errors)
-      // )
-      //   return;
+      if (
+        !validateName(name, this.errors) ||
+        !validateEmail(email, this.errors) ||
+        !validatePassword(password, this.errors)
+      ) {
+        return;
+      }
 
       try {
         this.isLoading = true;
@@ -49,7 +50,7 @@ export const useAuthStore = defineStore("auth", {
 
         await useUserSession().fetch();
       } catch (error: any) {
-        this.errors.other = error.statusMessage;
+        this.errors.other = error.message;
       } finally {
         this.isLoading = false;
       }
@@ -73,9 +74,9 @@ export const useAuthStore = defineStore("auth", {
         await useUserSession().fetch();
       } catch (error: any) {
         if (error.statusCode === 403) {
-          this.message = error.statusMessage;
+          this.message = error.message;
         } else {
-          this.errors.other = error.statusMessage;
+          this.errors.other = error.message;
         }
       } finally {
         this.isLoading = false;

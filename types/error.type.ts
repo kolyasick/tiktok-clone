@@ -1,4 +1,4 @@
 export type Error = {
-	statusCode: number
-	statusMessage: string
-}
+  statusCode: number;
+  message: string;
+};

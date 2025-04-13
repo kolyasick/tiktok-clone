@@ -83,6 +83,7 @@ model Video {
   url      String?
   isBlocked Boolean @default(false)
   profileId Int
+  randomSort Float   @default(0.0)
   profile  Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
   likes    Like[]

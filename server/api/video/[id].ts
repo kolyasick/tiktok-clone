@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   if (!id) {
     throw createError({
       statusCode: 400,
-      statusMessage: "Id parameter is required",
+      message: "Id parameter is required",
     });
   }
 
@@ -28,13 +28,13 @@ export default defineEventHandler(async (event) => {
   if (!video) {
     throw createError({
       status: 404,
-      statusMessage: "Video not found",
+      message: "Video not found",
     });
   }
 
   return {
     ...video,
     commentsCount: video._count?.comments || 0,
-    _count: undefined, 
+    _count: undefined,
   };
 });

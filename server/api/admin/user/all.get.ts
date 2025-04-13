@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
   if (!session) {
     throw createError({
       statusCode: 403,
-      statusMessage: "Access denied",
+      message: "Access denied",
     });
   }
   const users = await prisma.profile.findMany({

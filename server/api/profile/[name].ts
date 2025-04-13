@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   if (!name) {
     throw createError({
       statusCode: 400,
-      statusMessage: "Name parameter is required",
+      message: "Name parameter is required",
     });
   }
 
@@ -31,11 +31,17 @@ export default defineEventHandler(async (event) => {
     ...profile,
     following: [
       ...profile.followsAsFollower.filter((f) => f.isFollowing),
-      ...profile.followsAsFollowing.filter((f) => f.isFollowing && f.status === "accepted"),
+      ...profile.followsAsFollowing.filter(
+        (f) => f.isFollowing && f.status === "accepted"
+      ),
     ],
     followers: [
-      ...profile.followsAsFollowing.filter((f) => f.isFollowing && f.status !== "rejected"),
-      ...profile.followsAsFollower.filter((f) => f.isFollowing && f.status === "accepted"),
+      ...profile.followsAsFollowing.filter(
+        (f) => f.isFollowing && f.status !== "rejected"
+      ),
+      ...profile.followsAsFollower.filter(
+        (f) => f.isFollowing && f.status === "accepted"
+      ),
     ],
   };
 

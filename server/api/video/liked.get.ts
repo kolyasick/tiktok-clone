@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
   if (!userId) {
     throw createError({
       statusCode: 400,
-      statusMessage: "User id is required",
+      message: "User id is required",
     });
   }
 

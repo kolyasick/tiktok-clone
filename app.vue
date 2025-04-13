@@ -71,7 +71,6 @@ onMounted(async () => {
   }
 });
 
-
 onUnmounted(() => {
   if (loggedIn.value && $authStore.profile) {
     socket.off("online");
@@ -108,15 +107,6 @@ body {
   font-family: "Inter", sans-serif;
   @apply dark:bg-dark bg-gray-50;
 }
-::-webkit-scrollbar {
-  display: none;
-}
-
-/* Hide scrollbar for IE, Edge and Firefox */
-* {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
-}
 
 .main-pages-enter-active,
 .main-pages-leave-active {
@@ -128,10 +118,6 @@ body {
   filter: blur(1rem);
 }
 
-* {
-  transition: all 0.2s ease;
-}
-
 html {
   scrollbar-gutter: stable;
 }
@@ -139,7 +125,15 @@ html {
 button {
   white-space: nowrap;
 }
+::-webkit-scrollbar {
+  display: none;
+}
 
+/* Hide scrollbar for IE, Edge and Firefox */
+* {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
 #__nuxt {
   min-height: 100vh;
   height: 100%;

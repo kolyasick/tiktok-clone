@@ -19,7 +19,9 @@ const { data } = await useFetch<IVideo>(`/api/video/${route.params.id}`, {
   transform: (data) => {
     return {
       ...data,
-      liked: data?.likes?.some((like) => like.profileId === $authStore.profile?.id),
+      liked: data?.likes?.some(
+        (like) => like.profileId === $authStore.profile?.id
+      ),
     };
   },
 });
@@ -29,7 +31,9 @@ if (data.value) {
   $videosStore.offset = 0;
   $videosStore.hasMore = true;
 
-  currentVideoIndex.value = $videosStore.videos.findIndex((video) => video.id === route.params.id);
+  currentVideoIndex.value = $videosStore.videos.findIndex(
+    (video) => video.id === route.params.id
+  );
 
   setTimeout(async () => {
     await $videosStore.getVideos(route.params.id as string);
@@ -69,7 +73,11 @@ const handleScroll = async (e: WheelEvent) => {
         block: currentVideoIndex.value === 0 ? "end" : "center",
       });
       const currentVideo = $videosStore.videos[nextIndex];
-      window.history.replaceState({}, "", localePath(`/video/${currentVideo.id}`));
+      window.history.replaceState(
+        {},
+        "",
+        localePath(`/video/${currentVideo.id}`)
+      );
 
       useSeoMeta({
         title: "Clipify | " + currentVideo.title,
@@ -122,7 +130,11 @@ const handleTouchMove = async (e: TouchEvent) => {
         });
 
         const currentVideo = $videosStore.videos[nextIndex];
-        window.history.replaceState({}, "", localePath(`/video/${currentVideo.id}`));
+        window.history.replaceState(
+          {},
+          "",
+          localePath(`/video/${currentVideo.id}`)
+        );
 
         useSeoMeta({
           title: "Clipify | " + currentVideo.title,
@@ -148,19 +160,16 @@ const handleTouchMove = async (e: TouchEvent) => {
 };
 
 onMounted(() => {
-  if (scrollContainer.value) {
-    window.addEventListener("wheel", handleScroll, { passive: false });
-    window.addEventListener("touchstart", handleTouchStart, { passive: false });
-    window.addEventListener("touchmove", handleTouchMove, { passive: false });
-  }
+  window.addEventListener("wheel", handleScroll, { passive: false });
+  window.addEventListener("touchstart", handleTouchStart, { passive: false });
+  window.addEventListener("touchmove", handleTouchMove, { passive: false });
 });
 
 onUnmounted(() => {
-  if (scrollContainer.value) {
-    window.removeEventListener("wheel", handleScroll);
-    window.removeEventListener("touchstart", handleTouchStart);
-    window.removeEventListener("touchmove", handleTouchMove);
-  }
+  window.removeEventListener("wheel", handleScroll);
+  window.removeEventListener("touchstart", handleTouchStart);
+  window.removeEventListener("touchmove", handleTouchMove);
+
   if (scrollTimeout) clearTimeout(scrollTimeout);
 });
 </script>
@@ -178,8 +187,15 @@ onUnmounted(() => {
     >
       <PostMain class="mb-5" :video="video" />
     </div>
-    <div v-if="$videosStore.isLoading" class="flex justify-center items-center h-[calc(100vh-24px)] snap-start">
+    <div
+      v-if="$videosStore.isLoading"
+      class="flex justify-center items-center h-[calc(100vh-24px)] snap-start"
+    >
       <IconsLoader class="animate-spin ml-1 w-24 h-24" />
     </div>
   </div>
 </template>
+
+<style scoped>
+
+</style>

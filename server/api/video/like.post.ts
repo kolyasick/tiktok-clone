@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   if (!videoId || !profileId) {
     throw createError({
       statusCode: 400,
-      statusMessage: "Post id and profile id are required",
+      message: "Post id and profile id are required",
     });
   }
 
@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
   if (!like.id) {
     throw createError({
       statusCode: 500,
-      statusMessage: "Error creating like",
+      message: "Error creating like",
     });
   }
 

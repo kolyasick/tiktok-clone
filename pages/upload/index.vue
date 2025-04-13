@@ -112,14 +112,22 @@ useSeoMeta({
     v-if="loading"
     class="fixed flex flex-col items-center justify-center top-0 left-0 w-full h-screen bg-black z-50 bg-opacity-80"
   >
-    <div class="bg-white dark:bg-[#222222] p-8 rounded-lg shadow-xl w-full max-w-md">
+    <div
+      class="bg-white dark:bg-[#222222] p-8 rounded-lg shadow-xl w-[90%] max-w-md"
+    >
       <div class="flex flex-col items-center">
         <IconsLoader class="animate-spin w-16 h-16 text-[#F02C56]" />
-        <h3 class="mt-4 text-lg font-medium dark:text-white">{{ $t("uploadLoadingTitle") }}</h3>
-        <p class="mt-2 text-gray-500 dark:text-gray-400">{{ $t("uploadLoadingDescr") }}</p>
+        <h3 class="mt-4 text-lg font-medium dark:text-white">
+          {{ $t("uploadLoadingTitle") }}
+        </h3>
+        <p class="mt-2 text-gray-500 dark:text-gray-400">
+          {{ $t("uploadLoadingDescr") }}
+        </p>
 
         <div class="w-full mt-6">
-          <div class="flex justify-between text-sm text-gray-500 dark:text-gray-400 mb-1">
+          <div
+            class="flex justify-between text-sm text-gray-500 dark:text-gray-400 mb-1"
+          >
             <span>{{ $t("progress") }}</span>
             <span>{{ uploadProgress }}%</span>
           </div>
@@ -135,7 +143,9 @@ useSeoMeta({
   </div>
 
   <div class="w-full">
-    <div class="my-5 dark:bg-neutral-800/30 bg-gray-100 shadow-lg rounded-md py-6 md:px-10 px-4">
+    <div
+      class="my-5 dark:bg-neutral-800/30 bg-gray-100 shadow-lg rounded-md py-6 md:px-10 px-4"
+    >
       <div>
         <div class="text-[23px] font-semibold">{{ $t("uploadTitle") }}</div>
         <div class="text-gray-400 mt-1">{{ $t("uploadDescr") }}</div>
@@ -149,11 +159,17 @@ useSeoMeta({
         >
           <IconsUpload class="w-12 h-12" />
           <div class="mt-4 text-[17px]">{{ $t("selectVideo") }}</div>
-          <div class="mt-1.5 text-gray-500 text-[13px]">{{ $t("dragDrop") }}</div>
+          <div class="mt-1.5 text-gray-500 text-[13px]">
+            {{ $t("dragDrop") }}
+          </div>
           <div class="mt-12 text-gray-400 text-sm">MP4</div>
           <div class="mt-2 text-gray-400 text-[13px]">{{ $t("upToMin") }}</div>
-          <div class="mt-2 text-gray-400 text-[13px]">{{ $t("lessThanFifty") }}</div>
-          <div class="px-2 py-1.5 mt-8 text-white text-[15px] w-[80%] bg-[#F02C56] rounded-md">
+          <div class="mt-2 text-gray-400 text-[13px]">
+            {{ $t("lessThanFifty") }}
+          </div>
+          <div
+            class="px-2 py-1.5 mt-8 text-white text-[15px] w-[80%] bg-[#F02C56] rounded-md"
+          >
             {{ $t("selectFile") }}
           </div>
           <input
@@ -170,8 +186,15 @@ useSeoMeta({
           v-else
           class="md:mx-0 mx-auto mt-4 md:mb-12 mb-16 flex items-center justify-center w-full max-w-[260px] h-[540px] p-3 rounded-2xl cursor-pointer relative"
         >
-          <img class="absolute z-20 pointer-events-none w-full h-full" src="/mobile-case.png" />
-          <img class="absolute right-4 bottom-6 z-20" width="90" src="/tiktok-logo-white.png" />
+          <img
+            class="absolute z-20 pointer-events-none w-full h-full"
+            src="/mobile-case.png"
+          />
+          <img
+            class="absolute right-4 bottom-6 z-20"
+            width="90"
+            src="/tiktok-logo-white.png"
+          />
           <video
             autoplay
             loop
@@ -181,7 +204,7 @@ useSeoMeta({
           />
 
           <div
-            class="absolute -bottom-12 flex items-center justify-between z-50 rounded-xl border w-full p-2 border-gray-300"
+            class="absolute -bottom-12 flex items-center justify-between z-20 rounded-xl border w-full p-2 border-gray-300"
           >
             <div class="flex items-center truncate">
               <IconsCheck class="w-5 h-5" />
@@ -201,7 +224,9 @@ useSeoMeta({
               <IconsCutter class="w-5 h-5 mr-4" />
             </div>
             <div>
-              <div class="text-semibold text-[15px] mb-1.5">{{ $t("divide") }}</div>
+              <div class="text-semibold text-[15px] mb-1.5">
+                {{ $t("divide") }}
+              </div>
               <div class="text-semibold text-[13px] text-gray-400">
                 {{ $t("divideDescr") }}
               </div>
@@ -211,7 +236,9 @@ useSeoMeta({
           <div class="mt-5">
             <div class="flex items-center justify-between">
               <div class="mb-1 text-[15px]">{{ $t("title") }}</div>
-              <div class="text-gray-400 text-[12px]">{{ caption ? caption.length : 0 }}/150</div>
+              <div class="text-gray-400 text-[12px]">
+                {{ caption ? caption.length : 0 }}/150
+              </div>
             </div>
             <input
               v-model="caption"

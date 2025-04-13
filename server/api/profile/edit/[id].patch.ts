@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
   if (!id) {
     throw createError({
       statusCode: 400,
-      statusMessage: "Id parameter is required",
+      message: "Id parameter is required",
     });
   }
 
@@ -29,12 +29,14 @@ export default defineEventHandler(async (event) => {
     if (isNameExist) {
       throw createError({
         statusCode: 400,
-        statusMessage: "Username already exist",
+        message: "Username already exist",
       });
     }
   }
 
-  const file = avatar ? await storeFileLocally(avatar, 6, "/avatars") : undefined;
+  const file = avatar
+    ? await storeFileLocally(avatar, 6, "/avatars")
+    : undefined;
   const parsedId = parseInt(id);
 
   const profile = await prisma.profile.update({

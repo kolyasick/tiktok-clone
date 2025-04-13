@@ -53,7 +53,7 @@
   "title": "Title",
   "addTitle": "Add a title",
   "uploadLoadingTitle": "Uploading your video",
-  "uploadLodingDescr": "Please wait while we process your video",
+  "uploadLoadingDescr": "Please wait while we process your video",
 
   "comments": "Comments",
   "noComments": "No comments yet",

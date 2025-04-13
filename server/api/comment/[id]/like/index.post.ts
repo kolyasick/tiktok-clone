@@ -1,13 +1,12 @@
 import prisma from "~/server/composables/prisma";
 
 type Body = {
-
   reaction: number;
   senderId: number;
 };
 
 export default defineEventHandler(async (event) => {
-  const {  reaction, senderId } = await readBody<Body>(event);
+  const { reaction, senderId } = await readBody<Body>(event);
   const { id } = event.context.params as { id: string };
 
   try {
@@ -41,7 +40,7 @@ export default defineEventHandler(async (event) => {
   } catch (error) {
     throw createError({
       statusCode: 500,
-      statusMessage: "Internal server error",
+      message: "Internal server error",
     });
   }
 });

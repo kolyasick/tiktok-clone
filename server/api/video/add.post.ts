@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
   if (!body.title || !body.file || !body.userId) {
     throw createError({
       statusCode: 400,
-      statusMessage: "Title, file and user id are required",
+      message: "Title, file and user id are required",
     });
   }
 
@@ -43,13 +43,14 @@ export default defineEventHandler(async (event) => {
         profileId: body.userId,
         url: file,
         statusId: status!.id,
+        randomSort: Math.random(),
       },
     });
 
     if (!video.id) {
       throw createError({
         statusCode: 500,
-        statusMessage: "Error creating video",
+        message: "Error creating video",
       });
     }
 
@@ -58,7 +59,7 @@ export default defineEventHandler(async (event) => {
     console.error("Error processing video:", error);
     throw createError({
       statusCode: 500,
-      statusMessage: "Error processing video",
+      message: "Error processing video",
     });
   }
 });

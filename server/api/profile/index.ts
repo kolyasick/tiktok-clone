@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
   if (!id) {
     throw createError({
       statusCode: 400,
-      statusMessage: "Id parameter is required",
+      message: "Id parameter is required",
     });
   }
 
@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
   if (!profile) {
     throw createError({
       status: 404,
-      statusMessage: "User not found",
+      message: "User not found",
     });
   }
 
@@ -45,7 +45,8 @@ export default defineEventHandler(async (event) => {
       clearUserSession(event).then(() => {
         throw createError({
           statusCode: 403,
-          statusMessage: "User is banned until " + formatDate(block?.until!, false, true),
+          message:
+            "User is banned until " + formatDate(block?.until!, false, true),
         });
       });
     }
@@ -53,8 +54,14 @@ export default defineEventHandler(async (event) => {
 
   const mappedProfile = {
     ...profile,
-    following: [...profile.followsAsFollower, ...profile.followsAsFollowing.filter((f) => f.status == "reply")],
-    followers: [...profile.followsAsFollowing, ...profile.followsAsFollower.filter((f) => f.status == "reply")],
+    following: [
+      ...profile.followsAsFollower,
+      ...profile.followsAsFollowing.filter((f) => f.status == "reply"),
+    ],
+    followers: [
+      ...profile.followsAsFollowing,
+      ...profile.followsAsFollower.filter((f) => f.status == "reply"),
+    ],
   };
 
   // @ts-ignore

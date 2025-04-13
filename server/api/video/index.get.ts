@@ -6,12 +6,25 @@ export default defineEventHandler(async (event) => {
     limit = 5,
     excludeId,
     userId,
-  } = getQuery<{ offset: string; limit: string; excludeId: string; userId?: string }>(event);
+  } = getQuery<{
+    offset: string;
+    limit: string;
+    excludeId: string;
+    userId?: string;
+  }>(event);
+
+  await prisma.$executeRaw`
+    UPDATE "Video" 
+    SET "randomSort" = random()
+  `;
 
   const videos = await prisma.video.findMany({
     where: {
       id: {
         not: excludeId ? excludeId : undefined,
+      },
+      status: {
+        title: "published",
       },
       profileId: userId ? parseInt(userId) : undefined,
     },
@@ -32,14 +45,14 @@ export default defineEventHandler(async (event) => {
       },
     },
     orderBy: {
-      createdAt: "desc",
+      randomSort: "desc",
     },
   });
 
   return videos.map((video) => {
     return {
       ...video,
-      commentsCount: video._count?.comments || 0, 
+      commentsCount: video._count?.comments || 0,
       _count: undefined,
     };
   });

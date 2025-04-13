@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   if (!chatId || !senderId || !text) {
     throw createError({
       statusCode: 400,
-      statusMessage: "Chat id, senderId and text required",
+      message: "Chat id, senderId and text required",
     });
   }
 
