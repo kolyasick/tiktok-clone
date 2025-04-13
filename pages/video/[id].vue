@@ -24,7 +24,6 @@ const { data } = await useFetch<IVideo>(`/api/video/${route.params.id}`, {
   },
 });
 
-
 if (data.value) {
   $videosStore.videos = [data.value];
   $videosStore.offset = 0;

@@ -16,8 +16,8 @@ export const useVideosStore = defineStore("general", {
 
       this.isLoading = true;
 
-      const { $authStore } = useNuxtApp();
       try {
+        const $authStore = useAuthStore();
         const res = await $fetch<IVideo[]>(`/api/video`, {
           query: {
             offset: this.offset,
@@ -51,7 +51,9 @@ export const useVideosStore = defineStore("general", {
     },
 
     async toggleLike(video: IVideo) {
-      const { $authStore, $generalStore } = useNuxtApp();
+      const $authStore = useAuthStore();
+      const $generalStore = useGeneralStore();
+
       if (!$authStore.profile) {
         $generalStore.isLoginOpen = true;
         return;

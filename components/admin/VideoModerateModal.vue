@@ -71,7 +71,7 @@ const handleCancel = () => {
     class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
     @click.self="$adminStore.isEditModalVisible = false"
   >
-    <div class="bg-[#1a1a1a] rounded-lg overflow-hidden w-[500px] max-w-full">
+    <div class="dark:bg-[#1a1a1a] bg-white rounded-lg overflow-hidden w-[500px] max-w-full">
       <video
         :src="'/upload/videos/' + selectedVideo?.url"
         class="w-full h-[300px] object-cover"
@@ -177,11 +177,11 @@ const handleCancel = () => {
         v-if="isBlockModalVisible"
         class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
       >
-        <div class="bg-[#1a1a1a] rounded-lg p-6 w-[400px] max-w-full">
+        <div class="dark:bg-[#1a1a1a] bg-white rounded-lg p-6 w-[400px] max-w-full">
           <h3 class="text-xl font-bold mb-4">Type a reason of blocking</h3>
           <textarea
             v-model="blockReason"
-            class="w-full p-2 bg-[#2a2a2a] text-white rounded-lg focus:outline-none "
+            class="w-full p-2 dark:bg-[#2a2a2a] bg-gray-200 dark:text-white text-gray-800 rounded-lg focus:outline-none"
             placeholder="Type a reason..."
             rows="4"
           ></textarea>
@@ -195,9 +195,9 @@ const handleCancel = () => {
             <button
               @click="changeStatus('blocked')"
               :disabled="!blockReason"
-              class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 transition-colors"
+              class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 transition-colors disabled:pointer-events-none disabled:opacity-50"
             >
-              Block
+              Заблокировать
             </button>
           </div>
         </div>

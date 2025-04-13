@@ -140,12 +140,16 @@ model Comment {
   updatedAt DateTime @updatedAt
   videoId   String
   profileId  Int
+  discussionId Int?
   parentId  Int?
   hasReplies Boolean @default(false)
   
   video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
   profile   Profile  @relation(fields: [profileId], references: [id])
   parent    Comment? @relation("CommentReplies", fields: [parentId], references: [id])
+  discussion Comment? @relation("CommentDiscussion", fields: [discussionId], references: [id])
+  discussionReplies Comment[] @relation("CommentDiscussion")
+  
   replies   Comment[] @relation("CommentReplies")
   likes     CommentLike[] @relation("CommentLikes")
   dislikes  CommentLike[] @relation("CommentDislikes")

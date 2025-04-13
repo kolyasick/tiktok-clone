@@ -15,11 +15,16 @@ const emit = defineEmits<{
         @click="emit('showModerateModal', video)"
         v-for="video in $adminStore.videos"
         :key="video.id"
-        class="bg-black/60 overflow-hidden to-white/5 rounded-lg cursor-pointer hover:-translate-y-2 hover:shadow-xl transition"
+        class="dark:bg-black/60 bg-white shadow-xl overflow-hidden to-white/5 rounded-lg cursor-pointer hover:-translate-y-2 hover:shadow-xl transition"
       >
         <div class="flex flex-row items-center">
           <div class="aspect-square w-24 flex-shrink-0 p-4">
-            <video :src="'/upload/videos/' + video.url" class="w-full h-full object-cover rounded-lg" muted preload="metadata"></video>
+            <video
+              :src="'/upload/videos/' + video.url"
+              class="w-full h-full object-cover rounded-lg"
+              muted
+              preload="metadata"
+            ></video>
           </div>
           <div class="p-2 max-w-[200px]">
             <p class="text-xl font-bold truncate">{{ video.title }}</p>
@@ -46,6 +51,11 @@ const emit = defineEmits<{
       </div>
     </div>
 
-    <NuxtLink v-if="$route.path !== '/admin/videos'" to="/admin/videos" class="mt-5 inline-block font-semibold text-indigo-600">Show more</NuxtLink>
+    <NuxtLink
+      v-if="$route.path !== '/admin/videos'"
+      to="/admin/videos"
+      class="mt-5 inline-block font-semibold text-indigo-600"
+      >Show more</NuxtLink
+    >
   </div>
 </template>

@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
       likes: true,
       _count: {
         select: {
-          replies: true,
+          discussionReplies: true,
         },
       },
     },
@@ -23,8 +23,8 @@ export default defineEventHandler(async (event) => {
   return comments.map((c) => {
     return {
       ...c,
-      repliesCount: c._count?.replies || 0,
-      hasReplies: c._count?.replies > 0,
+      repliesCount: c._count?.discussionReplies || 0,
+      hasReplies: c._count?.discussionReplies > 0,
       _count: undefined,
       likes: c.likes?.filter((like) => like.reaction === 1),
       dislikes: c.likes?.filter((like) => like.reaction === -1),

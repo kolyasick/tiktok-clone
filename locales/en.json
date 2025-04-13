@@ -2,7 +2,5 @@
   "replies": {
     "one": "reply",
     "many": "replies"
-  },
-  "comments": "Comments",
-  "noComments": "No comments yet"
+  }
 }

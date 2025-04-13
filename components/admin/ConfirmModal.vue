@@ -24,7 +24,7 @@ const onCancel = () => {
 <template>
   <Transition name="modal">
     <div v-if="isVisible" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-      <div class="bg-[#1a1a1a] rounded-lg p-6 w-[400px] max-w-full">
+      <div class="dark:bg-[#1a1a1a] bg-white rounded-lg p-6 w-[400px] max-w-full">
         <h3 class="text-xl font-bold mb-4">Confirmation</h3>
         <p class="mb-4">{{ message }}</p>
         <div class="flex justify-end gap-3">

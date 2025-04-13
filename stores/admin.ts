@@ -17,7 +17,7 @@ export const useAdminStore = defineStore("admin", {
     isEditModalVisible: false as boolean,
   }),
   actions: {
-    changeStatus(status: string, videoId: number, reason: string | null) {
+    changeStatus(status: string, videoId: string, reason: string | null) {
       const video = this.videos.find((video) => video.id === videoId);
       if (video) {
         if (status !== "deleted") {

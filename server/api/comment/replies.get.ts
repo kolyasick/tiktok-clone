@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
 
   const comments = await prisma.comment.findMany({
     where: {
-      parentId: parseInt(id),
+      discussionId: parseInt(id),
     },
     include: {
       profile: true,

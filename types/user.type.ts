@@ -6,6 +6,8 @@ export interface IVideo extends Video {
   commentsCount?: number;
   status?: Status;
   liked?: boolean;
+
+  comments?: IComment[];
 }
 
 export interface ILike extends Like {
