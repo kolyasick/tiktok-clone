@@ -30,16 +30,7 @@ export default defineNuxtConfig({
       redirectOn: "root",
     },
   },
-  nodemailer: {
-    from: '"Clipify" <killergems122@gmail.com>',
-    host: process.env.SMTP_HOST,
-    port: process.env.PORT,
-    secure: false,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASSWORD,
-    },
-  },
+
   runtimeConfig: {
     public: {
       appUrl: "https://4342349-oh47207.twc1.net",
@@ -54,8 +45,35 @@ export default defineNuxtConfig({
     minify: true,
     compressPublicAssets: true,
   },
-  fileStorage: {
-    mount: "public/upload",
+  $development: {
+    nodemailer: {
+      from: '"Clipify" <killergems122@gmail.com>',
+      host: process.env.SMTP_HOST,
+      port: process.env.PORT,
+      secure: false,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASSWORD,
+      },
+    },
+    fileStorage: {
+      mount: "public/upload",
+    },
+  },
+  $production: {
+    fileStorage: {
+      mount: "/var/www/upload",
+    },
+    nodemailer: {
+      from: '"Clipify" <killergems122@gmail.com>',
+      host: process.env.SMTP_HOST,
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASSWORD,
+      },
+    },
   },
   routeRules: {
     "/admin/*": { ssr: false },
