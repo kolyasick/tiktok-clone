@@ -15,10 +15,10 @@ export default defineEventHandler(async (event) => {
     type?: "following";
   }>(event);
 
-  await prisma.$executeRaw`
-    UPDATE "Video" 
-    SET "randomSort" = random()
-  `;
+  // await prisma.$executeRaw`
+  //   UPDATE "Video"
+  //   SET "randomSort" = random()
+  // `;
 
   const videos = await prisma.video.findMany({
     where: {
