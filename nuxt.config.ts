@@ -92,6 +92,7 @@ export default defineNuxtConfig({
       ],
     },
   },
+
   tailwindcss: {
     config: {
       theme: {

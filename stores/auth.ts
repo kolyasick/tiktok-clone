@@ -28,6 +28,7 @@ export const useAuthStore = defineStore("auth", {
 
     async register(name: string, email: string, password: string) {
       this.clearErrors();
+
       if (
         !validateName(name, this.errors) ||
         !validateEmail(email, this.errors) ||
@@ -38,20 +39,30 @@ export const useAuthStore = defineStore("auth", {
 
       try {
         this.isLoading = true;
-        const message = await $fetch<string>("/api/auth/register", {
-          method: "POST",
-          body: {
-            name,
-            email,
-            password,
-          },
-        });
-        this.$patch({ message });
 
-        await useUserSession().fetch();
+        const response = await $fetch<string>("/api/auth/register", {
+          method: "POST",
+          body: { name, email, password },
+        });
+
+        this.$patch({ message: response });
+
+        try {
+          await useUserSession().fetch();
+        } catch (sessionError) {
+          console.error("Session fetch error:", sessionError);
+          this.errors.other = "Failed to update session after registration";
+        }
       } catch (error: any) {
-        this.errors.other = error.statusMessage;
-        console.log(error);
+        console.error("Registration error:", error);
+
+        const errorMessage =
+          error.data?.message ||
+          error.statusMessage ||
+          error.message ||
+          "Registration failed. Please try again.";
+
+        this.errors.other = errorMessage;
       } finally {
         this.isLoading = false;
       }
@@ -65,21 +76,27 @@ export const useAuthStore = defineStore("auth", {
         this.isLoading = true;
         const user = await $fetch<IProfile>("/api/auth/login", {
           method: "POST",
-          body: {
-            name,
-            password,
-          },
+          body: { name, password },
         });
+
         this.$patch({ profile: user });
 
-        await useUserSession().fetch();
-      } catch (error: any) {
-        if (error.statusCode === 403) {
-          this.message = error.statusMessage;
-        } else {
-          this.errors.other = error.statusMessage;
+        try {
+          await useUserSession().fetch();
+        } catch (sessionError) {
+          console.error("Session fetch error:", sessionError);
         }
-        console.log(error);
+      } catch (error: any) {
+        console.error("Login error:", error);
+
+        const errorMessage =
+          error.data?.message || error.statusMessage || error.message || "Unknown error occurred";
+
+        if (error.statusCode === 403) {
+          this.message = errorMessage;
+        } else {
+          this.errors.other = errorMessage;
+        }
       } finally {
         this.isLoading = false;
       }
