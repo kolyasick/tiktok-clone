@@ -83,5 +83,11 @@
   "invalidEmail": "Email is invalid",
   "passwordLength": "Password must be 6-15 characters",
   "nameLength": "Username must be 3-10 characters",
-  "namePattern": "Username must contain only letters and numbers"
+  "namePattern": "Username must contain only letters and numbers",
+
+  "errors": {
+    "videoNotFound": "Video not found",
+    "profileNotFound": "Profile not found",
+    "goHome": "Go home"
+  }
 }

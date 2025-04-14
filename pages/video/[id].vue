@@ -3,6 +3,7 @@ import type { IVideo } from "~/types/user.type";
 
 const { $videosStore, $authStore } = useNuxtApp();
 const localePath = useLocalePath();
+const { t } = useI18n();
 
 definePageMeta({
   layout: "main-layout",
@@ -23,6 +24,14 @@ const { data, refresh } = await useFetch<IVideo>(`/api/video/${route.params.id}`
     };
   },
 });
+
+if (!data.value) {
+  throw createError({
+    statusCode: 404,
+    statusMessage: t("errors.videoNotFound"),
+    fatal: true,
+  });
+}
 
 useSeoMeta({
   title: "Clipify | " + data.value?.title,

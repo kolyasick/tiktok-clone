@@ -17,7 +17,7 @@ defineProps({
     <a
       href="/"
       class="px-4 py-2 text-white bg-gray-800 dark:bg-[#2a2a2a] rounded-md text-lg cursor-pointer"
-      >Go home</a
+      >{{ $t('errors.goHome') }}</a
     >
   </section>
 </template>

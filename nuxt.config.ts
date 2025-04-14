@@ -33,7 +33,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      appUrl: "https://4342349-oh47207.twc1.net",
+      appUrl: "https://clipify.ru",
     },
   },
   pages: true,
