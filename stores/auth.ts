@@ -50,7 +50,7 @@ export const useAuthStore = defineStore("auth", {
 
         await useUserSession().fetch();
       } catch (error: any) {
-        this.errors.other = error.message;
+        this.errors.other = error.statusMessage;
       } finally {
         this.isLoading = false;
       }
@@ -74,9 +74,9 @@ export const useAuthStore = defineStore("auth", {
         await useUserSession().fetch();
       } catch (error: any) {
         if (error.statusCode === 403) {
-          this.message = error.message;
+          this.message = error.statusMessage;
         } else {
-          this.errors.other = error.message;
+          this.errors.other = error.statusMessage;
         }
       } finally {
         this.isLoading = false;

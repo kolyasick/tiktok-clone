@@ -6,11 +6,13 @@ export default defineEventHandler(async (event) => {
     limit = 5,
     excludeId,
     userId,
+    type,
   } = getQuery<{
     offset: string;
     limit: string;
     excludeId: string;
     userId?: string;
+    type?: "following";
   }>(event);
 
   await prisma.$executeRaw`
@@ -23,6 +25,15 @@ export default defineEventHandler(async (event) => {
       id: {
         not: excludeId ? excludeId : undefined,
       },
+      profile: type
+        ? {
+            followsAsFollower: {
+              some: {
+                friendId: userId ? parseInt(userId) : undefined,
+              },
+            },
+          }
+        : undefined,
       status: {
         title: "published",
       },

@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
   if (!id) {
     throw createError({
       statusCode: 400,
-      message: "Id parameter is required",
+      statusMessage: "Id parameter is required",
     });
   }
 
@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
   if (!profile) {
     throw createError({
       status: 404,
-      message: "User not found",
+      statusMessage: "User not found",
     });
   }
 
@@ -45,8 +45,7 @@ export default defineEventHandler(async (event) => {
       clearUserSession(event).then(() => {
         throw createError({
           statusCode: 403,
-          message:
-            "User is banned until " + formatDate(block?.until!, false, true),
+          statusMessage: "User is banned until " + formatDate(block?.until!, false, true),
         });
       });
     }

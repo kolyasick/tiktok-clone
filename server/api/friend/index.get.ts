@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   if (!userId || !friendId) {
     throw createError({
       statusCode: 400,
-      message: "All parametres are required",
+      statusMessage: "All parametres are required",
     });
   }
 

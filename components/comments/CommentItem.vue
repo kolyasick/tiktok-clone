@@ -5,10 +5,11 @@ const { $authStore, $generalStore } = useNuxtApp();
 
 type Props = {
   comment: IComment;
+  discussionId?: number;
 };
 
 const props = defineProps<Props>();
-const emits = defineEmits(["like", "dislike"]);
+const emits = defineEmits(["like", "dislike", "reply"]);
 
 const likeComment = () => {
   emits("like", props.comment);
@@ -47,7 +48,9 @@ const dislikeComment = () => {
           class="font-semibold dark:text-white hover:underline"
           >{{ comment.profile?.name }}</NuxtLink
         >
-        <span class="text-gray-500 dark:text-gray-400 text-xs">{{ formatRelativeTime(comment.createdAt) }}</span>
+        <span class="text-gray-500 dark:text-gray-400 text-xs">{{
+          formatRelativeTime(comment.createdAt)
+        }}</span>
       </div>
       <p class="text-gray-600 dark:text-gray-300 break-words whitespace-pre-wrap">
         {{ comment.text }}
@@ -60,6 +63,12 @@ const dislikeComment = () => {
         <button @click="dislikeComment" class="hover:text-gray-400 flex items-center gap-1">
           <IconsDislike class="w-6 h-6" :class="{ 'text-red-500': comment.disliked }" />
           <span class="text-xs">{{ comment.dislikes?.length || "" }}</span>
+        </button>
+        <button
+          @click="$emit('reply', comment, discussionId)"
+          class="hover:text-gray-400 flex items-center gap-1 text-sm self-end text-gray-300 ml-2"
+        >
+          {{ $t("reply") }}
         </button>
       </div>
       <slot name="replies-button"></slot>

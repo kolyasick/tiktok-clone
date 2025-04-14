@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
   if (!activationLink) {
     throw createError({
       status: 404,
-      message: "Invalid or expired activation link",
+      statusMessage: "Invalid or expired activation link",
     });
   }
 
@@ -46,7 +46,7 @@ export default defineEventHandler(async (event) => {
   if (!user) {
     throw createError({
       status: 500,
-      message: "Something went wrong",
+      statusMessage: "Something went wrong",
     });
   }
 

@@ -15,15 +15,23 @@ const route = useRoute();
 let isScrolling = false;
 let scrollTimeout: NodeJS.Timeout | null = null;
 
-const { data } = await useFetch<IVideo>(`/api/video/${route.params.id}`, {
+const { data, refresh } = await useFetch<IVideo>(`/api/video/${route.params.id}`, {
   transform: (data) => {
     return {
       ...data,
-      liked: data?.likes?.some(
-        (like) => like.profileId === $authStore.profile?.id
-      ),
+      liked: data?.likes?.some((like) => like.profileId === $authStore.profile?.id),
     };
   },
+});
+
+useSeoMeta({
+  title: "Clipify | " + data.value?.title,
+  ogTitle: "Clipify | " + data.value?.title,
+  description: data.value?.title,
+  ogDescription: data.value?.title,
+  ogImage: "/upload/avatars/default.jpg",
+  ogImageHeight: 300,
+  ogUrl: useRuntimeConfig().public.appUrl,
 });
 
 if (data.value) {
@@ -31,9 +39,7 @@ if (data.value) {
   $videosStore.offset = 0;
   $videosStore.hasMore = true;
 
-  currentVideoIndex.value = $videosStore.videos.findIndex(
-    (video) => video.id === route.params.id
-  );
+  currentVideoIndex.value = $videosStore.videos.findIndex((video) => video.id === route.params.id);
 
   setTimeout(async () => {
     await $videosStore.getVideos(route.params.id as string);
@@ -73,11 +79,12 @@ const handleScroll = async (e: WheelEvent) => {
         block: currentVideoIndex.value === 0 ? "end" : "center",
       });
       const currentVideo = $videosStore.videos[nextIndex];
-      window.history.replaceState(
-        {},
-        "",
-        localePath(`/video/${currentVideo.id}`)
-      );
+      const newUrl =
+        localePath(`/video/${currentVideo.id}`) +
+        (Object.keys(route.query).length
+          ? `?${new URLSearchParams(route.query as Record<string, string>).toString()}`
+          : "");
+      window.history.replaceState({}, "", newUrl);
 
       useSeoMeta({
         title: "Clipify | " + currentVideo.title,
@@ -130,11 +137,7 @@ const handleTouchMove = async (e: TouchEvent) => {
         });
 
         const currentVideo = $videosStore.videos[nextIndex];
-        window.history.replaceState(
-          {},
-          "",
-          localePath(`/video/${currentVideo.id}`)
-        );
+        window.history.replaceState({}, "", localePath(`/video/${currentVideo.id}`));
 
         useSeoMeta({
           title: "Clipify | " + currentVideo.title,
@@ -196,6 +199,4 @@ onUnmounted(() => {
   </div>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   if (!name) {
     throw createError({
       statusCode: 400,
-      message: "Name parameter is required",
+      statusMessage: "Name parameter is required",
     });
   }
 
@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
   if (!profile) {
     throw createError({
       status: 404,
-      message: "User not found",
+      statusMessage: "User not found",
     });
   }
 

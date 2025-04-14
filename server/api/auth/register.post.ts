@@ -1,10 +1,6 @@
 import { mail } from "~/server/composables/mailer";
 import prisma from "~/server/composables/prisma";
-import {
-  validateEmail,
-  validateName,
-  validatePassword,
-} from "~/server/composables/validators";
+import { validateEmail, validateName, validatePassword } from "~/server/composables/validators";
 
 type Body = {
   name: string;
@@ -34,12 +30,12 @@ export default defineEventHandler(async (event) => {
   if (candidate) {
     throw createError({
       statusCode: 400,
-      message: "User already exist",
+      statusMessage: "User already exist",
     });
   } else if (isNameExsit) {
     throw createError({
       statusCode: 400,
-      message: "Username already exist",
+      statusMessage: "Username already exist",
     });
   }
 
@@ -70,7 +66,7 @@ export default defineEventHandler(async (event) => {
   if (!profile) {
     throw createError({
       statusCode: 500,
-      message: "Something went wrong",
+      statusMessage: "Something went wrong",
     });
   }
 

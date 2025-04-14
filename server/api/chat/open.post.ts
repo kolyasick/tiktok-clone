@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   if (!user1Id || !user2Id) {
     throw createError({
       statusCode: 400,
-      message: "User ids are required",
+      statusMessage: "User ids are required",
     });
   }
 

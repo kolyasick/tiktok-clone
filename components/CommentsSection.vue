@@ -23,6 +23,9 @@ const isFormLoading = ref(false);
 const comments = ref<IComment[]>([]);
 const openReplies = ref<Set<number>>(new Set());
 
+const replyComment = ref<IComment>();
+const replyCommentDiscussionId = ref<number>();
+
 onMounted(async () => {
   try {
     isCimmentsLoading.value = true;
@@ -41,7 +44,17 @@ onMounted(async () => {
   }
 });
 
-const addComment = async (text: string) => {
+const reply = (comment: IComment, discussionId: number) => {
+  if (!$authStore.profile) {
+    $generalStore.isLoginOpen = true;
+    return;
+  }
+
+  replyComment.value = comment;
+  replyCommentDiscussionId.value = discussionId;
+};
+
+const addComment = async (text: string, commentId?: number) => {
   try {
     isFormLoading.value = true;
     const comment = await $fetch<IComment>("/api/comment/add", {
@@ -50,10 +63,24 @@ const addComment = async (text: string) => {
         text,
         videoId: props.videoId,
         senderId: $authStore.profile?.id!,
+        commentId,
+        discussionId: commentId,
       },
     });
-    comments.value.push(comment);
+    if (commentId) {
+      const comment = comments.value.find((c) => c.id === commentId)!;
+      if (comment && comment.repliesCount !== undefined) {
+        comment.repliesCount++;
+        comment.hasReplies = true;
+      }
+      toggleReplies(comment.id);
+    } else {
+      comments.value.push(comment);
+    }
+
     emits("addComment", comment);
+    replyComment.value = undefined;
+    replyCommentDiscussionId.value = undefined;
   } catch (error) {
     console.error("Error adding comment:", error);
   } finally {
@@ -179,7 +206,9 @@ const updateCommentReactions = (comment: IComment, reaction: number) => {
       (dislike) => dislike.profileId !== $authStore.profile?.id
     );
   } else if (reaction === -1) {
-    updatedComment.likes = updatedComment.likes?.filter((like) => like.profileId !== $authStore.profile?.id);
+    updatedComment.likes = updatedComment.likes?.filter(
+      (like) => like.profileId !== $authStore.profile?.id
+    );
   }
 
   return updatedComment;
@@ -235,7 +264,7 @@ const getRepliesText = (count: number) => {
 <template>
   <div
     id="commentsSection"
-    class="overflow-y-scroll absolute rounded-xl bottom-0 h-2/3 max-w-full w-full z-20 bg-white dark:bg-neutral-900 shadow-lg"
+    class="overflow-y-scroll absolute rounded-xl bottom-0 h-4/5 max-w-full w-full z-20 bg-white dark:bg-neutral-900 shadow-lg"
   >
     <div class="p-4 border-b dark:border-neutral-800 flex items-center justify-between">
       <h2 class="xl:text-xl text-lg font-semibold dark:text-white">
@@ -244,12 +273,18 @@ const getRepliesText = (count: number) => {
           {{ commentsCount }}
         </span>
       </h2>
-      <button @click="$emit('close')" class="p-2 hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-full">
+      <button
+        @click="$emit('close')"
+        class="p-2 hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-full"
+      >
         <IconsClose class="w-6 h-6" />
       </button>
     </div>
 
-    <div v-if="isCimmentsLoading" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+    <div
+      v-if="isCimmentsLoading"
+      class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+    >
       <IconsLoader class="w-20 h-20 animate-spin" />
     </div>
 
@@ -259,14 +294,23 @@ const getRepliesText = (count: number) => {
       </div>
       <div v-else class="space-y-4">
         <div v-for="comment in comments" :key="comment.id">
-          <CommentItem :comment="comment" @like="likeComment" @dislike="dislikeComment">
+          <CommentItem
+            :comment="comment"
+            :discussion-id="comment.id"
+            @like="likeComment"
+            @dislike="dislikeComment"
+            @reply="reply"
+          >
             <template #replies-button>
               <button
-                v-if="comment.hasReplies"
+                v-if="comment.repliesCount"
                 @click="toggleReplies(comment.id)"
                 class="hover:text-gray-400 flex items-center gap-3 self-end mt-3"
               >
-                <IconsArrow class="w-4 h-4 -rotate-90" :class="{ 'rotate-90': openReplies.has(comment.id) }" />
+                <IconsArrow
+                  class="w-4 h-4 -rotate-90"
+                  :class="{ 'rotate-90': openReplies.has(comment.id) }"
+                />
                 <span class="text-sm font-semibold dark:text-gray-300">
                   {{ comment.repliesCount || comment.replies?.length || 0 }}
                 </span>
@@ -280,17 +324,29 @@ const getRepliesText = (count: number) => {
           <CommentReplies
             v-if="openReplies.has(comment.id) && comment.replies"
             :replies="comment.replies"
+            :discussion-id="comment.id"
             @like="likeComment"
             @dislike="dislikeComment"
+            @reply="reply"
           />
         </div>
       </div>
     </div>
 
     <div
+      v-if="$authStore.profile"
       class="absolute bottom-0 left-0 rounded-b-xl right-0 p-4 border-t dark:border-neutral-800 bg-white dark:bg-neutral-900"
     >
-      <CommentForm :is-form-loading="isFormLoading" @submit="addComment" />
+      <CommentForm
+        :is-form-loading="isFormLoading"
+        :reply-comment="replyComment"
+        :discussion-id="replyCommentDiscussionId"
+        @submit="addComment"
+        @remove-reply="
+          replyComment = undefined;
+          replyCommentDiscussionId = undefined;
+        "
+      />
     </div>
   </div>
 </template>

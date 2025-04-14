@@ -12,7 +12,7 @@ defineProps({
       {{ error?.statusCode }}
     </h1>
     <p class="mb-10 text-xl sm:text-3xl text-gray-900 dark:text-white">
-      {{ error?.message }}
+      {{ error?.statusMessage }}
     </p>
     <a
       href="/"

@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
   if (!name || !password) {
     throw createError({
       statusCode: 400,
-      message: "All fields are required",
+      statusMessage: "All fields are required",
     });
   }
 
@@ -34,12 +34,12 @@ export default defineEventHandler(async (event) => {
   if (!profile) {
     throw createError({
       statusCode: 404,
-      message: "User doesn't exist",
+      statusMessage: "User doesn't exist",
     });
   } else if (!profile.user.verified) {
     throw createError({
       statusCode: 403,
-      message: "Follow the link on your email to verify account",
+      statusMessage: "Follow the link on your email to verify account",
     });
   }
 
@@ -49,7 +49,7 @@ export default defineEventHandler(async (event) => {
   if (!isPasswordValid) {
     throw createError({
       statusCode: 401,
-      message: "Invalid credentials",
+      statusMessage: "Invalid credentials",
     });
   }
 
@@ -64,8 +64,7 @@ export default defineEventHandler(async (event) => {
       await clearUserSession(event);
       throw createError({
         statusCode: 403,
-        message:
-          "User is banned until " + formatDate(block?.until!, false, true),
+        statusMessage: "User is banned until " + formatDate(block?.until!, false, true),
       });
     }
   }
@@ -83,7 +82,7 @@ export default defineEventHandler(async (event) => {
   if (!session) {
     throw createError({
       statusCode: 500,
-      message: "Something went wrong",
+      statusMessage: "Something went wrong",
     });
   }
 

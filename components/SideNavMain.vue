@@ -1,5 +1,8 @@
 <script setup lang="ts">
 const { user } = useUserSession();
+const { $videosStore, $authStore } = useNuxtApp();
+const router = useRouter();
+
 </script>
 
 <template>
@@ -7,8 +10,8 @@ const { user } = useUserSession();
     id="SideNavMain"
     class="sticky top-0 left-0 z-20 bg-light dark:bg-dark pt-[70px] hidden sm:block -mt-[70px] h-screen lg:border-r-0 border-r border-gray-200 dark:border-[#ebebeb6c] lg:w-[310px] w-[75px]"
   >
-    <div class="w-full mt-5">
-      <NuxtLink to="/">
+    <div class="w-full mt-5 flex flex-col">
+      <button @click="navigateTo($localePath('/video'))">
         <div
           class="w-full flex items-center py-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-[#222222]"
         >
@@ -19,9 +22,9 @@ const { user } = useUserSession();
             </span>
           </div>
         </div>
-      </NuxtLink>
+      </button>
 
-      <NuxtLink to="/">
+      <button>
         <div
           class="w-full flex items-center py-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-[#222222]"
         >
@@ -34,9 +37,9 @@ const { user } = useUserSession();
             </span>
           </div>
         </div>
-      </NuxtLink>
+      </button>
 
-      <NuxtLink to="/">
+      <button>
         <div
           class="w-full flex items-center py-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-[#222222]"
         >
@@ -49,7 +52,7 @@ const { user } = useUserSession();
             </span>
           </div>
         </div>
-      </NuxtLink>
+      </button>
       <NuxtLink v-if="user?.role === 'admin'" to="/admin/dashboard">
         <div
           class="w-full flex items-center py-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-[#222222]"
@@ -70,7 +73,9 @@ const { user } = useUserSession();
 
         <div class="lg:hidden block pt-3" />
 
-        <button class="lg:block hidden text-[#F02C56] pt-1.5 text-[13px]">{{ $t('seeMore') }}</button>
+        <button class="lg:block hidden text-[#F02C56] pt-1.5 text-[13px]">
+          {{ $t("seeMore") }}
+        </button>
       </div>
       <div class="lg:block hidden border-b border-gray-200 dark:border-[#ebebeb6c] mt-2" />
 

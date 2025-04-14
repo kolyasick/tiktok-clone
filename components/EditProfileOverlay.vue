@@ -48,20 +48,14 @@ const updateUser = async () => {
     serverError.value = null;
     loading.value = true;
 
-    const profile = await $fetch<IProfile>(
-      `/api/profile/edit/${$authStore.profile?.id}`,
-      {
-        method: "PATCH",
-        body: {
-          name:
-            userName.value !== $authStore.profile.name
-              ? userName.value
-              : undefined,
-          avatar: avatar.value[0] ? avatar.value[0] : undefined,
-          bio: bio.value ? bio.value : undefined,
-        },
-      }
-    );
+    const profile = await $fetch<IProfile>(`/api/profile/edit/${$authStore.profile?.id}`, {
+      method: "PATCH",
+      body: {
+        name: userName.value !== $authStore.profile.name ? userName.value : undefined,
+        avatar: avatar.value[0] ? avatar.value[0] : undefined,
+        bio: bio.value ? bio.value : undefined,
+      },
+    });
 
     if (!profile) {
       serverError.value = "Failed to update user";
@@ -75,7 +69,7 @@ const updateUser = async () => {
 
     switchModal(false);
   } catch (error: any) {
-    serverError.value = error.message ?? "Failed to update user";
+    serverError.value = error.statusMessage ?? "Failed to update user";
   } finally {
     loading.value = false;
   }
@@ -86,8 +80,7 @@ watch(
   () => {
     const isAvatarUpdated = !!avatar.value.length;
     const isBioUpdated = !!bio.value && bio.value !== $authStore.profile?.bio;
-    const isUserNameUpdated =
-      !!userName.value && userName.value !== $authStore.profile?.name;
+    const isUserNameUpdated = !!userName.value && userName.value !== $authStore.profile?.name;
 
     isUpdated.value = isAvatarUpdated || isUserNameUpdated || isBioUpdated;
   },
@@ -161,9 +154,7 @@ watch(
             <div class="font-semibold text-sm text-gray-500">
               {{ $t("bio") }}
             </div>
-            <div class="text-gray-400 text-[12px]">
-              {{ bio ? bio.length : 0 }}/100
-            </div>
+            <div class="text-gray-400 text-[12px]">{{ bio ? bio.length : 0 }}/100</div>
           </div>
 
           <textarea
@@ -178,10 +169,7 @@ watch(
           </span>
         </div>
 
-        <span
-          v-if="serverError"
-          class="text-red-500 text-sm block text-center my-4"
-        >
+        <span v-if="serverError" class="text-red-500 text-sm block text-center my-4">
           {{ serverError }}
         </span>
       </div>
