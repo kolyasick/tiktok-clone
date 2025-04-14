@@ -116,5 +116,6 @@ export default defineNuxtConfig({
     classSuffix: "",
     storageKey: "tiktok-clone-theme",
   },
+
   compatibilityDate: "2025-02-22",
 });

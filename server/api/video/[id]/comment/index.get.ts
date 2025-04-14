@@ -1,4 +1,4 @@
-import prisma from "~/server/composables/prisma";
+import prisma from "~/lib/prisma";
 
 export default defineEventHandler(async (event) => {
   const { id } = event.context.params as { id: string };

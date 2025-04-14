@@ -3,7 +3,7 @@ import { Server as Engine } from "engine.io";
 import { Server, Socket } from "socket.io";
 import { defineEventHandler } from "h3";
 import { IMessage } from "~/types/user.type";
-import prisma from "~/server/composables/prisma";
+import prisma from "~/lib/prisma";
 
 const connectedUsers = new Map<number, Set<string>>();
 
@@ -12,7 +12,6 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
   const io = new Server();
 
   io.bind(engine);
-
 
   io.on("connection", (socket: Socket) => {
     socket.on("setUser", async (userId: number) => {
@@ -123,7 +122,6 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
       }
     });
   });
-
 
   nitroApp.router.use(
     "/socket.io/",

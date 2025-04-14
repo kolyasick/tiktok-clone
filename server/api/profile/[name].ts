@@ -1,4 +1,4 @@
-import prisma from "~/server/composables/prisma";
+import prisma from "~/lib/prisma";
 
 export default defineEventHandler(async (event) => {
   const { name } = event.context.params as { name?: string };
@@ -31,17 +31,11 @@ export default defineEventHandler(async (event) => {
     ...profile,
     following: [
       ...profile.followsAsFollower.filter((f) => f.isFollowing),
-      ...profile.followsAsFollowing.filter(
-        (f) => f.isFollowing && f.status === "accepted"
-      ),
+      ...profile.followsAsFollowing.filter((f) => f.isFollowing && f.status === "accepted"),
     ],
     followers: [
-      ...profile.followsAsFollowing.filter(
-        (f) => f.isFollowing && f.status !== "rejected"
-      ),
-      ...profile.followsAsFollower.filter(
-        (f) => f.isFollowing && f.status === "accepted"
-      ),
+      ...profile.followsAsFollowing.filter((f) => f.isFollowing && f.status !== "rejected"),
+      ...profile.followsAsFollower.filter((f) => f.isFollowing && f.status === "accepted"),
     ],
   };
 

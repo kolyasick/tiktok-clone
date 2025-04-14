@@ -1,5 +1,5 @@
 import { ServerFile } from "nuxt-file-storage";
-import prisma from "~/server/composables/prisma";
+import prisma from "~/lib/prisma";
 import { compressVideo } from "~/server/utils/videoCompression";
 
 interface IBody {

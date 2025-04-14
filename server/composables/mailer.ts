@@ -1,5 +1,5 @@
 import { User } from "@prisma/client";
-import prisma from "./prisma";
+import prisma from "~/lib/prisma";
 import { v4 as uuid } from "uuid";
 
 export const mail = async (user: User) => {

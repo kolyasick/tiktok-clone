@@ -1,5 +1,5 @@
 import { ServerFile } from "nuxt-file-storage";
-import prisma from "~/server/composables/prisma";
+import prisma from "~/lib/prisma";
 
 type IBody = {
   name?: string;
@@ -34,9 +34,7 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  const file = avatar
-    ? await storeFileLocally(avatar, 6, "/avatars")
-    : undefined;
+  const file = avatar ? await storeFileLocally(avatar, 6, "/avatars") : undefined;
   const parsedId = parseInt(id);
 
   const profile = await prisma.profile.update({

@@ -1,4 +1,4 @@
-import prisma from "~/server/composables/prisma";
+import prisma from "~/lib/prisma";
 
 interface IQuery {
   userId: string;
@@ -19,22 +19,22 @@ export default defineEventHandler(async (event) => {
   const parsedFriendId = parseInt(friendId);
 
   const friendShip = await prisma.follows.findFirst({
-		where: {
-			OR: [
-				{
-					userId: parsedUserId,
-					friendId: parsedFriendId,
-				},
-				{
-					userId: parsedFriendId,
-					friendId: parsedUserId,
-				},
-			],
-		},
-		include: {
-			user: true,
-		},
-  })
+    where: {
+      OR: [
+        {
+          userId: parsedUserId,
+          friendId: parsedFriendId,
+        },
+        {
+          userId: parsedFriendId,
+          friendId: parsedUserId,
+        },
+      ],
+    },
+    include: {
+      user: true,
+    },
+  });
 
   return friendShip;
 });

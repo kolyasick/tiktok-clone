@@ -1,4 +1,4 @@
-import prisma from "~/server/composables/prisma";
+import prisma from "~/lib/prisma";
 import { formatDate } from "~/utils/formatDate";
 
 export default defineEventHandler(async (event) => {

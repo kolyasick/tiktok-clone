@@ -17,7 +17,7 @@
     "@nuxtjs/google-fonts": "^3.2.0",
     "@nuxtjs/i18n": "npm:@nuxtjs/i18n-edge",
     "@pinia/nuxt": "^0.10.1",
-    "@prisma/client": "^6.5.0",
+    "@prisma/client": "latest",
     "@types/fluent-ffmpeg": "^2.1.27",
     "@types/uuid": "^10.0.0",
     "date-fns": "^4.1.0",
@@ -26,17 +26,19 @@
     "nuxt-auth-utils": "^0.5.16",
     "nuxt-file-storage": "^0.3.0",
     "pinia": "^3.0.1",
-    "prisma": "^6.5.0",
+    "prisma": "latest",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "uuid": "^11.1.0",
     "vue": "latest",
-    "vue-advanced-cropper": "^2.8.9",
     "vue-router": "latest"
   },
   "devDependencies": {
     "@nuxtjs/tailwindcss": "^6.13.1",
     "nodemailer": "^6.10.0",
     "nuxt-nodemailer": "^1.1.2"
+  },
+   "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.9.5"
   }
 }

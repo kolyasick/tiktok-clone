@@ -1,4 +1,4 @@
-import prisma from "~/server/composables/prisma";
+import prisma from "~/lib/prisma";
 
 type Body = {
   reaction: number;

@@ -1,5 +1,5 @@
 import { mail } from "~/server/composables/mailer";
-import prisma from "~/server/composables/prisma";
+import prisma from "~/lib/prisma";
 import { validateEmail, validateName, validatePassword } from "~/server/composables/validators";
 
 type Body = {
