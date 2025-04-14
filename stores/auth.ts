@@ -51,6 +51,7 @@ export const useAuthStore = defineStore("auth", {
         await useUserSession().fetch();
       } catch (error: any) {
         this.errors.other = error.statusMessage;
+        console.log(error);
       } finally {
         this.isLoading = false;
       }
@@ -78,6 +79,7 @@ export const useAuthStore = defineStore("auth", {
         } else {
           this.errors.other = error.statusMessage;
         }
+        console.log(error);
       } finally {
         this.isLoading = false;
       }
