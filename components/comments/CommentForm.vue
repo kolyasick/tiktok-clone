@@ -76,39 +76,68 @@ const handleKeyDown = (e: KeyboardEvent) => {
 </script>
 
 <template>
-  <form @submit.prevent="addComment" class="flex gap-2 items-center relative">
-    <div class="flex-1 relative">
-      <div
-        v-if="showTag"
-        class="absolute left-2 top-1/2 transform -translate-y-1/2 flex items-center bg-[#ae1c3c] dark:bg-[#ae1c3c] rounded px-2 py-0.5 mr-1 z-10"
+  <div
+    v-if="showTag"
+    class="absolute w-full bottom-16 left-0 right-0 flex items-center dark:bg-neutral-800 bg-gray-50 border border-gray-300 dark:border-neutral-700 rounded-t-md px-4 py-1 z-10"
+  >
+    <div v-if="replyComment" class="flex gap-3 relative w-full">
+      <NuxtLink
+        :to="
+          $localePath({
+            name: 'profile-name',
+            params: { name: $authStore.profile?.name },
+          })
+        "
       >
-        <span class="text-sm">{{ tagName }}</span>
-        <button
-          type="button"
-          @click="removeTag"
-          class="ml-1 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 "
-        >
-          <IconsClose class="w-3 aspect-square text-white" />
-        </button>
+        <img
+          :src="'/upload/avatars/' + replyComment?.profile?.avatar"
+          class="xl:w-10 w-8 aspect-square rounded-full object-cover"
+          :alt="replyComment?.profile?.name"
+        />
+      </NuxtLink>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2">
+          <NuxtLink
+            :to="
+              $localePath({
+                name: 'profile-name',
+                params: { name: $authStore.profile?.name },
+              })
+            "
+            class="font-semibold dark:text-white hover:underline"
+            >{{ replyComment?.profile?.name }}</NuxtLink
+          >
+          <span class="text-gray-500 dark:text-gray-400 text-xs">{{
+            formatRelativeTime(replyComment.createdAt)
+          }}</span>
+        </div>
+        <p class="text-gray-600 dark:text-gray-300 break-words whitespace-pre-wrap">
+          {{ replyComment?.text }}
+        </p>
       </div>
-      <input
-        ref="commentInput"
-        v-model="commentText"
-        type="text"
-        :placeholder="$t(showTag ? 'reply' : 'addComment')"
-        @input="handleInput"
-        @keydown="handleKeyDown"
-        class="w-full px-4 py-2 rounded-md bg-gray-100 dark:bg-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F02C56]"
-        :style="{ paddingLeft: showTag ? `${tagName.length * 9 + 32}px` : '1rem' }"
-      />
     </div>
     <button
-      type="submit"
-      class="px-4 py-2 bg-[#F02C56] text-white rounded-md hover:bg-[#ae1c3c] transition-colors cursor-pointer disabled:bg-gray-400"
-      :disabled="!commentText.trim() || isFormLoading"
+      type="button"
+      @click="removeTag"
+      class="ml-1 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
     >
-      <IconsLoader v-if="isFormLoading" class="h-5 w-5 animate-spin" />
-      <span v-else>{{ $t("post") }}</span>
+      <IconsClose class="w-5 aspect-square dark:text-white text-black" />
     </button>
-  </form>
+  </div>
+  <div
+    class="absolute bottom-0 left-0 rounded-b-xl right-0 p-4 border-t dark:border-neutral-800 bg-white dark:bg-neutral-900"
+  >
+    <form @submit.prevent="addComment" class="flex gap-2 items-center relative">
+      <div class="flex-1 relative">
+        <input
+          ref="commentInput"
+          v-model="commentText"
+          type="text"
+          :placeholder="$t(showTag ? 'reply' : 'addComment')"
+          @input="handleInput"
+          class="w-full px-4 py-2 rounded-md bg-gray-100 dark:bg-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F02C56]"
+        />
+      </div>
+    </form>
+  </div>
 </template>

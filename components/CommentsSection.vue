@@ -333,21 +333,17 @@ const getRepliesText = (count: number) => {
       </div>
     </div>
 
-    <div
+    <CommentForm
       v-if="$authStore.profile"
-      class="absolute bottom-0 left-0 rounded-b-xl right-0 p-4 border-t dark:border-neutral-800 bg-white dark:bg-neutral-900"
-    >
-      <CommentForm
-        :is-form-loading="isFormLoading"
-        :reply-comment="replyComment"
-        :discussion-id="replyCommentDiscussionId"
-        @submit="addComment"
-        @remove-reply="
-          replyComment = undefined;
-          replyCommentDiscussionId = undefined;
-        "
-      />
-    </div>
+      :is-form-loading="isFormLoading"
+      :reply-comment="replyComment"
+      :discussion-id="replyCommentDiscussionId"
+      @submit="addComment"
+      @remove-reply="
+        replyComment = undefined;
+        replyCommentDiscussionId = undefined;
+      "
+    />
   </div>
 </template>
 
