@@ -189,7 +189,7 @@ onUnmounted(() => {
 <template>
   <div
     ref="scrollContainer"
-    class="h-[calc(100dvh-24px)] overflow-y-scroll overflow-x-visible snap-y snap-mandatory mt-6 w-full"
+    class="h-[calc(100dvh)] overflow-y-scroll overflow-x-visible snap-y snap-mandatory mt-6 w-full"
   >
     <div
       v-for="(video, index) in $videosStore.videos"
@@ -201,7 +201,7 @@ onUnmounted(() => {
     </div>
     <div
       v-if="$videosStore.isLoading"
-      class="flex justify-center items-center h-[calc(100dvh-24px)] snap-start"
+      class="flex justify-center items-center h-[calc(100dvh)] snap-start"
     >
       <IconsLoader class="animate-spin ml-1 w-24 h-24" />
     </div>

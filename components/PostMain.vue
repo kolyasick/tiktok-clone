@@ -109,7 +109,7 @@ const handleFollow = async () => {
 <template>
   <div
     ref="videoContainer"
-    class="xl:w-[65%] md:w-[70%] w-full xl:h-[calc(100dvh-150px)] h-[80dvh] xl:max-h-[800px] max-h-[650px] relative overflow-hidden"
+    class="xl:w-[65%] md:w-[70%] w-full xl:h-full h-[80dvh] xl:max-h-[800px] max-h-[650px] relative overflow-hidden"
   >
     <video
       ref="videoplay"
