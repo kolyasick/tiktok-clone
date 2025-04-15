@@ -38,10 +38,12 @@ const handleOnline = async (userId: number) => {
 
     if (user) {
       user.online = true;
+      user.updatedAt = new Date();
     }
 
     if (companion && companion.id === userId) {
       companion.online = true;
+      companion.updatedAt = new Date();
     }
   }
 };

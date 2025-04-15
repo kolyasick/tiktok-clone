@@ -23,10 +23,12 @@ export const useChat = () => {
 
       if (user) {
         user.online = status === "online";
+        user.updatedAt = new Date();
       }
 
       if (companion && companion.id === sender.id) {
         companion.online = status === "online";
+        companion.updatedAt = new Date();
       }
     }
   };

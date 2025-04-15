@@ -103,19 +103,20 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
     const interval = setInterval(async () => {
       try {
         const now = new Date();
-        const fiveMinutesAgo = new Date(now.getTime() - 1 * 60 * 1000);
+        const oneMinute = new Date(now.getTime() - 1 * 60 * 1000);
+        const fiftySeconds = new Date(now.getTime() - 1 * 50 * 1000);
 
         const users = await prisma.profile.findMany();
 
         for (const user of users) {
-          if (user.updatedAt < fiveMinutesAgo && user.online) {
+          if (user.updatedAt < oneMinute && user.online) {
             await prisma.profile.update({
               where: { id: user.id },
               data: { online: false },
             });
             io.emit("offline", user.id);
             console.log(`Пользователь ${user.id} помечен как оффлайн`);
-          } else if (user.updatedAt > fiveMinutesAgo && !user.online) {
+          } else if (user.updatedAt > fiftySeconds && !user.online) {
             await prisma.profile.update({
               where: { id: user.id },
               data: { online: true },
