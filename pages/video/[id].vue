@@ -201,7 +201,7 @@ onUnmounted(() => {
     </div>
     <div
       v-if="$videosStore.isLoading"
-      class="flex justify-center items-center h-[calc(100vh-24px)] snap-start"
+      class="flex justify-center items-center h-[calc(100dvh-24px)] snap-start"
     >
       <IconsLoader class="animate-spin ml-1 w-24 h-24" />
     </div>

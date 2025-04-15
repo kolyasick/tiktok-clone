@@ -68,5 +68,10 @@ export default defineEventHandler(async (event) => {
   // @ts-ignore
   delete mappedProfile.followsAsFollower;
 
+  await prisma.$executeRaw`
+    UPDATE "Video"
+    SET "randomSort" = random()
+  `;
+
   return mappedProfile;
 });
