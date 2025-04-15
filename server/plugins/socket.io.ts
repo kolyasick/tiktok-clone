@@ -100,16 +100,12 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
       }
     });
 
-    console.log("Запуск серверной задачи проверки онлайн-статуса...");
-
     const interval = setInterval(async () => {
       try {
         const now = new Date();
         const fiveMinutesAgo = new Date(now.getTime() - 1 * 60 * 1000);
 
         const users = await prisma.profile.findMany();
-
-        console.log(`Проверка ${users.length} пользователей...`);
 
         for (const user of users) {
           if (user.updatedAt < fiveMinutesAgo && user.online) {
@@ -119,6 +115,13 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
             });
             io.emit("offline", user.id);
             console.log(`Пользователь ${user.id} помечен как оффлайн`);
+          } else if (user.updatedAt > fiveMinutesAgo && !user.online) {
+            await prisma.profile.update({
+              where: { id: user.id },
+              data: { online: true },
+            });
+            io.emit("online", user.id);
+            console.log(`Пользователь ${user.id} помечен как онлайн`);
           }
         }
       } catch (error) {
@@ -142,6 +145,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
             },
           });
           io.emit("offline", userId);
+          clearInterval(interval);
         } catch (error) {
           console.error("Failed to update offline status on disconnect:", error);
         }
