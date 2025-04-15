@@ -5,14 +5,22 @@ definePageMeta({
   layout: "main-layout",
 });
 
-useSeoMeta({
-  title: "Clipify",
-  ogTitle: "Clipify",
-  description: "Create and share videos with your friends on Clipify",
-  ogDescription: "Create and share videos with your friends on Clipify",
-  ogImage: "/upload/avatars/default.jpg",
-  ogImageHeight: 300,
-  ogUrl: import.meta.env.BASE_URL,
+useHead({
+  title: "Clipify – Create and Share Videos with Friends",
+  meta: [
+    { name: "description", content: "Create and share videos with your friends on Clipify" },
+    { property: "og:title", content: "Clipify – Create and Share Videos with Friends" },
+    { property: "og:description", content: "Create and share videos with your friends on Clipify" },
+    { property: "og:image", content: "https://clipify.ru/clipify-logo.png" },
+    { name: "twitter:card", content: "https://clipify.ru/clipify-logo.png" },
+    { name: "twitter:title", content: "Clipify – Create and Share Videos with Friends" },
+    {
+      name: "twitter:description",
+      content: "Create and share videos with your friends on Clipify",
+    },
+    { name: "twitter:image", content: "https://clipify.ru/clipify-logo.png" },
+  ],
+  link: [{ rel: "canonical", href: "https://clipify.ru" }],
 });
 </script>
 
