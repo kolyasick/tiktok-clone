@@ -50,29 +50,6 @@ const removeTag = () => {
   emits("removeReply");
 };
 
-const handleInput = (e: Event) => {
-  if (showTag.value) {
-    const input = e.target as HTMLInputElement;
-    const cursorPos = input.selectionStart || 0;
-
-    if (cursorPos < tagName.value.length) {
-      input.value = tagName.value + ", " + input.value.slice(tagName.value.length + 2);
-      input.setSelectionRange(tagName.value.length + 2, tagName.value.length + 2);
-    }
-  }
-};
-
-const handleKeyDown = (e: KeyboardEvent) => {
-  if (showTag.value && e.key === "Backspace") {
-    const input = e.target as HTMLInputElement;
-    const cursorPos = input.selectionStart || 0;
-
-    if (cursorPos <= 0) {
-      e.preventDefault();
-      removeTag();
-    }
-  }
-};
 </script>
 
 <template>
@@ -134,7 +111,6 @@ const handleKeyDown = (e: KeyboardEvent) => {
           v-model="commentText"
           type="text"
           :placeholder="$t(showTag ? 'reply' : 'addComment')"
-          @input="handleInput"
           class="w-full px-4 py-2 rounded-md bg-gray-100 dark:bg-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F02C56]"
         />
       </div>

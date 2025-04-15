@@ -81,7 +81,6 @@ const onVideoLoaded = () => {
 const addComment = (comment: IComment) => {
   if (!comment || props.video.commentsCount === undefined) return;
   props.video.commentsCount += 1;
-
 };
 
 const isFollowed = (userId: number) => {
@@ -147,7 +146,7 @@ const handleFollow = async () => {
         />
         <button
           @click="handleFollow"
-          v-if="!isFollowing"
+          v-if="!isFollowing && $authStore.profile?.id !== video.profileId"
           class="absolute left-1/2 -translate-x-1/2 -bottom-2 bg-red-500 p-[1px] rounded-full"
         >
           <IconsPlus />
