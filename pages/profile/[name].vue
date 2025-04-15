@@ -29,7 +29,7 @@ if ($authStore.profile && name == $authStore.profile?.name) {
   if (!data.value) {
     throw createError({
       statusCode: 404,
-      statusMessage: t('errors.profileNotFound'),
+      statusMessage: t("errors.profileNotFound"),
       fatal: true,
     });
   }
@@ -108,11 +108,10 @@ const isFriend = computed(() => {
 useSeoMeta({
   title: `Clipify | ${profile.value?.name}'s profile`,
   ogTitle: `Clipify | ${profile.value?.name}'s profile`,
-  description: `Clipify | ${profile.value?.name}'s profile`,
-  ogDescription: `Clipify | ${profile.value?.name}'s profile`,
+  description: "Clipify – Create and Share Videos with Friends",
+  ogDescription: "Clipify – Create and Share Videos with Friends",
   ogImage: "/upload/avatars/" + profile.value?.avatar,
-  ogImageHeight: 300,
-  ogUrl: `${import.meta.env.BASE_URL}/profile/${profile.value?.id}`,
+  ogUrl: useRuntimeConfig().public.appUrl,
 });
 </script>
 

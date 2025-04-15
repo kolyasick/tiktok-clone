@@ -101,9 +101,8 @@ useSeoMeta({
   ogTitle: "Clipify | Upload video",
   description: "Create and share videos with your friends on Clipify",
   ogDescription: "Create and share videos with your friends on Clipify",
-  ogImage: "/upload/avatars/default.jpg",
-  ogImageHeight: 300,
-  ogUrl: import.meta.env.BASE_URL,
+  ogImage: "/clipify-logo.png",
+  ogUrl: useRuntimeConfig().public.appUrl,
 });
 </script>
 
