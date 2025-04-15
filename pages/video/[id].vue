@@ -38,7 +38,7 @@ useSeoMeta({
   ogTitle: "Clipify | " + data.value?.title,
   description: data.value?.title,
   ogDescription: data.value?.title,
-  ogImage: "/upload/avatars/default.jpg",
+  ogImage: "/clipify-logo.png",
   ogImageHeight: 300,
   ogUrl: useRuntimeConfig().public.appUrl,
 });
