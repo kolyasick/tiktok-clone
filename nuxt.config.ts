@@ -81,13 +81,51 @@ export default defineNuxtConfig({
   },
   app: {
     head: {
-      charset: "utf-8",
-      viewport: "width=device-width, initial-scale=1, maximum-scale=1",
+      meta: [
+        { charset: "utf-8" },
+        { name: "viewport", content: "width=device-width, initial-scale=1, maximum-scale=1" },
+
+        { name: "title", content: "Clipify – Create and Share Videos with Friends" },
+        {
+          name: "description",
+          content:
+            "Create and share videos with your friends on Clipify. Edit, add effects, and post your clips in seconds!",
+        },
+        {
+          name: "keywords",
+          content: "video, social media, clips, sharing, editing, friends, short videos",
+        },
+        { name: "author", content: "Clipify" },
+        { name: "robots", content: "index, follow" },
+
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: "https://clipify.ru" },
+        { property: "og:title", content: "Clipify – Create and Share Videos with Friends" },
+        {
+          property: "og:description",
+          content:
+            "Create and share videos with your friends on Clipify. Edit, add effects, and post your clips in seconds!",
+        },
+        { property: "og:image", content: "https://clipify.ru/clipify-logo.png" },
+
+        { name: "twitter:card", content: "https://clipify.ru/clipify-logo.png" },
+        { name: "twitter:site", content: "@kolya_sick" },
+        { name: "twitter:title", content: "Clipify – Create and Share Videos with Friends" },
+        {
+          name: "twitter:description",
+          content: "Create and share videos with your friends on Clipify!",
+        },
+        { name: "twitter:image", content: "https://clipify.ru/clipify-logo.png" },
+      ],
       link: [
         {
           rel: "icon",
           type: "image/x-icon",
-          href: "/tiktok-logo-small.png",
+          href: "/logo.ico",
+        },
+        {
+          rel: "apple-touch-icon",
+          href: "/loco.ico",
         },
       ],
     },
