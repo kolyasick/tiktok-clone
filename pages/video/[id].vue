@@ -189,7 +189,7 @@ onUnmounted(() => {
 <template>
   <div
     ref="scrollContainer"
-    class="h-[calc(100dvh-24px)] overflow-y-scroll overflow-x-visible snap-y snap-mandatory mt-6"
+    class="h-[calc(100dvh-24px)] overflow-y-scroll overflow-x-visible snap-y snap-mandatory mt-6 w-full"
   >
     <div
       v-for="(video, index) in $videosStore.videos"

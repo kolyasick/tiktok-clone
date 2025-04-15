@@ -5,6 +5,8 @@ const { $generalStore, $authStore } = useNuxtApp();
 const { user, loggedIn } = useUserSession();
 const { $io: socket } = useNuxtApp();
 
+let activityInterval: NodeJS.Timeout | null = null;
+
 if (user.value) {
   const profile = await $authStore.getProfileById(user.value.id);
   $authStore.profile = profile;
@@ -52,6 +54,19 @@ const handleVisibilityChange = async () => {
   await handleStatus(status, $authStore.profile);
 };
 
+const sendActivity = async () => {
+  if (!$authStore.profile?.id) return;
+
+  try {
+    await $fetch("/api/activity", {
+      query: { userId: $authStore.profile.id },
+      method: "GET",
+    });
+  } catch (error) {
+    console.error("Ошибка при отправке активности:", error);
+  }
+};
+
 onMounted(async () => {
   if (loggedIn.value && $authStore.profile) {
     socket.on("online", handleOnline);
@@ -62,6 +77,9 @@ onMounted(async () => {
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
     window.addEventListener("beforeunload", handleBeforeUnload);
+
+    activityInterval = setInterval(sendActivity, 1000 * 60 * 1); 
+    await sendActivity();
 
     socket.on("connect", () => {
       if ($authStore.profile) {
@@ -78,6 +96,10 @@ onUnmounted(() => {
     socket.off("connect");
     document.removeEventListener("visibilitychange", handleVisibilityChange);
     window.removeEventListener("beforeunload", handleBeforeUnload);
+
+    if (activityInterval) {
+      clearInterval(activityInterval);
+    }
   }
 });
 
@@ -89,6 +111,7 @@ const { data: followers } = await useFetch<Follows[]>(`/api/friend/all`, {
 
 $authStore.followers = followers.value || [];
 </script>
+
 <template>
   <NuxtLoadingIndicator color="#F02C56" />
   <main class="bg-light dark:bg-dark text-gray-900 dark:text-white">
