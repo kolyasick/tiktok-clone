@@ -8,7 +8,16 @@ interface IBody {
 export default defineEventHandler(async (event) => {
   const { userId, friendId } = await readBody<IBody>(event);
 
-  if (!userId || !friendId) {
+  const { user } = await getUserSession(event);
+
+  if (!user) {
+    throw createError({
+      statusCode: 403,
+      message: "Access denied",
+    });
+  }
+
+  if (!user.id || !friendId) {
     throw createError({
       statusCode: 400,
       statusMessage: "User ids are required",
@@ -19,12 +28,12 @@ export default defineEventHandler(async (event) => {
     where: {
       OR: [
         {
-          userId: userId,
+          userId: user.id,
           friendId: friendId,
         },
         {
           userId: friendId,
-          friendId: userId,
+          friendId: user.id,
         },
       ],
     },
@@ -41,7 +50,7 @@ export default defineEventHandler(async (event) => {
   const mutualFollow = await prisma.follows.findFirst({
     where: {
       userId: friendId,
-      friendId: userId,
+      friendId: user.id,
       status: "accepted",
     },
   });

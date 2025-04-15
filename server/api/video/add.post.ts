@@ -5,13 +5,21 @@ import { compressVideo } from "~/server/utils/videoCompression";
 interface IBody {
   title: string;
   file: ServerFile;
-  userId: number;
 }
 
 export default defineEventHandler(async (event) => {
   const body = await readBody<IBody>(event);
 
-  if (!body.title || !body.file || !body.userId) {
+  const { user } = await getUserSession(event);
+
+  if (!user) {
+    throw createError({
+      statusCode: 403,
+      message: "Access denied",
+    });
+  }
+
+  if (!body.title || !body.file) {
     throw createError({
       statusCode: 400,
       statusMessage: "Title, file and user id are required",
@@ -40,7 +48,7 @@ export default defineEventHandler(async (event) => {
     const video = await prisma.video.create({
       data: {
         title: body.title,
-        profileId: body.userId,
+        profileId: user.id,
         url: file,
         statusId: status!.id,
         randomSort: Math.random(),

@@ -1,14 +1,22 @@
 import prisma from "~/lib/prisma";
 
 interface IBody {
-  videoId: number;
-  profileId: number;
+  videoId: string;
 }
 
 export default defineEventHandler(async (event) => {
-  const { videoId, profileId } = await readBody<IBody>(event);
+  const { videoId } = await readBody<IBody>(event);
 
-  if (!videoId || !profileId) {
+  const { user } = await getUserSession(event);
+
+  if (!user) {
+    throw createError({
+      statusCode: 403,
+      message: "Access denied",
+    });
+  }
+
+  if (!videoId || !user.id) {
     throw createError({
       statusCode: 400,
       statusMessage: "Post id and profile id are required",
@@ -18,7 +26,7 @@ export default defineEventHandler(async (event) => {
   const like = await prisma.like.create({
     data: {
       videoId,
-      profileId,
+      profileId: user.id,
     },
   });
 

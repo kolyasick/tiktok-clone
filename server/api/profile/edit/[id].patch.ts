@@ -12,6 +12,22 @@ export default defineEventHandler(async (event) => {
   const { id } = event.context.params as { id?: string };
   const { name, avatar, online, bio } = await readBody<IBody>(event);
 
+  const { user } = await getUserSession(event);
+
+  if (!user) {
+    throw createError({
+      statusCode: 403,
+      message: "Access denied",
+    });
+  }
+
+  if (id !== user.id) {
+    throw createError({
+      statusCode: 403,
+      message: "Access denied",
+    });
+  }
+
   if (!id) {
     throw createError({
       statusCode: 400,
@@ -35,11 +51,10 @@ export default defineEventHandler(async (event) => {
   }
 
   const file = avatar ? await storeFileLocally(avatar, 6, "/avatars") : undefined;
-  const parsedId = parseInt(id);
-
+  
   const profile = await prisma.profile.update({
     where: {
-      id: parsedId,
+      id: user.id,
     },
     data: {
       name,

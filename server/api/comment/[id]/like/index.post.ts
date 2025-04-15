@@ -2,17 +2,25 @@ import prisma from "~/lib/prisma";
 
 type Body = {
   reaction: number;
-  senderId: number;
 };
 
 export default defineEventHandler(async (event) => {
-  const { reaction, senderId } = await readBody<Body>(event);
+  const { reaction } = await readBody<Body>(event);
   const { id } = event.context.params as { id: string };
+
+  const { user } = await getUserSession(event);
+
+  if (!user) {
+    throw createError({
+      statusCode: 403,
+      message: "Access denied",
+    });
+  }
 
   try {
     const existLike = await prisma.commentLike.findFirst({
       where: {
-        profileId: senderId,
+        profileId: user.id,
         commentId: parseInt(id),
       },
     });
@@ -31,7 +39,7 @@ export default defineEventHandler(async (event) => {
     const newLike = await prisma.commentLike.create({
       data: {
         reaction,
-        profileId: senderId,
+        profileId: user.id,
         commentId: parseInt(id),
       },
     });

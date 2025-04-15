@@ -1,16 +1,24 @@
 import prisma from "~/lib/prisma";
 
 interface IBody {
-  senderId: number;
   videoId: string;
   text: string;
   discussionId?: number;
   commentId?: number;
 }
 export default defineEventHandler(async (event) => {
-  const { videoId, senderId, text, discussionId, commentId } = await readBody<IBody>(event);
+  const { videoId, text, discussionId, commentId } = await readBody<IBody>(event);
 
-  if (!videoId || !senderId || !text) {
+  const { user } = await getUserSession(event);
+
+  if (!user) {
+    throw createError({
+      statusCode: 403,
+      message: "Access denied",
+    });
+  }
+
+  if (!videoId || !user.id || !text) {
     throw createError({
       statusCode: 400,
       statusMessage: "Video id, senderId and text required",
@@ -20,7 +28,7 @@ export default defineEventHandler(async (event) => {
   const comment = await prisma.comment.create({
     data: {
       videoId,
-      profileId: senderId,
+      profileId: user.id,
       text,
       discussionId,
       parentId: commentId,

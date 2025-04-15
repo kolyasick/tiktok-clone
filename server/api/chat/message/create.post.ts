@@ -1,14 +1,22 @@
 import prisma from "~/lib/prisma";
 
 interface IBody {
-  senderId: number;
   chatId: number;
   text: string;
 }
 export default defineEventHandler(async (event) => {
-  const { chatId, senderId, text } = await readBody<IBody>(event);
+  const { chatId, text } = await readBody<IBody>(event);
 
-  if (!chatId || !senderId || !text) {
+  const { user } = await getUserSession(event);
+
+  if (!user) {
+    throw createError({
+      statusCode: 403,
+      message: "Access denied",
+    });
+  }
+
+  if (!chatId || !user.id || !text) {
     throw createError({
       statusCode: 400,
       statusMessage: "Chat id, senderId and text required",
@@ -18,7 +26,7 @@ export default defineEventHandler(async (event) => {
   const message = await prisma.message.create({
     data: {
       chatId,
-      senderId,
+      senderId: user.id,
       text,
     },
   });

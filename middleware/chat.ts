@@ -13,9 +13,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   const { $authStore, $generalStore } = useNuxtApp();
 
   if (chatId && $authStore.profile) {
-    const chat = await $fetch<IChat>(`/api/chat/${chatId}`, {
-      query: { userId: $authStore.profile?.id },
-    });
+    const chat = await $fetch<IChat>(`/api/chat/${chatId}`);
 
     if (chat.user1Id !== $authStore.profile?.id && chat.user2Id !== $authStore.profile?.id) {
       return navigateTo("/chat");

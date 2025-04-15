@@ -64,10 +64,7 @@ const sendActivity = async () => {
   if (!$authStore.profile?.id) return;
 
   try {
-    await $fetch("/api/activity", {
-      query: { userId: $authStore.profile.id },
-      method: "GET",
-    });
+    await $fetch("/api/activity");
   } catch (error) {
     console.error("Ошибка при отправке активности:", error);
   }

@@ -1,6 +1,6 @@
 import type { Follows } from "@prisma/client";
 import { defineStore } from "pinia";
-import type { IProfile, IVideo, IFollows } from "~/types/user.type";
+import type { IProfile, IVideo } from "~/types/user.type";
 
 export const useProfileStore = defineStore("profile", {
   state: () => ({
@@ -8,7 +8,7 @@ export const useProfileStore = defineStore("profile", {
     currentVideos: [] as IVideo[],
     isLoading: false,
     isFollowLoading: false,
-    friend: null as IFollows | null,
+    friend: null as Follows | null,
   }),
   actions: {
     async handleFriendAction(action: "add" | "reply" | "unfollow", profile: IProfile) {
@@ -25,9 +25,9 @@ export const useProfileStore = defineStore("profile", {
         const friendId = profile.id;
 
         if (action === "unfollow") {
-          const res = await $fetch<IFollows | null>("/api/friend/unfollow", {
+          const res = await $fetch<Follows | null>("/api/friend/unfollow", {
             method: "PATCH",
-            body: { userId, friendId },
+            body: { friendId },
           });
 
           this.friend = res;
@@ -42,9 +42,9 @@ export const useProfileStore = defineStore("profile", {
         const endpoint = action === "add" ? "/api/friend/add" : "/api/friend/reply";
         const method = action === "add" ? "POST" : "PATCH";
 
-        this.friend = await $fetch<IFollows>(endpoint, {
+        this.friend = await $fetch<Follows>(endpoint, {
           method,
-          body: { userId, friendId },
+          body: { friendId },
         });
 
         profile?.followers?.push({

@@ -9,6 +9,15 @@ type Body = {
 export default defineEventHandler(async (event) => {
   const { name, password } = await readBody<Body>(event);
 
+  const { user } = await getUserSession(event);
+
+  if (user) {
+    throw createError({
+      statusCode: 403,
+      message: "Access denied",
+    });
+  }
+
   if (!name || !password) {
     throw createError({
       statusCode: 400,
@@ -71,7 +80,7 @@ export default defineEventHandler(async (event) => {
 
   const session = await setUserSession(event, {
     user: {
-      id: profile.user.id,
+      id: profile.id,
       email: profile.user.email,
       name: profile.name,
       role: profile.user.role.title,

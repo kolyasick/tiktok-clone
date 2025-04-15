@@ -62,7 +62,6 @@ const addComment = async (text: string, commentId?: number) => {
       body: {
         text,
         videoId: props.videoId,
-        senderId: $authStore.profile?.id!,
         commentId,
         discussionId: commentId,
       },
@@ -119,7 +118,6 @@ const likeComment = async (comment: IComment) => {
       method: "POST",
       body: {
         reaction,
-        senderId: $authStore.profile?.id,
       },
     });
   } catch (error) {
@@ -158,7 +156,6 @@ const dislikeComment = async (comment: IComment) => {
       method: "POST",
       body: {
         reaction,
-        senderId: $authStore.profile?.id,
       },
     });
   } catch (error) {

@@ -11,6 +11,15 @@ type Body = {
 export default defineEventHandler(async (event) => {
   const { name, email, password } = await readBody<Body>(event);
 
+  const { user: currentUser } = await getUserSession(event);
+
+  if (currentUser) {
+    throw createError({
+      statusCode: 403,
+      message: "Access denied",
+    });
+  }
+
   validateName(name);
   validateEmail(email);
   validatePassword(password);

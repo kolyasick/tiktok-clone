@@ -38,6 +38,7 @@ export default defineEventHandler(async (event) => {
       profile: {
         select: {
           name: true,
+          id: true,
         },
       },
     },
@@ -52,7 +53,7 @@ export default defineEventHandler(async (event) => {
 
   const session = await setUserSession(event, {
     user: {
-      id: user.id,
+      id: user.profile?.id,
       email: user.email,
       name: user.profile?.name,
       role: user.role.title,
