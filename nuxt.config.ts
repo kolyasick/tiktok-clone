@@ -125,7 +125,7 @@ export default defineNuxtConfig({
         },
         {
           rel: "apple-touch-icon",
-          href: "/loco.ico",
+          href: "/logo.ico",
         },
       ],
     },
