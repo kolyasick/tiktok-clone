@@ -30,14 +30,18 @@ const handleOffline = async (userId: number) => {
 
 const handleOnline = async (userId: number) => {
   if (!userId) return;
-  const { chats } = useChat();
+  const { chats, currentChat } = useChat();
 
   if (chats.value) {
     const user = chats.value.find((c) => c.companion.id === userId)?.companion;
+    const companion = currentChat.value?.companion;
 
     if (user) {
       user.online = true;
-      user.updatedAt = new Date();
+    }
+
+    if (companion && companion.id === userId) {
+      companion.online = true;
     }
   }
 };
@@ -78,7 +82,7 @@ onMounted(async () => {
     document.addEventListener("visibilitychange", handleVisibilityChange);
     window.addEventListener("beforeunload", handleBeforeUnload);
 
-    activityInterval = setInterval(sendActivity, 1000 * 60 * 1); 
+    activityInterval = setInterval(sendActivity, 1000 * 50);
     await sendActivity();
 
     socket.on("connect", () => {

@@ -15,7 +15,6 @@ export default defineNitroPlugin((nitroApp) => {
             where: { id: user.id },
             data: { online: false },
           });
-
           console.log(`Пользователь ${user.id} помечен как оффлайн`);
         } else if (user.updatedAt > fiveMinutesAgo && !user.online) {
           await prisma.profile.update({
@@ -28,7 +27,7 @@ export default defineNitroPlugin((nitroApp) => {
     } catch (error) {
       console.error("Ошибка при обновлении статусов:", error);
     }
-  }, 1000 * 60 * 1);
+  }, 30000);
 
   nitroApp.hooks.hook("close", () => {
     clearInterval(interval);
