@@ -116,14 +116,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
             });
             io.emit("offline", user.id);
             console.log(`Пользователь ${user.id} помечен как оффлайн`);
-          } else {
-            await prisma.profile.update({
-              where: { id: user.id },
-              data: { online: true },
-            });
-            io.emit("online", user.id);
-            console.log(`Пользователь ${user.id} помечен как онлайн`);
-          }
+          } 
         }
       } catch (error) {
         console.error("Ошибка при обновлении статусов:", error);
