@@ -17,12 +17,6 @@ export default defineNitroPlugin((nitroApp) => {
             data: { online: false },
           });
           console.log(`Пользователь ${user.id} помечен как оффлайн`);
-        } else if (user.updatedAt >= oneMinute) {
-          await prisma.profile.update({
-            where: { id: user.id },
-            data: { online: true },
-          });
-          console.log(`Пользователь ${user.id} помечен как онлайн`);
         }
       }
     } catch (error) {
