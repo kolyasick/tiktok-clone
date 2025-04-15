@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  if (id !== user.id) {
+  if (parseInt(id || "") !== user.id) {
     throw createError({
       statusCode: 403,
       message: "Access denied",
@@ -50,8 +50,10 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  const file = avatar ? await storeFileLocally(avatar, 6, "/avatars") : undefined;
-  
+  const file = avatar
+    ? await storeFileLocally(avatar, 6, "/avatars")
+    : undefined;
+
   const profile = await prisma.profile.update({
     where: {
       id: user.id,
