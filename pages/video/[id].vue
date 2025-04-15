@@ -35,7 +35,7 @@ if (!data.value) {
 
 useSeoMeta({
   title: "Clipify | " + data.value?.title,
-  ogTitle: "Clipify | " + data.value?.title,
+  ogTitle: "Clipify – Create and Share Videos with Friends",
   description: data.value?.title,
   ogDescription: data.value?.title,
   ogImage: "/clipify-logo.png",
