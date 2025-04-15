@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
 
   const video = await prisma.video.delete({
     where: {
-      id: parseInt(id),
+      id,
     },
   });
 
