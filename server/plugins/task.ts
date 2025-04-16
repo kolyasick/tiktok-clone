@@ -22,7 +22,7 @@ export default defineNitroPlugin((nitroApp) => {
     } catch (error) {
       console.error("Ошибка при обновлении статусов:", error);
     }
-  }, 30000);
+  }, 60000);
 
   nitroApp.hooks.hook("close", () => {
     clearInterval(interval);

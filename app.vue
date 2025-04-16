@@ -80,7 +80,7 @@ onMounted(async () => {
     statusInterval = setInterval(() => {
       socket.on("online", handleOnline);
       socket.on("offline", handleOffline);
-    }, 30000);
+    }, 60000);
 
     socket.emit("setUser", $authStore.profile.id);
     await handleStatus("online", $authStore.profile);
@@ -88,7 +88,7 @@ onMounted(async () => {
     document.addEventListener("visibilitychange", handleVisibilityChange);
     window.addEventListener("beforeunload", handleBeforeUnload);
 
-    activityInterval = setInterval(sendActivity, 1000 * 50);
+    activityInterval = setInterval(sendActivity, 1000 * 10);
     await sendActivity();
 
     socket.on("connect", () => {
