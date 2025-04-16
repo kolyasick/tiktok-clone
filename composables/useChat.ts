@@ -40,12 +40,12 @@ export const useChat = () => {
 
       if (user) {
         user.online = status;
-        user.updatedAt = new Date();
+        // user.updatedAt = new Date();
       }
 
       if (companion && companion.id === userId) {
         companion.online = status;
-        companion.updatedAt = new Date();
+        // companion.updatedAt = new Date();
       }
     }
   };
