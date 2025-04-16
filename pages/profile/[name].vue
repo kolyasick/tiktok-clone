@@ -2,10 +2,11 @@
 import type { Follows, Like } from "@prisma/client";
 import type { IChat, IProfile, IVideo } from "~/types/user.type";
 
-const { $authStore, $generalStore, $profileStore } = useNuxtApp();
+const { $authStore, $generalStore, $profileStore, $io: socket } = useNuxtApp();
 const { user } = useUserSession();
 const localePath = useLocalePath();
 const { t } = useI18n();
+
 const profile = ref<IProfile>();
 
 const likes = ref<Like[]>([]);
@@ -105,6 +106,20 @@ const isFriend = computed(() => {
   return $profileStore.friend?.isFriend;
 });
 
+const handleFollow = async (action: "add" | "reply" | "unfollow", profile: IProfile) => {
+  await $profileStore.handleFriendAction(action, profile);
+
+  if (action !== "unfollow") {
+    socket.emit("notification", {
+      to: profile.id,
+      sender: $authStore.profile,
+      messageType: action === "add" ? "follow" : action === "reply" ? "friend" : undefined,
+      message:
+        action === "add" ? "Подписался на вас" : action === "reply" ? "Добавил вас в друзья" : "",
+    });
+  }
+};
+
 useSeoMeta({
   title: `Clipify | ${profile.value?.name}'s profile`,
   ogTitle: `Clipify | ${profile.value?.name}'s profile`,
@@ -121,12 +136,12 @@ useSeoMeta({
     <div v-if="profile" class="container mt-5">
       <div class="flex w-full items-center">
         <div
-          class="rounded-full bg-gray-100 dark:bg-[#3a3a3a] aspect-square w-32 sm:w-40 overflow-hidden flex items-center justify-center"
+          class="rounded-full bg-gray-100 dark:bg-[#3a3a3a] aspect-square w-24 sm:w-40 overflow-hidden flex items-center justify-center flex-shrink-0"
         >
           <img class="object-cover scale-110" :src="'/upload/avatars/' + profile.avatar" />
         </div>
         <div class="ml-5 w-full">
-          <div class="text-[30px] font-bold truncate text-gray-900 dark:text-white">
+          <div class="sm:text-[30px] text-2xl font-bold truncate text-gray-900 dark:text-white">
             {{ profile?.name }}
             <span class="text-sm font-light text-[#F02C56]">{{ isFriend ? "В друзьях" : "" }}</span>
           </div>
@@ -137,10 +152,10 @@ useSeoMeta({
             <button
               v-if="profile.id == user?.id"
               @click="openEditModal"
-              class="flex items-center gap-2 rounded-md py-1.5 px-3.5 mt-3 text-[15px] font-semibold bg-gray-100 dark:bg-[#3a3a3a] hover:bg-gray-200 dark:hover:bg-[#303030] text-gray-900 dark:text-white"
+              class="flex items-center gap-2 rounded-md h-8 sm:h-9 px-3 mt-3 font-semibold bg-gray-100 dark:bg-[#3a3a3a] hover:bg-gray-200 dark:hover:bg-[#303030] text-gray-900 dark:text-white"
             >
-              <IconsPencil class="w-5 h-5" />
-              <div>
+              <IconsPencil class="xl:w-5 aspect-square w-4" />
+              <div class="xl:text-[15px] text-[13px]">
                 {{ $t("editProfile") }}
               </div>
             </button>
@@ -148,43 +163,43 @@ useSeoMeta({
             <template v-else>
               <button
                 v-if="isFollowButtonShow"
-                @click="$profileStore.handleFriendAction('add', profile)"
-                class="flex items-center rounded-md py-1.5 px-8 mt-3 text-[15px] text-white font-semibold bg-[#F02C56] hover:bg-[#e02c56]"
+                @click="handleFollow('add', profile)"
+                class="flex items-center rounded-md h-8 sm:h-9 px-3 mt-3 text-white font-semibold bg-[#F02C56] hover:bg-[#e02c56]"
               >
                 <IconsLoader
                   class="w-6 aspect-square animate-spin"
                   v-if="$profileStore.isFollowLoading"
                 />
-                <span v-else>{{ $t("follow") }}</span>
+                <span v-else class="xl:text-[15px] text-[13px]">{{ $t("follow") }}</span>
               </button>
 
               <button
                 v-else-if="isUnfollowButtonShow"
-                @click="$profileStore.handleFriendAction('unfollow', profile)"
-                class="flex items-center rounded-md py-1.5 px-8 mt-3 text-[15px] text-black font-semibold bg-white hover:bg-gray-400"
+                @click="handleFollow('unfollow', profile)"
+                class="flex items-center rounded-md h-8 sm:h-9 px-3 mt-3 text-black font-semibold bg-white hover:bg-gray-400"
               >
                 <IconsLoader
                   class="w-6 aspect-square animate-spin"
                   v-if="$profileStore.isFollowLoading"
                 />
-                <span v-else>{{ $t("unfollow") }}</span>
+                <span v-else class="xl:text-[15px] text-[13px]">{{ $t("unfollow") }}</span>
               </button>
 
               <button
                 v-else-if="isFollowBackButtonShow"
-                @click="$profileStore.handleFriendAction('reply', profile)"
-                class="flex items-center rounded-md py-1.5 px-8 mt-3 text-[15px] text-white font-semibold bg-[#F02C56] hover:bg-[#e02c56]"
+                @click="handleFollow('reply', profile)"
+                class="flex items-center rounded-md h-8 sm:h-9 px-3 mt-3 text-white font-semibold bg-[#F02C56] hover:bg-[#e02c56]"
               >
                 <IconsLoader
                   class="w-6 aspect-square animate-spin"
                   v-if="$profileStore.isFollowLoading"
                 />
-                <span v-else>{{ $t("followBack") }}</span>
+                <span v-else class="xl:text-[15px] text-[13px]">{{ $t("followBack") }}</span>
               </button>
 
               <button
                 @click="chatOpen"
-                class="flex items-center rounded-md py-1.5 px-8 mt-3 text-[15px] text-white font-semibold bg-gray-400 dark:bg-[#666666] hover:bg-gray-500 dark:hover:bg-[#555555]"
+                class="flex items-center rounded-md h-8 sm:h-9 px-5 mt-3 xl:text-[15px] text-[13px] text-white font-semibold bg-gray-400 dark:bg-[#666666] hover:bg-gray-500 dark:hover:bg-[#555555]"
               >
                 {{ $t("chat") }}
               </button>
@@ -193,22 +208,22 @@ useSeoMeta({
         </div>
       </div>
 
-      <div class="flex items-center pt-4">
+      <div class="flex items-center pt-4 xl:text-[15px] text-[13px]">
         <div class="mr-4">
           <span class="font-bold text-gray-900 dark:text-white">{{
             profile?.following?.length ?? 0
           }}</span>
-          <span class="text-gray-500 font-light text-[15px] pl-1.5">{{ $t("following") }}</span>
+          <span class="text-gray-500 font-light pl-1.5">{{ $t("following") }}</span>
         </div>
         <div class="mr-4">
           <span class="font-bold text-gray-900 dark:text-white">{{
             profile?.followers?.length ?? 0
           }}</span>
-          <span class="text-gray-500 font-light text-[15px] pl-1.5">{{ $t("followers") }}</span>
+          <span class="text-gray-500 font-light pl-1.5">{{ $t("followers") }}</span>
         </div>
         <div class="mr-4">
           <span class="font-bold text-gray-900 dark:text-white">{{ likes.length }}</span>
-          <span class="text-gray-500 font-light text-[15px] pl-1.5">{{ $t("likes") }}</span>
+          <span class="text-gray-500 font-light pl-1.5">{{ $t("likes") }}</span>
         </div>
       </div>
 
@@ -227,7 +242,7 @@ useSeoMeta({
             activeTab = 'videos';
             $profileStore.allVideos();
           "
-          class="w-48 text-center py-2 text-[17px] font-semibold cursor-pointer"
+          class="w-48 text-center py-2 xl:text-[17px] text-[15px] font-semibold cursor-pointer"
           :class="{
             'text-[#F02C56]': activeTab === 'videos',
             'text-gray-500': activeTab !== 'videos',
@@ -241,7 +256,7 @@ useSeoMeta({
             activeTab = 'liked';
             $profileStore.liked(profile.id);
           "
-          class="w-48 text-center py-2 text-[17px] font-semibold cursor-pointer"
+          class="w-48 text-center py-2 xl:text-[17px] text-[15px] font-semibold cursor-pointer"
           :class="{
             'text-[#F02C56]': activeTab === 'liked',
             'text-gray-500': activeTab !== 'liked',

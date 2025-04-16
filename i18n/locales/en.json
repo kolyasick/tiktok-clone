@@ -89,5 +89,27 @@
     "videoNotFound": "Video not found",
     "profileNotFound": "Profile not found",
     "goHome": "Go home"
+  },
+
+  "uploadMessages": {
+    "success": "Video uploaded successfully",
+    "error": "Error uploading video",
+    "caption": "Please, add a caption",
+    "video": "Please, upload a video"
+  },
+
+  "authMessages": {
+    "logout": "You've been logged out",
+    "login": "You've successfully logged in"
+  },
+
+  "copyVideo": "Video link copied to clipboard",
+
+  "notification": {
+    "share": "Shared your video",
+    "comment": "Commented on your video",
+    "like": "Liked your video",
+    "follow": "Followed on you",
+    "friend": "Followed back on you"
   }
 }

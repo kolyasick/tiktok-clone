@@ -2,7 +2,14 @@ import type { NitroApp } from "nitropack";
 import { Server as Engine } from "engine.io";
 import { Server, Socket } from "socket.io";
 import { defineEventHandler } from "h3";
-import { IMessage } from "~/types/user.type";
+import { IMessage, IProfile } from "~/types/user.type";
+
+type Notification = {
+  to: number;
+  sender?: IProfile;
+  message: string;
+  messageType?: string;
+};
 import prisma from "~/lib/prisma";
 
 const connectedUsers = new Map<number, Set<string>>();
@@ -49,6 +56,10 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
 
     socket.on("chatMessage", (msg: IMessage) => {
       io.emit("chatMessage", msg);
+    });
+
+    socket.on("notification", (msg: Notification) => {
+      io.emit("notification", msg);
     });
 
     socket.on("typing", (data: { name: string; chatId: string }) => {
@@ -116,7 +127,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
             });
             io.emit("offline", user.id);
             console.log(`Пользователь ${user.id} помечен как оффлайн`);
-          } 
+          }
         }
       } catch (error) {
         console.error("Ошибка при обновлении статусов:", error);

@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { IComment, IProfile, IVideo } from "~/types/user.type";
 const { $videosStore, $authStore, $profileStore } = useNuxtApp();
+const { $io: socket } = useNuxtApp();
+const { addNotification } = useNotification();
+const { t } = useI18n();
 
 type Props = {
   video: IVideo;
@@ -40,13 +43,22 @@ const handleIntersection = (entries: IntersectionObserverEntry[]) => {
 };
 
 const shareVideo = async (video: IVideo) => {
+  if (video.profileId !== $authStore.profile?.id) {
+    socket.emit("notification", {
+      to: video.profileId,
+      sender: $authStore.profile,
+      messageType: "share",
+      message: `Поделился вашим видео`,
+    });
+  }
   const videoUrl = `${window.location.origin}/video/${video.id}`;
   try {
     await navigator.clipboard.writeText(videoUrl);
-    isModalVisible.value = true;
-    setTimeout(() => {
-      isModalVisible.value = false;
-    }, 500);
+    addNotification({
+      message: t("copyVideo"),
+      type: "success",
+      duration: 2000,
+    });
   } catch (error) {
     console.error("Error copying video link:", error);
     alert("Failed to copy video link");
@@ -81,6 +93,27 @@ const onVideoLoaded = () => {
 const addComment = (comment: IComment) => {
   if (!comment || props.video.commentsCount === undefined) return;
   props.video.commentsCount += 1;
+  console.log(comment);
+  if (props.video.profileId !== $authStore.profile?.id) {
+    socket.emit("notification", {
+      to: props.video.profileId,
+      sender: $authStore.profile,
+      messageType: "comment",
+      message: `Прокомментировал ваше видео "${props.video.title}"`,
+    });
+  }
+};
+
+const likeVideo = async (video: IVideo) => {
+  await $videosStore.toggleLike(video);
+  if (video.profileId !== $authStore.profile?.id && video.liked) {
+    socket.emit("notification", {
+      to: video.profileId,
+      sender: $authStore.profile,
+      messageType: "like",
+      message: `Понравилось ваше видео "${video.title}"`,
+    });
+  }
 };
 
 const isFollowed = (userId: number) => {
@@ -99,6 +132,14 @@ isFollowing.value = isFollowed(props.video.profileId).value;
 const handleFollow = async () => {
   try {
     await $profileStore.handleFriendAction("add", props.video.profile as IProfile);
+    if (props.video.profileId !== $authStore.profile?.id) {
+      socket.emit("notification", {
+        to: props.video.profileId,
+        sender: $authStore.profile,
+        messageType: "follow",
+        message: `Подписался на вас`,
+      });
+    }
     isFollowing.value = !isFollowing.value;
   } catch (error) {
     console.error("Error updating follow status:", error);
@@ -125,7 +166,7 @@ const handleFollow = async () => {
       class="absolute xl:bottom-5 xl:left-5 bottom-2 left-2 grid gap-1 text-white dark:text-white"
     >
       <NuxtLink
-        :to="`/profile/${video.profile?.name}`"
+        :to="$localePath(`/profile/${video.profile?.name}`)"
         class="font-semibold text-lg hover:underline"
       >
         {{ video.profile?.name }}
@@ -135,19 +176,21 @@ const handleFollow = async () => {
     <div
       class="absolute xl:bottom-5 xl:right-5 bottom-2 right-2 grid gap-2 place-items-center dark:text-white text-white"
     >
-      <div
-        @click.self="navigateTo($localePath(`/profile/${video.profile?.name}`))"
-        class="relative mb-5 cursor-pointer"
-      >
-        <img
-          :src="'/upload/avatars/' + video.profile?.avatar"
-          class="w-12 aspect-square rounded-full border"
-          alt=""
-        />
+      <div class="mb-5 flex flex-col place-items-center">
+        <NuxtLink
+          :to="$localePath(`/profile/${video.profile?.name}`)"
+          class="relative cursor-pointer"
+        >
+          <img
+            :src="'/upload/avatars/' + video.profile?.avatar"
+            class="w-12 aspect-square rounded-full border"
+            alt=""
+          />
+        </NuxtLink>
         <button
           @click="handleFollow"
           v-if="!isFollowing && $authStore.profile?.id !== video.profileId"
-          class="absolute left-1/2 -translate-x-1/2 -bottom-2 bg-red-500 p-[1px] rounded-full"
+          class="bg-red-500 rounded-full -mt-2 z-10 flex items-center justify-center"
         >
           <IconsPlus />
         </button>
@@ -155,7 +198,7 @@ const handleFollow = async () => {
       <div class="text-center">
         <button
           :disabled="isLiking"
-          @click="$videosStore.toggleLike(video)"
+          @click="likeVideo(video)"
           class="rounded-full flex items-center justify-center cursor-pointer aspect-square w-8"
         >
           <IconsHeart

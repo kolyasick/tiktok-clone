@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Chat, Profile } from "@prisma/client";
 import UserOverlay from "~/components/chat/UserOverlay.vue";
-import type { IMessage } from "~/types/user.type";
+import type { IMessage, IProfile } from "~/types/user.type";
 
 interface IChat extends Chat {
   messages: IMessage[];
@@ -14,6 +14,7 @@ definePageMeta({
 
 const { $authStore } = useNuxtApp();
 const { $io: socket } = useNuxtApp();
+const { addNotification } = useNotification();
 
 const { chats, currentChat, updateChatStatus } = useChat();
 
@@ -128,6 +129,12 @@ const sendMessage = async (text: string) => {
   };
 
   socket.emit("chatMessage", message);
+  socket.emit("notification", {
+    to: currentChat.value.companion.id,
+    sender: message.sender,
+    message: message.text,
+    messageType: "message",
+  });
 
   await $fetch("/api/chat/message/create", {
     method: "POST",

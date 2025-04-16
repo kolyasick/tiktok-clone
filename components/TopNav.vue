@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import type { IProfile } from "~/types/user.type";
 
-const { locales, setLocale } = useI18n();
+const { locales, setLocale, t } = useI18n();
 const localePath = useLocalePath();
 
 const { $generalStore, $authStore } = useNuxtApp();
 const { loggedIn } = useUserSession();
+const { addNotification } = useNotification();
 
 const colorMode = useColorMode();
 
@@ -29,6 +30,11 @@ const logout = async () => {
   const { handleStatus } = useChat();
   await handleStatus("offline", $authStore.profile as IProfile);
   await $authStore.logout();
+  addNotification({
+    message: t("authMessages.logout"),
+    type: "error",
+    duration: 2000,
+  });
 };
 
 const toggleTheme = () => {
@@ -68,7 +74,7 @@ const toggleTheme = () => {
           class="flex items-center transition bg-gray-200 dark:bg-neutral-800 rounded-md px-3 sm:h-9 h-8 hover:bg-gray-300 dark:hover:bg-neutral-800"
         >
           <IconsPlus class="w-5 h-5" />
-          <span class="px-2 font-medium sm:text-[15px]">{{ $t("upload") }}</span>
+          <span class="px-2 font-medium text-[15px] max-[400px]:hidden">{{ $t("upload") }}</span>
         </button>
 
         <div v-if="!loggedIn" class="flex items-center">
@@ -76,7 +82,7 @@ const toggleTheme = () => {
             @click="toggleAuthModal()"
             class="flex items-center bg-[#F02C56] text-white rounded-md px-3 sm:h-9 h-8"
           >
-            <span class="font-medium sm:text-[15px]">{{ $t("login") }}</span>
+            <span class="font-medium text-[15px]">{{ $t("login") }}</span>
           </button>
         </div>
 

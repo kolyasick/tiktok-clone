@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import type { Follows } from "@prisma/client";
+import type { IProfile } from "./types/user.type";
 
 const { $generalStore, $authStore } = useNuxtApp();
 const { user, loggedIn } = useUserSession();
 const { $io: socket } = useNuxtApp();
+const { addNotification } = useNotification();
+const { t } = useI18n();
 
 let activityInterval: NodeJS.Timeout | null = null;
 
@@ -90,6 +93,22 @@ onMounted(async () => {
       }
     });
   }
+
+  socket.on(
+    "notification",
+    (data: { to: number; message: string; sender?: IProfile; messageType?: string }) => {
+      if (data.to === $authStore.profile?.id) {
+        addNotification({
+          message:
+            data.messageType !== "message" ? t(`notification.${data.messageType}`) : data.message,
+          sender: data.sender,
+          messageType: data.messageType,
+          duration: null,
+          type: "info",
+        });
+      }
+    }
+  );
 });
 
 onUnmounted(() => {
@@ -97,6 +116,7 @@ onUnmounted(() => {
     socket.off("online");
     socket.off("offline");
     socket.off("connect");
+    socket.off("notification");
     document.removeEventListener("visibilitychange", handleVisibilityChange);
     window.removeEventListener("beforeunload", handleBeforeUnload);
 
@@ -117,6 +137,7 @@ $authStore.followers = followers.value || [];
 
 <template>
   <NuxtLoadingIndicator color="#F02C56" />
+  <Notification />
   <main class="bg-light dark:bg-dark text-gray-900 dark:text-white">
     <NuxtLayout>
       <NuxtPage />

@@ -1,6 +1,7 @@
 <script setup>
 const { $authStore } = useNuxtApp();
-
+const { addNotification } = useNotification();
+const { t } = useI18n();
 const name = ref(null);
 const password = ref(null);
 
@@ -10,6 +11,12 @@ const login = async () => {
   const { handleStatus } = useChat();
   await $authStore.login(name.value, password.value);
 
+  addNotification({
+    message: t("authMessages.login"),
+    duration: 2000,
+    type: "success",
+  });
+
   if ($authStore.profile) {
     emit("closeModal");
     await handleStatus("online", $authStore.profile);
@@ -18,7 +25,9 @@ const login = async () => {
 </script>
 <template>
   <div>
-    <div class="text-center text-[28px] mb-4 font-bold text-black dark:text-white">{{ $t('login') }}</div>
+    <div class="text-center text-[28px] mb-4 font-bold text-black dark:text-white">
+      {{ $t("login") }}
+    </div>
     <div class="px-6 pb-2">
       <TextInput
         :placeholder="$t('userName')"
@@ -46,7 +55,7 @@ const login = async () => {
         @click="login"
         class="w-full text-[17px] transition font-semibold text-white py-3 rounded-md disabled:bg-gray-400 hover:bg-[#b02140]"
       >
-        {{ $authStore.isLoading ? $t('loading') : $t('login') }}
+        {{ $authStore.isLoading ? $t("loading") : $t("login") }}
       </button>
     </div>
     <span class="px-6 text-[14px] text-red-600" v-if="$authStore.errors.other">

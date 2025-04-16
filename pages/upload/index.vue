@@ -1,6 +1,8 @@
 <script setup lang="ts">
 const { $authStore } = useNuxtApp();
 const { handleFileInput, files: video } = useFileStorage();
+const { t } = useI18n();
+const { addNotification } = useNotification();
 
 definePageMeta({
   layout: "upload-layout",
@@ -29,12 +31,14 @@ const createVideo = async () => {
   succes.value = null;
 
   if (!caption.value) {
-    errors.caption = "Please add a caption";
+    errors.caption = t("uploadMessages.caption");
+    addNotification(errors.caption, "error");
     return;
   }
 
   if (!video.value[0]) {
-    errors.video = "Please upload a video";
+    errors.video = t("uploadMessages.video");
+    addNotification(errors.video, "error");
     return;
   }
 
@@ -42,7 +46,6 @@ const createVideo = async () => {
     loading.value = true;
     uploadProgress.value = 0;
 
-    // Запускаем имитацию прогресса
     progressInterval = setInterval(() => {
       uploadProgress.value = Math.min(
         uploadProgress.value + Math.floor(Math.random() * 10) + 5,
@@ -59,19 +62,20 @@ const createVideo = async () => {
       },
     });
 
-    // Завершаем прогресс
     if (progressInterval) clearInterval(progressInterval);
     uploadProgress.value = 100;
-    await new Promise((resolve) => setTimeout(resolve, 300)); // Даем анимации завершиться
+    await new Promise((resolve) => setTimeout(resolve, 300));
 
     discard();
     if (res.id) {
-      succes.value = "Video uploaded successfully";
+      succes.value = t("uploadMessages.success");
+      addNotification(succes.value, "success");
     }
   } catch (error) {
     console.log(error);
     if (progressInterval) clearInterval(progressInterval);
-    errors.video = "Error uploading video";
+    errors.video = t("uploadMessages.error");
+    addNotification(errors.video, "error");
   } finally {
     loading.value = false;
     setTimeout(() => {
@@ -111,9 +115,7 @@ useSeoMeta({
     v-if="loading"
     class="fixed flex flex-col items-center justify-center top-0 left-0 w-full h-screen bg-black z-50 bg-opacity-80"
   >
-    <div
-      class="bg-white dark:bg-[#222222] p-8 rounded-lg shadow-xl w-[90%] max-w-md"
-    >
+    <div class="bg-white dark:bg-[#222222] p-8 rounded-lg shadow-xl w-[90%] max-w-md">
       <div class="flex flex-col items-center">
         <IconsLoader class="animate-spin w-16 h-16 text-[#F02C56]" />
         <h3 class="mt-4 text-lg font-medium dark:text-white">
@@ -124,9 +126,7 @@ useSeoMeta({
         </p>
 
         <div class="w-full mt-6">
-          <div
-            class="flex justify-between text-sm text-gray-500 dark:text-gray-400 mb-1"
-          >
+          <div class="flex justify-between text-sm text-gray-500 dark:text-gray-400 mb-1">
             <span>{{ $t("progress") }}</span>
             <span>{{ uploadProgress }}%</span>
           </div>
@@ -142,9 +142,7 @@ useSeoMeta({
   </div>
 
   <div class="w-full">
-    <div
-      class="my-5 dark:bg-neutral-800/30 bg-gray-100 shadow-lg rounded-md py-6 md:px-10 px-4"
-    >
+    <div class="my-5 dark:bg-neutral-800/30 bg-gray-100 shadow-lg rounded-md py-6 md:px-10 px-4">
       <div>
         <div class="text-[23px] font-semibold">{{ $t("uploadTitle") }}</div>
         <div class="text-gray-400 mt-1">{{ $t("uploadDescr") }}</div>
@@ -166,9 +164,7 @@ useSeoMeta({
           <div class="mt-2 text-gray-400 text-[13px]">
             {{ $t("lessThanFifty") }}
           </div>
-          <div
-            class="px-2 py-1.5 mt-8 text-white text-[15px] w-[80%] bg-[#F02C56] rounded-md"
-          >
+          <div class="px-2 py-1.5 mt-8 text-white text-[15px] w-[80%] bg-[#F02C56] rounded-md">
             {{ $t("selectFile") }}
           </div>
           <input
@@ -185,15 +181,8 @@ useSeoMeta({
           v-else
           class="md:mx-0 mx-auto mt-4 md:mb-12 mb-16 flex items-center justify-center w-full max-w-[260px] h-[540px] p-3 rounded-2xl cursor-pointer relative"
         >
-          <img
-            class="absolute z-20 pointer-events-none w-full h-full"
-            src="/mobile-case.png"
-          />
-          <img
-            class="absolute right-4 bottom-6 z-20"
-            width="90"
-            src="/tiktok-logo-white.png"
-          />
+          <img class="absolute z-20 pointer-events-none w-full h-full" src="/mobile-case.png" />
+          <img class="absolute right-4 bottom-6 z-20" width="90" src="/tiktok-logo-white.png" />
           <video
             autoplay
             loop
@@ -235,9 +224,7 @@ useSeoMeta({
           <div class="mt-5">
             <div class="flex items-center justify-between">
               <div class="mb-1 text-[15px]">{{ $t("title") }}</div>
-              <div class="text-gray-400 text-[12px]">
-                {{ caption ? caption.length : 0 }}/150
-              </div>
+              <div class="text-gray-400 text-[12px]">{{ caption ? caption.length : 0 }}/150</div>
             </div>
             <input
               v-model="caption"
@@ -262,19 +249,6 @@ useSeoMeta({
             >
               {{ $t("post") }}
             </button>
-          </div>
-
-          <Transition name="bounce">
-            <div v-if="errors.video || errors.caption" class="mt-4">
-              <div class="text-red-600">
-                {{ errors.video || errors.caption }}
-              </div>
-            </div>
-          </Transition>
-          <div v-if="succes" class="mt-4">
-            <div class="text-green-600">
-              {{ succes }}
-            </div>
           </div>
         </div>
       </div>

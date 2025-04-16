@@ -9,6 +9,7 @@ const { $authStore, $generalStore } = useNuxtApp();
 const { plural } = usePlural();
 const { t, locale } = useI18n();
 
+
 type Props = {
   videoId: string;
   commentsCount: number;
@@ -78,6 +79,7 @@ const addComment = async (text: string, commentId?: number) => {
     }
 
     emits("addComment", comment);
+
     replyComment.value = undefined;
     replyCommentDiscussionId.value = undefined;
   } catch (error) {
@@ -263,7 +265,7 @@ const getRepliesText = (count: number) => {
     id="commentsSection"
     class="overflow-y-scroll absolute rounded-xl bottom-0 h-4/5 max-w-full w-full z-20 bg-white dark:bg-neutral-900 shadow-lg"
   >
-    <div class="p-4 border-b dark:border-neutral-800 flex items-center justify-between">
+    <div class="px-4 py-2 border-b dark:border-neutral-800 flex items-center justify-between">
       <h2 class="xl:text-xl text-lg font-semibold dark:text-white">
         {{ $t("comments") }}
         <span class="text-gray-400 font-normal">
