@@ -98,9 +98,17 @@ const isFavorite = computed(() => {
         <IconsArrow class="w-6 h-6" />
       </button>
       <span class="flex-1 text-center">
-        <h1 class="text-xl text-gray-900 dark:text-white">
+        <NuxtLink
+          :to="
+            $localePath({
+              name: 'profile-name',
+              params: { name: companion?.name },
+            })
+          "
+          class="text-xl text-gray-900 dark:text-white"
+        >
           {{ !isFavorite ? companion?.name : $t("savedMessages") }}
-        </h1>
+        </NuxtLink>
         <p v-if="!isFavorite" class="text-sm text-gray-500 dark:text-gray-400">
           {{ companion?.online ? $t("online") : $t("lastSeen") }}
           {{ !companion?.online ? formatRelativeTime(companion!.updatedAt) : "" }}
@@ -110,7 +118,7 @@ const isFavorite = computed(() => {
         :to="
           $localePath({
             name: 'profile-name',
-            params: { name: $authStore.profile?.name },
+            params: { name: companion?.name },
           })
         "
       >

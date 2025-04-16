@@ -121,11 +121,11 @@ export default defineNuxtConfig({
         {
           rel: "icon",
           type: "image/x-icon",
-          href: "/logo.ico",
+          href: "/logo.svg",
         },
         {
           rel: "apple-touch-icon",
-          href: "/logo.ico",
+          href: "/logo.svg",
         },
       ],
     },
