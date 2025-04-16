@@ -77,6 +77,8 @@ let statusInterval = null as NodeJS.Timeout | null;
 onMounted(async () => {
   if (loggedIn.value && $authStore.profile) {
     socket.on("offline", handleOffline);
+    socket.on("online", handleOnline);
+    
     statusInterval = setInterval(() => {
       socket.on("online", handleOnline);
       socket.on("offline", handleOffline);
