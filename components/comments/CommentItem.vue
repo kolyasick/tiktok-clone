@@ -26,7 +26,7 @@ const dislikeComment = () => {
       :to="
         $localePath({
           name: 'profile-name',
-          params: { name: $authStore.profile?.name },
+          params: { name: comment.profile?.name },
         })
       "
     >
@@ -42,7 +42,7 @@ const dislikeComment = () => {
           :to="
             $localePath({
               name: 'profile-name',
-              params: { name: $authStore.profile?.name },
+              params: { name: comment.profile?.name },
             })
           "
           class="font-semibold dark:text-white hover:underline"
