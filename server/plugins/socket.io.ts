@@ -126,7 +126,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
               data: { online: false },
             });
             io.emit("offline", user.id);
-            console.log(`Пользователь ${user.id} помечен как оффлайн`);
+            console.log(`Пользователь ${user.id} помечен как оффлайн - сокет`);
           }
         }
       } catch (error) {

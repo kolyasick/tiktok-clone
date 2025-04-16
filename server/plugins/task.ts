@@ -16,7 +16,7 @@ export default defineNitroPlugin((nitroApp) => {
             where: { id: user.id },
             data: { online: false },
           });
-          console.log(`Пользователь ${user.id} помечен как оффлайн`);
+          console.log(`Пользователь ${user.id} помечен как оффлайн - сервер`);
         }
       }
     } catch (error) {
