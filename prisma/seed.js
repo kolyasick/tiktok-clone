@@ -24,7 +24,8 @@ async function main() {
   //     };
   //   }),
   // });
-  await prisma.comment.deleteMany()
+  
+  // await prisma.comment.deleteMany()
 }
 
 main()

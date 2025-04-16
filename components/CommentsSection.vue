@@ -9,7 +9,6 @@ const { $authStore, $generalStore } = useNuxtApp();
 const { plural } = usePlural();
 const { t, locale } = useI18n();
 
-
 type Props = {
   videoId: string;
   commentsCount: number;
@@ -263,7 +262,7 @@ const getRepliesText = (count: number) => {
 <template>
   <div
     id="commentsSection"
-    class="overflow-y-scroll absolute rounded-xl bottom-0 h-4/5 max-w-full w-full z-20 bg-white dark:bg-neutral-900 shadow-lg"
+    class="overflow-y-scroll absolute rounded-xl bottom-0 h-4/5 max-w-full w-full z-20 bg-white dark:bg-neutral-900 border dark:border-neutral-800"
   >
     <div class="px-4 py-2 border-b dark:border-neutral-800 flex items-center justify-between">
       <h2 class="xl:text-xl text-lg font-semibold dark:text-white">
