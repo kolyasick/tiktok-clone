@@ -208,14 +208,16 @@ onUnmounted(() => {
       </div>
 
       <template v-if="isLoading">
-        <div class="h-full w-3/4 flex items-center justify-center max-[600px]:w-full">
+        <div
+          class="h-full lg:w-3/4 w-full fixed lg:static bg-opacity-50 bg-black z-50 flex items-center justify-center"
+        >
           <IconsLoader class="animate-spin ml-1 w-24 h-24" />
         </div>
       </template>
 
       <template v-else-if="!currentChat">
         <div
-          class="h-full dark:bg-neutral-900 bg-gray-200 w-3/4 hidden lg:flex items-center justify-center max-[600px]:w-full"
+          class="h-full dark:bg-neutral-900 bg-gray-200 w-3/4 hidden lg:flex items-center justify-center"
         >
           <h3 class="py-1 px-3 dark:bg-neutral-800 text-white bg-gray-300 rounded-full">
             {{ $t("startMessaging") }}
