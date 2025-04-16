@@ -185,7 +185,7 @@ onUnmounted(() => {
   <div>
     <TopNav />
     <div class="container flex h-[calc(100vh-61px)]">
-      <div class="w-full sm:w-1/4 dark:bg-neutral-800 bg-gray-100 relative mr-[1px]">
+      <div class="w-full lg:w-1/4 dark:bg-neutral-800 bg-gray-100 relative mr-[1px]">
         <form class="flex justify-center items-center h-[64px] mx-4">
           <input
             class="dark:bg-[#3a3a3a] dark:text-white bg-white text-gray-900 py-2 px-4 rounded-md w-full focus:outline-none"
@@ -215,7 +215,7 @@ onUnmounted(() => {
 
       <template v-else-if="!currentChat">
         <div
-          class="h-full dark:bg-neutral-900 bg-gray-200 w-3/4 hidden sm:flex items-center justify-center max-[600px]:w-full"
+          class="h-full dark:bg-neutral-900 bg-gray-200 w-3/4 hidden lg:flex items-center justify-center max-[600px]:w-full"
         >
           <h3 class="py-1 px-3 dark:bg-neutral-800 text-white bg-gray-300 rounded-full">
             {{ $t("startMessaging") }}

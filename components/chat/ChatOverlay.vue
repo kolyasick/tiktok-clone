@@ -89,7 +89,7 @@ const isFavorite = computed(() => {
 
 <template>
   <div
-    class="absolute top-0 right-0 h-full w-full sm:static sm:w-3/4 flex flex-col max-[600px]:w-full bg-light dark:bg-[#191919] z-20"
+    class="absolute top-0 right-0 h-full w-full lg:static lg::w-3/4 flex flex-col bg-light dark:bg-[#191919] z-20"
   >
     <div
       class="sticky min-h-[64px] top-[61px] left-0 w-full py-2 px-6 bg-gray-100 dark:bg-[#222222] flex items-center z-10"
