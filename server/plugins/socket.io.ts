@@ -97,9 +97,14 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
       try {
         const now = new Date();
         const oneMinute = new Date(now.getTime() - 1 * 60 * 1000);
-        const fiftySeconds = new Date(now.getTime() - 1 * 50 * 1000);
 
-        const users = await prisma.profile.findMany();
+        const users = await prisma.profile.findMany({
+          select: {
+            id: true,
+            online: true,
+            updatedAt: true,
+          },
+        });
 
         for (const user of users) {
           if (user.updatedAt < oneMinute) {
