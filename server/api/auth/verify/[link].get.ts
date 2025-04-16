@@ -22,10 +22,10 @@ export default defineEventHandler(async (event) => {
     },
   });
 
-  if (isUserVerified?.verified) {
-    console.log("user is already verified, [link].get redirect to /");
-    return sendRedirect(event, `/`, 302);
-  }
+  // if (isUserVerified?.verified) {
+  //   console.log("user is already verified, [link].get redirect to /");
+  //   return sendRedirect(event, `/`, 302);
+  // }
 
   const user = await prisma.user.update({
     where: {
