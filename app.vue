@@ -26,7 +26,7 @@ const handleOffline = async (userId: number) => {
 
     if (user) {
       user.online = false;
-      user.updatedAt = new Date();
+      user.lastSeen = new Date();
     }
   }
 };
@@ -41,12 +41,12 @@ const handleOnline = async (userId: number) => {
 
     if (user) {
       user.online = true;
-      user.updatedAt = new Date();
+      user.lastSeen = new Date();
     }
 
     if (companion && companion.id === userId) {
       companion.online = true;
-      companion.updatedAt = new Date();
+      companion.lastSeen = new Date();
     }
   }
 };
@@ -78,7 +78,7 @@ onMounted(async () => {
   if (loggedIn.value && $authStore.profile) {
     socket.on("offline", handleOffline);
     socket.on("online", handleOnline);
-    
+
     statusInterval = setInterval(() => {
       socket.on("online", handleOnline);
       socket.on("offline", handleOffline);

@@ -66,6 +66,7 @@ model Profile {
   comments Comment[]
   likes    Like[]
   commentLikes CommentLike[]
+  lastSeen DateTime @default(now())
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

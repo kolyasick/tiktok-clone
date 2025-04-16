@@ -23,12 +23,12 @@ export const useChat = () => {
 
       if (user) {
         user.online = status === "online";
-        // user.updatedAt = new Date();
+        user.lastSeen = new Date();
       }
 
       if (companion && companion.id === sender.id) {
         companion.online = status === "online";
-        // companion.updatedAt = new Date();
+        companion.lastSeen = new Date();
       }
     }
   };
@@ -40,12 +40,12 @@ export const useChat = () => {
 
       if (user) {
         user.online = status;
-        // user.updatedAt = new Date();
+        user.lastSeen = new Date();
       }
 
       if (companion && companion.id === userId) {
         companion.online = status;
-        // companion.updatedAt = new Date();
+        companion.lastSeen = new Date();
       }
     }
   };

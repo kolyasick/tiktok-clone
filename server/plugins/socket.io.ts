@@ -37,7 +37,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
           where: { id: userId },
           data: {
             online: true,
-            updatedAt: new Date(),
+            lastSeen: new Date(),
           },
         });
         io.emit("online", userId);
@@ -102,12 +102,12 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
           select: {
             id: true,
             online: true,
-            updatedAt: true,
+            lastSeen: true,
           },
         });
 
         for (const user of users) {
-          if (user.updatedAt < oneMinute) {
+          if (user.lastSeen < oneMinute) {
             await prisma.profile.update({
               where: { id: user.id },
               data: { online: false },
@@ -153,7 +153,6 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
             where: { id: userId },
             data: {
               online: false,
-              updatedAt: new Date(),
             },
           });
           io.emit("offline", userId);
