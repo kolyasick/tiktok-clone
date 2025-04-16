@@ -23,6 +23,7 @@ export default defineEventHandler(async (event) => {
   });
 
   if (isUserVerified?.verified) {
+    console.log("user is already verified, [link].get redirect to /");
     return sendRedirect(event, `/`, 302);
   }
 
@@ -67,6 +68,6 @@ export default defineEventHandler(async (event) => {
       message: "Something went wrong",
     });
   }
-
+  console.log("[link].get redirect to /verify-success");
   return sendRedirect(event, `/verify-success`, 302);
 });
