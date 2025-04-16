@@ -211,7 +211,7 @@ onUnmounted(() => {
         <div
           class="h-full lg:w-3/4 w-full fixed lg:static bg-opacity-50 bg-black z-50 flex items-center justify-center"
         >
-          <IconsLoader class="animate-spin ml-1 w-24 h-24" />
+          <IconsLoader class="animate-spin lg:ml-1 w-24 h-24" />
         </div>
       </template>
 
