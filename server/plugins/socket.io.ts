@@ -93,6 +93,31 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
       }
     });
 
+    const interval = setInterval(async () => {
+      try {
+        const now = new Date();
+        const oneMinute = new Date(now.getTime() - 1 * 60 * 1000);
+        const fiftySeconds = new Date(now.getTime() - 1 * 50 * 1000);
+
+        const users = await prisma.profile.findMany();
+
+        for (const user of users) {
+          if (user.updatedAt < oneMinute) {
+            await prisma.profile.update({
+              where: { id: user.id },
+              data: { online: false },
+              select: {
+                online: true,
+              },
+            });
+            io.emit("offline", user.id);
+          }
+        }
+      } catch (error) {
+        console.error("Ошибка при обновлении статусов:", error);
+      }
+    }, 30000);
+
     socket.on("offline", async (userId: number) => {
       if (!userId) return;
 
@@ -110,29 +135,6 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
         }
       }
     });
-
-    const interval = setInterval(async () => {
-      try {
-        const now = new Date();
-        const oneMinute = new Date(now.getTime() - 1 * 60 * 1000);
-        const fiftySeconds = new Date(now.getTime() - 1 * 50 * 1000);
-
-        const users = await prisma.profile.findMany();
-
-        for (const user of users) {
-          if (user.updatedAt < oneMinute && user.online) {
-            await prisma.profile.update({
-              where: { id: user.id },
-              data: { online: false },
-            });
-            io.emit("offline", user.id);
-            console.log(`Пользователь ${user.id} помечен как оффлайн - сокет`);
-          }
-        }
-      } catch (error) {
-        console.error("Ошибка при обновлении статусов:", error);
-      }
-    }, 10000);
 
     socket.on("disconnect", async () => {
       const userId = socket.data.userId;

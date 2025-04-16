@@ -72,11 +72,15 @@ const sendActivity = async () => {
     console.error("Ошибка при отправке активности:", error);
   }
 };
+let statusInterval = null as NodeJS.Timeout | null;
 
 onMounted(async () => {
   if (loggedIn.value && $authStore.profile) {
-    socket.on("online", handleOnline);
     socket.on("offline", handleOffline);
+    statusInterval = setInterval(() => {
+      socket.on("online", handleOnline);
+      socket.on("offline", handleOffline);
+    }, 30000);
 
     socket.emit("setUser", $authStore.profile.id);
     await handleStatus("online", $authStore.profile);
@@ -117,11 +121,16 @@ onUnmounted(() => {
     socket.off("offline");
     socket.off("connect");
     socket.off("notification");
+    socket.off("userStatuses");
     document.removeEventListener("visibilitychange", handleVisibilityChange);
     window.removeEventListener("beforeunload", handleBeforeUnload);
 
     if (activityInterval) {
       clearInterval(activityInterval);
+    }
+
+    if (statusInterval) {
+      clearInterval(statusInterval);
     }
   }
 });
