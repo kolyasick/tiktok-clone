@@ -32,13 +32,32 @@ const createVideo = async () => {
 
   if (!caption.value) {
     errors.caption = t("uploadMessages.caption");
-    addNotification(errors.caption, "error");
+    addNotification({
+      message: errors.caption,
+      duration: 5000,
+      type: "error",
+    });
     return;
   }
 
   if (!video.value[0]) {
     errors.video = t("uploadMessages.video");
-    addNotification(errors.video, "error");
+    addNotification({
+      message: errors.video,
+      duration: 5000,
+      type: "error",
+    });
+    return;
+  }
+
+  const ext = video.value[0].name.split(".").pop();
+  if (ext?.toLocaleLowerCase() !== "mp4") {
+    errors.video = t("uploadMessages.mp4");
+    addNotification({
+      message: errors.video,
+      duration: 5000,
+      type: "error",
+    });
     return;
   }
 
@@ -69,13 +88,21 @@ const createVideo = async () => {
     discard();
     if (res.id) {
       succes.value = t("uploadMessages.success");
-      addNotification(succes.value, "success");
+      addNotification({
+        message: succes.value,
+        duration: 5000,
+        type: "success",
+      });
     }
   } catch (error) {
     console.log(error);
     if (progressInterval) clearInterval(progressInterval);
     errors.video = t("uploadMessages.error");
-    addNotification(errors.video, "error");
+    addNotification({
+      message: errors.video,
+      duration: 5000,
+      type: "error",
+    });
   } finally {
     loading.value = false;
     setTimeout(() => {

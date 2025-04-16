@@ -95,7 +95,8 @@
     "success": "Video uploaded successfully",
     "error": "Error uploading video",
     "caption": "Please, add a caption",
-    "video": "Please, upload a video"
+    "video": "Please, upload a video",
+    "mp4": "Only .mp4 files"
   },
 
   "authMessages": {

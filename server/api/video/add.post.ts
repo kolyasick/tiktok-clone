@@ -26,7 +26,16 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  const ext = body.file.name.split(".").pop();
+  if (ext?.toLocaleLowerCase() !== "mp4") {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Only .mp4 format",
+    });
+  }
+
   try {
+    // name: "IMG_3207.MP4"
     const fileData = body.file.content as string;
     const base64Data = fileData.replace(/^data:video\/mp4;base64,/, "");
     const buffer = Buffer.from(base64Data, "base64");
