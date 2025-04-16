@@ -132,7 +132,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
       } catch (error) {
         console.error("Ошибка при обновлении статусов:", error);
       }
-    }, 30000);
+    }, 10000);
 
     socket.on("disconnect", async () => {
       const userId = socket.data.userId;
