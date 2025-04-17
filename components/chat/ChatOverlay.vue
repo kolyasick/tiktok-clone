@@ -111,7 +111,7 @@ const isFavorite = computed(() => {
         </NuxtLink>
         <p v-if="!isFavorite" class="text-sm text-gray-500 dark:text-gray-400">
           {{ companion?.online ? $t("online") : $t("lastSeen") }}
-          {{ !companion?.online ? formatRelativeTime(companion!.lastSeen) : "" }}
+          {{ !companion?.online ? formatRelativeTime(companion!.lastSeen, $i18n.locale) : "" }}
         </p>
       </span>
       <NuxtLink
