@@ -38,8 +38,7 @@ useSeoMeta({
   ogTitle: "Clipify | " + data.value?.title,
   description: "Clipify – Create and Share Videos with Friends",
   ogDescription: "Clipify – Create and Share Videos with Friends",
-  ogImage: "/clipify-logo.png",
-  ogImageHeight: 300,
+  ogImage: "/upload/avatars/" + data.value?.profile?.avatar,
   ogUrl: useRuntimeConfig().public.appUrl,
 });
 
@@ -100,9 +99,8 @@ const handleScroll = async (e: WheelEvent) => {
         ogTitle: "Clipify | " + currentVideo.title,
         description: currentVideo.title,
         ogDescription: currentVideo.title,
-        ogImage: "/upload/avatars/default.jpg",
-        ogImageHeight: 300,
-        ogUrl: import.meta.env.BASE_URL,
+        ogImage: "/upload/avatars/" + currentVideo.profile?.avatar,
+        ogUrl: useRuntimeConfig().public.appUrl,
       });
     }
   }
