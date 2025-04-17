@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
       id: currentUser.id,
     },
     data: {
-      updatedAt: new Date(),
+      lastSeen: new Date(),
     },
   });
 
