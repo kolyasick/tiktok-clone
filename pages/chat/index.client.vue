@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { Chat, Profile } from "@prisma/client";
 import UserOverlay from "~/components/chat/UserOverlay.vue";
-import prisma from "~/lib/prisma";
 import type { IMessage, IProfile } from "~/types/user.type";
 
 interface IChat extends Chat {
