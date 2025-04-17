@@ -74,6 +74,7 @@ const sendActivity = async () => {
 };
 let statusInterval = null as NodeJS.Timeout | null;
 
+
 onMounted(async () => {
   socket.on('connect', () => {console.log('connect app.vue')})
   if (loggedIn.value && $authStore.profile) {

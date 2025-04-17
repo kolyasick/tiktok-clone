@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Chat, Profile } from "@prisma/client";
 import UserOverlay from "~/components/chat/UserOverlay.vue";
+import prisma from "~/lib/prisma";
 import type { IMessage, IProfile } from "~/types/user.type";
 
 interface IChat extends Chat {
@@ -14,8 +15,6 @@ definePageMeta({
 
 const { $authStore } = useNuxtApp();
 const { $io: socket } = useNuxtApp();
-const { addNotification } = useNotification();
-
 const { chats, currentChat, updateChatStatus } = useChat();
 
 const isLoading = ref<boolean>(false);
@@ -70,15 +69,6 @@ const sortChatsByLastMessage = (chats: IChat[]): IChat[] => {
 };
 
 await fetchChats();
-
-watch(
-  () => currentChat.value?.messages,
-  () => {
-    const sortedChats = sortChatsByLastMessage(chats.value!);
-    chats.value = sortedChats;
-  },
-  { deep: true }
-);
 
 watch(
   () => route.query.chatId,
@@ -159,7 +149,11 @@ useSeoMeta({
 onMounted(() => {
   socket.on("chatMessage", (message: IMessage) => {
     const chat = chats.value?.find((chat) => chat.id === message.chatId);
-    if (chat) chat.messages.push(message);
+    if (chat) {
+      chat.messages.push(message);
+      const sortedChats = sortChatsByLastMessage(chats.value!);
+      chats.value = sortedChats;
+    }
     if (currentChat.value?.id === message.chatId) {
       currentChat.value.messages.push(message);
     }

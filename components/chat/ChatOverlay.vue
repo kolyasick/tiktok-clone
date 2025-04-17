@@ -89,7 +89,7 @@ const isFavorite = computed(() => {
 
 <template>
   <div
-    class="absolute top-0 right-0 h-full w-full lg:static lg::w-3/4 flex flex-col bg-light dark:bg-[#191919] z-20"
+    class="absolute top-0 right-0 h-full w-full lg:static lg:w-3/4 flex flex-col bg-light dark:bg-[#191919] z-20"
   >
     <div
       class="sticky min-h-[64px] top-[61px] left-0 w-full py-2 px-6 bg-gray-100 dark:bg-[#222222] flex items-center z-10"
@@ -144,7 +144,7 @@ const isFavorite = computed(() => {
             :class="{
               'bg-[#F02C56] text-white rounded-tl-xl rounded-tr-xl rounded-bl-xl':
                 message.senderId === $authStore.profile?.id,
-              'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-tr-xl rounded-tl-xl rounded-br-xl':
+              'bg-gray-200 dark:bg-neutral-800 text-gray-900 dark:text-white rounded-tr-xl rounded-tl-xl rounded-br-xl':
                 message.senderId !== $authStore.profile?.id,
             }"
             class="p-3 pe-10 max-w-xs w-fit break-all shadow-md min-w-20 relative"

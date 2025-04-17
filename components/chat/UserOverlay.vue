@@ -70,7 +70,13 @@ const chatOpen = async () => {
             class="dark:text-gray-300 text-gray-600 truncate max-w-[90%] flex items-center justify-between w-full"
           >
             <p class="truncate max-w-20">{{ lastMessage.text }}</p>
-            <p class="text-gray-500">{{ formatDate(lastMessage.createdAt, true) }}</p>
+            <p class="text-gray-500">
+              {{
+                new Date(lastMessage.createdAt).toLocaleTimeString("ru-RU", {
+                  timeStyle: "short",
+                })
+              }}
+            </p>
           </span>
         </div>
 
