@@ -48,7 +48,7 @@ const toggleTheme = () => {
     class="sticky top-0 bg-light dark:bg-dark z-30 flex items-center w-full h-[61px] border-b border-gray-200 dark:border-[#ebebeb6c]"
   >
     <div class="flex items-center justify-between container gap-2">
-      <NuxtLink class="flex items-center gap-2" :to="$localePath('index')">
+      <NuxtLink class="flex items-center gap-1" :to="$localePath('index')">
         <svg
           class="hidden sm:block"
           xmlns="http://www.w3.org/2000/svg"

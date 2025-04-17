@@ -85,7 +85,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
       try {
         await prisma.profile.update({
           where: { id: userId },
-          data: { online: true },
+          data: { online: true, lastSeen: new Date() },
         });
         io.emit("online", userId);
       } catch (error) {
