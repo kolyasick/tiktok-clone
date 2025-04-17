@@ -6,7 +6,7 @@ const router = useRouter();
 </script>
 
 <template>
-  <div
+  <aside
     id="SideNavMain"
     class="sticky top-0 left-0 z-20 bg-light dark:bg-dark pt-[70px] hidden sm:block -mt-[70px] h-screen lg:border-r-0 border-r border-gray-200 dark:border-[#ebebeb6c] lg:w-[310px] w-[75px]"
   >
@@ -91,7 +91,7 @@ const router = useRouter();
 
       <div class="pb-14"></div>
     </div>
-  </div>
+  </aside>
 </template>
 
 <style scoped></style>
