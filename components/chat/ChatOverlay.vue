@@ -46,11 +46,18 @@ watch(
   async () => {
     await nextTick();
     checkUnreaded();
+    if (
+      props.currentChat.messages[props.currentChat.messages.length - 1].senderId ===
+      $authStore.profile?.id
+    ) {
+      messagesContainer.value?.scrollTo(0, messagesContainer.value.scrollHeight);
+    }
   },
   { deep: true }
 );
 
 const checkUnreaded = async () => {
+  if (!messagesContainer.value) return;
   const unreadMessageIds = new Set<number>();
   const messagesToUpdate = new Map<number, { element: Element; dataId: number }>();
 
@@ -112,9 +119,18 @@ const scrollToLastReadedMessage = () => {
   const readMessagesFromOthers = Array.from(
     messagesContainer.value.querySelectorAll(".message[data-readed='true']")
   ).filter((message) => Number(message.getAttribute("data-sender")) !== $authStore.profile?.id);
+  const allMessages = Array.from(messagesContainer.value.querySelectorAll(".message"));
 
   if (readMessagesFromOthers.length) {
-    const lastReadMessage = readMessagesFromOthers[readMessagesFromOthers.length - 1];
+    let lastReadMessage = readMessagesFromOthers[readMessagesFromOthers.length - 1];
+    const lastMessage = props.currentChat?.messages[props.currentChat?.messages.length - 1];
+
+    if (
+      lastMessage.senderId === $authStore.profile?.id &&
+      lastMessage?.id > Number(lastReadMessage.getAttribute("data-id"))
+    ) {
+      lastReadMessage = allMessages[allMessages.length - 1];
+    }
 
     lastReadMessage.scrollIntoView({
       behavior: "smooth",
@@ -147,6 +163,15 @@ onMounted(() => {
   socket.on("stopTyping", (chatId: string) => {
     if (Number(chatId) !== props.currentChat?.id) return;
     typingUser.value = "";
+  });
+
+  socket.on("readMessages", (chatId: number, messageIds: number[]) => {
+    messageIds.forEach((messageId) => {
+      const message = props.currentChat.messages.find((message) => message.id === messageId);
+      if (message) {
+        message.isReaded = true;
+      }
+    });
   });
 
   messagesContainer.value?.addEventListener("scroll", () => {
@@ -250,7 +275,7 @@ onUnmounted(() => {
             </span>
 
             <div class="absolute bottom-1 right-1 flex items-center gap-1">
-              <span class="text-xs text-gray-300/60 dark:text-gray-400">{{
+              <span class="text-xs text-gray-400 dark:text-gray-400">{{
                 new Date(message.createdAt).toLocaleTimeString("ru-RU", {
                   hour: "numeric",
                   minute: "numeric",

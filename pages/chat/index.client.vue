@@ -160,17 +160,6 @@ onMounted(() => {
     }
   });
 
-  socket.on("readMessages", (chatId: number, messageIds: number[]) => {
-    const chat = chats.value?.find((chat) => chat.id === chatId);
-    if (chat) {
-      messageIds.forEach((messageId) => {
-        const message = chat.messages.find((message) => message.id === messageId);
-        if (message) {
-          message.isReaded = true;
-        }
-      });
-    }
-  });
 
   socket.on("online", (userId: number) => {
     updateChatStatus(userId, true);
