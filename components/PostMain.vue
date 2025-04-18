@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { IComment, IProfile, IVideo } from "~/types/user.type";
-const { $videosStore, $authStore, $profileStore } = useNuxtApp();
+const { $videosStore, $authStore, $profileStore, $generalStore } = useNuxtApp();
 const { $io: socket } = useNuxtApp();
 const { addNotification } = useNotification();
 const { t } = useI18n();
@@ -17,8 +17,6 @@ let volume = ref(5);
 let isLiking = ref(false);
 let isVideoLoading = ref(true);
 let isCommentsVisible = ref(false);
-
-const isModalVisible = ref(false);
 
 const toggleMute = () => {
   if (videoplay.value) {
@@ -130,6 +128,10 @@ const isFollowing = ref(false);
 isFollowing.value = isFollowed(props.video.profileId).value;
 
 const handleFollow = async () => {
+  if (!$authStore.profile) {
+    $generalStore.isLoginOpen = true;
+    return;
+  }
   try {
     await $profileStore.handleFriendAction("add", props.video.profile as IProfile);
     if (props.video.profileId !== $authStore.profile?.id) {
@@ -145,6 +147,50 @@ const handleFollow = async () => {
     console.error("Error updating follow status:", error);
   }
 };
+
+let lastClickTime = 0;
+let timeoutId = null as NodeJS.Timeout | null;
+
+const onDoubleClick = () => {
+  const currentTime = Date.now();
+  const timeBetweenClicks = currentTime - lastClickTime;
+
+  if (timeBetweenClicks < 300) {
+    clearTimeout(timeoutId!);
+    timeoutId = null;
+    handleDoubleClick();
+  } else {
+    timeoutId = setTimeout(() => {
+      handleSingleClick();
+      timeoutId = null;
+    }, 300);
+  }
+
+  lastClickTime = currentTime;
+};
+
+const handleSingleClick = () => {};
+const isHeartShow = ref(false);
+
+const handleDoubleClick = async () => {
+  try {
+    await likeVideo(props.video);
+    if (props.video.liked) {
+      isHeartShow.value = true;
+      setTimeout(() => {
+        isHeartShow.value = false;
+      }, 700);
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const openFullscreen = () => {
+  if (videoplay.value) {
+    videoplay.value.requestFullscreen();
+  }
+};
 </script>
 
 <template>
@@ -152,13 +198,29 @@ const handleFollow = async () => {
     ref="videoContainer"
     class="xl:w-[65%] md:w-[70%] w-full xl:h-[calc(100dvh-150px)] h-[80dvh] xl:max-h-[800px] max-h-[650px] relative overflow-hidden"
   >
+    <button
+      @click="openFullscreen"
+      class="absolute top-3 right-3 z-30 text-white opacity-60 hover:opacity-100"
+    >
+      <IconsFullScreen class="w-6 h-6" />
+    </button>
+    <Transition name="slide-over">
+      <div
+        class="absolute top-0 left-0 w-full h-full flex items-center justify-center z-20"
+        v-if="isHeartShow"
+      >
+        <IconsHeart class="text-red-500 w-1/4 h-1/4" />
+      </div>
+    </Transition>
     <video
+      @click="onDoubleClick"
       ref="videoplay"
       preload="auto"
       loop
       muted
       playsinline
-      class="rounded-xl border dark:border-neutral-800 border-gray-200 aspect-video object-cover w-full h-full"
+      class="rounded-xl border dark:border-neutral-800 border-gray-200 aspect-video object-cover w-full h-full transition-opacity"
+      :class="{ 'opacity-80': isHeartShow }"
       @timeupdate="onVideoLoaded"
       :src="'/upload/videos/' + video.url || ''"
     />
@@ -276,6 +338,20 @@ const handleFollow = async () => {
 .slide-enter-from,
 .slide-leave-to {
   transform: translateY(100%);
+}
+
+.slide-over-enter-active,
+.slide-over-leave-active {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0, 1), opacity 0.2s;
+}
+
+.slide-over-enter-from {
+  opacity: 0;
+  transform: translateY(100%);
+}
+.slide-over-leave-to {
+  opacity: 0;
+  transform: translateY(-100%);
 }
 
 .modal-enter-active,

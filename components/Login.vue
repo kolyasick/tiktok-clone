@@ -11,14 +11,14 @@ const login = async () => {
   const { handleStatus } = useChat();
   await $authStore.login(name.value, password.value);
 
-  addNotification({
-    message: t("authMessages.login"),
-    duration: 2000,
-    type: "success",
-  });
-
   if ($authStore.profile) {
     emit("closeModal");
+    addNotification({
+      message: t("authMessages.login"),
+      duration: 2000,
+      type: "success",
+    });
+
     await handleStatus("online", $authStore.profile);
   }
 };
