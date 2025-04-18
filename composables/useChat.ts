@@ -13,7 +13,7 @@ export const useChat = () => {
   const currentChat = ref<IChat | null>(null);
 
   const handleStatus = async (status: "online" | "offline", userId: number) => {
-    if (userId) return;
+    if (!userId) return;
 
     socket.emit(status, userId);
 

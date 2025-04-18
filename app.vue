@@ -1,39 +1,28 @@
 <script setup lang="ts">
 import type { Follows } from "@prisma/client";
-
 import type { IProfile } from "./types/user.type";
 
 const { $generalStore, $authStore } = useNuxtApp();
-
 const { user, loggedIn } = useUserSession();
-
 const { $io: socket } = useNuxtApp();
-
 const { addNotification } = useNotification();
-
 const { t } = useI18n();
 
 let activityInterval: NodeJS.Timeout | null = null;
-
 if (user.value) {
   const profile = await $authStore.getProfileById(user.value.id);
-
   $authStore.profile = profile;
 }
-
 const { handleStatus } = useChat();
 
 const handleOffline = async (userId: number) => {
   if (!userId) return;
-
   const { chats } = useChat();
 
   if (chats.value) {
     const user = chats.value.find((c) => c.companion.id === userId)?.companion;
-
     if (user) {
       user.online = false;
-
       user.lastSeen = new Date();
     }
   }
@@ -46,18 +35,15 @@ const handleOnline = async (userId: number) => {
 
   if (chats.value) {
     const user = chats.value.find((c) => c.companion.id === userId)?.companion;
-
     const companion = currentChat.value?.companion;
 
     if (user) {
       user.online = true;
-
       user.lastSeen = new Date();
     }
 
     if (companion && companion.id === userId) {
       companion.online = true;
-
       companion.lastSeen = new Date();
     }
   }
