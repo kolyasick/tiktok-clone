@@ -19,13 +19,15 @@ const login = async () => {
       type: "success",
     });
 
-    await handleStatus("online", $authStore.profile);
+    await handleStatus("online", $authStore.profile?.id);
   }
 };
 </script>
 <template>
   <div>
-    <div class="text-center text-[28px] mb-4 font-bold text-black dark:text-white">
+    <div
+      class="text-center text-[28px] mb-4 font-bold text-black dark:text-white"
+    >
       {{ $t("login") }}
     </div>
     <div class="px-6 pb-2">

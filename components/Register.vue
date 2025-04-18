@@ -8,7 +8,6 @@ const password = ref("");
 const emit = defineEmits(["closeModal"]);
 
 const register = async () => {
-  console.log('123')
   const { handleStatus } = useChat();
 
   await $authStore.register(name.value, email.value, password.value);
@@ -20,7 +19,9 @@ const register = async () => {
 
 <template>
   <div>
-    <div class="text-center text-[28px] mb-4 font-bold text-black dark:text-white">
+    <div
+      class="text-center text-[28px] mb-4 font-bold text-black dark:text-white"
+    >
       {{ $t("register") }}
     </div>
     <div class="px-6 pb-2">
