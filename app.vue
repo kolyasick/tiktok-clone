@@ -1,29 +1,82 @@
 <script setup lang="ts">
 import type { Follows } from "@prisma/client";
+
 import type { IProfile } from "./types/user.type";
 
 const { $generalStore, $authStore } = useNuxtApp();
+
 const { user, loggedIn } = useUserSession();
+
 const { $io: socket } = useNuxtApp();
+
 const { addNotification } = useNotification();
+
 const { t } = useI18n();
 
 let activityInterval: NodeJS.Timeout | null = null;
 
 if (user.value) {
   const profile = await $authStore.getProfileById(user.value.id);
+
   $authStore.profile = profile;
 }
 
 const { handleStatus } = useChat();
 
 const handleOffline = async (userId: number) => {
-  await handleStatus("offline", userId);
+  if (!userId) return;
+
+  const { chats } = useChat();
+
+  if (chats.value) {
+    const user = chats.value.find((c) => c.companion.id === userId)?.companion;
+
+    if (user) {
+      user.online = false;
+
+      user.lastSeen = new Date();
+    }
+  }
 };
 
 const handleOnline = async (userId: number) => {
-  await handleStatus("online", userId);
+  if (!userId) return;
+
+  const { chats, currentChat } = useChat();
+
+  if (chats.value) {
+    const user = chats.value.find((c) => c.companion.id === userId)?.companion;
+
+    const companion = currentChat.value?.companion;
+
+    if (user) {
+      user.online = true;
+
+      user.lastSeen = new Date();
+    }
+
+    if (companion && companion.id === userId) {
+      companion.online = true;
+
+      companion.lastSeen = new Date();
+    }
+  }
 };
+
+const handleBeforeUnload = () => {
+  if ($authStore.profile) {
+    socket.emit("offline", $authStore.profile.id);
+  }
+};
+
+const handleVisibilityChange = async () => {
+  if (!$authStore.profile) return;
+
+  const status = document.visibilityState === "visible" ? "online" : "offline";
+
+  await handleStatus(status, $authStore.profile.id);
+};
+
 const sendActivity = async () => {
   if (!$authStore.profile?.id) return;
 
@@ -33,25 +86,35 @@ const sendActivity = async () => {
     console.error("Ошибка при отправке активности:", error);
   }
 };
+
 let statusInterval = null as NodeJS.Timeout | null;
 
 onMounted(async () => {
   socket.on("connect", () => {
     console.log("connect app.vue");
   });
+
   if (loggedIn.value && $authStore.profile) {
     socket.on("offline", handleOffline);
+
     socket.on("online", handleOnline);
 
     statusInterval = setInterval(() => {
       socket.on("online", handleOnline);
+
       socket.on("offline", handleOffline);
-    }, 30000);
+    }, 60000);
 
     socket.emit("setUser", $authStore.profile.id);
-    await handleStatus("online", $authStore.profile?.id);
+
+    await handleStatus("online", $authStore.profile.id);
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
 
     activityInterval = setInterval(sendActivity, 1000 * 10);
+
     await sendActivity();
 
     socket.on("connect", () => {
@@ -63,11 +126,20 @@ onMounted(async () => {
 
   socket.on(
     "notification",
-    (data: { to: number; message: string; sender?: IProfile; messageType?: string }) => {
+
+    (data: {
+      to: number;
+      message: string;
+      sender?: IProfile;
+      messageType?: string;
+    }) => {
       if (data.to === $authStore.profile?.id) {
         addNotification({
           message:
-            data.messageType !== "message" ? t(`notification.${data.messageType}`) : data.message,
+            data.messageType !== "message"
+              ? t(`notification.${data.messageType}`)
+              : data.message,
+
           sender: data.sender,
           messageType: data.messageType,
           duration: null,
@@ -81,10 +153,18 @@ onMounted(async () => {
 onUnmounted(() => {
   if (loggedIn.value && $authStore.profile) {
     socket.off("online");
+
     socket.off("offline");
+
     socket.off("connect");
+
     socket.off("notification");
+
     socket.off("userStatuses");
+
+    document.removeEventListener("visibilitychange", handleVisibilityChange);
+
+    window.removeEventListener("beforeunload", handleBeforeUnload);
 
     if (activityInterval) {
       clearInterval(activityInterval);
