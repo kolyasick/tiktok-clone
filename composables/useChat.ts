@@ -12,23 +12,23 @@ export const useChat = () => {
   const chats = ref<IChat[]>([]);
   const currentChat = ref<IChat | null>(null);
 
-  const handleStatus = async (status: "online" | "offline", sender: IProfile) => {
-    if (!sender?.id) return;
+  const handleStatus = async (status: "online" | "offline", userId: number) => {
+    if (userId) return;
 
-    socket.emit(status, sender.id);
+    socket.emit(status, userId);
 
     if (chats.value) {
-      const user = chats.value.find((c) => c.companion.id === sender.id)?.companion;
+      const user = chats.value.find((c) => c.companion.id === userId)?.companion;
       const companion = currentChat.value?.companion;
 
       if (user) {
         user.online = status === "online";
-        user.lastSeen = sender.lastSeen;
+        user.lastSeen = new Date();
       }
 
-      if (companion && companion.id === sender.id) {
+      if (companion && companion.id === userId) {
         companion.online = status === "online";
-        companion.lastSeen = sender.lastSeen;
+        companion.lastSeen = new Date();
       }
     }
   };

@@ -85,7 +85,7 @@ const removeTag = () => {
             >{{ replyComment?.profile?.name }}</NuxtLink
           >
           <span class="text-gray-500 dark:text-gray-400 text-xs">{{
-            formatRelativeTime(replyComment.createdAt)
+            useRelativeTime(replyComment.createdAt)
           }}</span>
         </div>
         <p class="text-gray-600 dark:text-gray-300 break-words whitespace-pre-wrap">

@@ -13,7 +13,7 @@ const register = async () => {
 
   await $authStore.register(name.value, email.value, password.value);
   if ($authStore.profile) {
-    await handleStatus("online", $authStore.profile);
+    await handleStatus("online", $authStore.profile.id);
   }
 };
 </script>

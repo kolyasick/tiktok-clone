@@ -223,7 +223,7 @@ onUnmounted(() => {
           class="text-sm text-gray-500 dark:text-gray-400"
         >
           {{ companion?.online ? $t("online") : $t("lastSeen") }}
-          {{ !companion?.online ? formatRelativeTime(companion!.lastSeen, $i18n.locale) : "" }}
+          {{ !companion?.online ? useRelativeTime(companion!.lastSeen, $i18n.locale) : "" }}
         </p>
         <p
           v-else-if="!isFavorite && typingUser && typingUser !== $authStore.profile?.name"

@@ -18,52 +18,12 @@ if (user.value) {
 const { handleStatus } = useChat();
 
 const handleOffline = async (userId: number) => {
-  if (!userId) return;
-  const { chats } = useChat();
-
-  if (chats.value) {
-    const user = chats.value.find((c) => c.companion.id === userId)?.companion;
-
-    if (user) {
-      user.online = false;
-      user.lastSeen = new Date();
-    }
-  }
+  await handleStatus("offline", userId);
 };
 
 const handleOnline = async (userId: number) => {
-  if (!userId) return;
-  const { chats, currentChat } = useChat();
-
-  if (chats.value) {
-    const user = chats.value.find((c) => c.companion.id === userId)?.companion;
-    const companion = currentChat.value?.companion;
-
-    if (user) {
-      user.online = true;
-      user.lastSeen = new Date();
-    }
-
-    if (companion && companion.id === userId) {
-      companion.online = true;
-      companion.lastSeen = new Date();
-    }
-  }
+  await handleStatus("online", userId);
 };
-
-const handleBeforeUnload = () => {
-  if ($authStore.profile) {
-    socket.emit("offline", $authStore.profile.id);
-  }
-};
-
-const handleVisibilityChange = async () => {
-  if (!$authStore.profile) return;
-  const status = document.visibilityState === "visible" ? "online" : "offline";
-  // if (document.visibilityState === "hidden") await navigateTo("/");
-  await handleStatus(status, $authStore.profile);
-};
-
 const sendActivity = async () => {
   if (!$authStore.profile?.id) return;
 
@@ -86,13 +46,10 @@ onMounted(async () => {
     statusInterval = setInterval(() => {
       socket.on("online", handleOnline);
       socket.on("offline", handleOffline);
-    }, 60000);
+    }, 30000);
 
     socket.emit("setUser", $authStore.profile.id);
-    await handleStatus("online", $authStore.profile);
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    window.addEventListener("beforeunload", handleBeforeUnload);
+    await handleStatus("online", $authStore.profile?.id);
 
     activityInterval = setInterval(sendActivity, 1000 * 10);
     await sendActivity();
@@ -128,8 +85,6 @@ onUnmounted(() => {
     socket.off("connect");
     socket.off("notification");
     socket.off("userStatuses");
-    document.removeEventListener("visibilitychange", handleVisibilityChange);
-    window.removeEventListener("beforeunload", handleBeforeUnload);
 
     if (activityInterval) {
       clearInterval(activityInterval);
