@@ -60,6 +60,7 @@ const handleBeforeUnload = () => {
 const handleVisibilityChange = async () => {
   if (!$authStore.profile) return;
   const status = document.visibilityState === "visible" ? "online" : "offline";
+  // if (document.visibilityState === "hidden") await navigateTo("/");
   await handleStatus(status, $authStore.profile);
 };
 
@@ -74,9 +75,10 @@ const sendActivity = async () => {
 };
 let statusInterval = null as NodeJS.Timeout | null;
 
-
 onMounted(async () => {
-  socket.on('connect', () => {console.log('connect app.vue')})
+  socket.on("connect", () => {
+    console.log("connect app.vue");
+  });
   if (loggedIn.value && $authStore.profile) {
     socket.on("offline", handleOffline);
     socket.on("online", handleOnline);
@@ -165,7 +167,7 @@ $authStore.followers = followers.value || [];
 <style>
 body {
   font-family: "Inter", sans-serif;
-  @apply dark:bg-dark bg-gray-50;
+  @apply bg-light dark:bg-dark;
 }
 
 .main-pages-enter-active,
