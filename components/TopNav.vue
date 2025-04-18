@@ -28,7 +28,7 @@ const isLoggedIn = () => {
 
 const logout = async () => {
   const { handleStatus } = useChat();
-  await handleStatus("offline", $authStore.profile as IProfile);
+  await handleStatus("offline", $authStore.profile!.id);
   await $authStore.logout();
   addNotification({
     message: t("authMessages.logout"),
@@ -74,7 +74,9 @@ const toggleTheme = () => {
           class="flex items-center transition bg-gray-200 dark:bg-neutral-800 rounded-md px-3 sm:h-9 h-8 hover:bg-gray-300 dark:hover:bg-neutral-800"
         >
           <IconsPlus class="w-5 h-5" />
-          <span class="px-2 font-medium text-[15px] max-[400px]:hidden">{{ $t("upload") }}</span>
+          <span class="px-2 font-medium text-[15px] max-[400px]:hidden">{{
+            $t("upload")
+          }}</span>
         </button>
 
         <div v-if="!loggedIn" class="flex items-center">
@@ -87,7 +89,10 @@ const toggleTheme = () => {
         </div>
 
         <div v-else class="flex items-center">
-          <NuxtLink :to="$localePath('chat')" class="flex item-center justify-center mr-5">
+          <NuxtLink
+            :to="$localePath('chat')"
+            class="flex item-center justify-center mr-5"
+          >
             <IconsChat class="w-7 h-7" />
           </NuxtLink>
 
@@ -117,7 +122,9 @@ const toggleTheme = () => {
                   class="flex items-center justify-start py-3 px-2 dark:hover:bg-neutral-600 hover:bg-gray-200 rounded-t-md"
                 >
                   <IconsUser class="w-5 h-5" />
-                  <span class="pl-2 font-semibold text-sm">{{ $t("profile") }}</span>
+                  <span class="pl-2 font-semibold text-sm">{{
+                    $t("profile")
+                  }}</span>
                 </NuxtLink>
                 <hr class="border-gray-200 dark:border-neutral-600" />
                 <div
@@ -125,7 +132,9 @@ const toggleTheme = () => {
                   class="flex items-center rounded-b-md justify-start py-3 px-2 dark:hover:bg-neutral-600 hover:bg-gray-200 cursor-pointer"
                 >
                   <IconsLogout class="w-5 h-5" />
-                  <span class="pl-2 font-semibold text-sm">{{ $t("logout") }}</span>
+                  <span class="pl-2 font-semibold text-sm">{{
+                    $t("logout")
+                  }}</span>
                 </div>
               </div>
             </Transition>
@@ -143,7 +152,9 @@ const toggleTheme = () => {
             class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50"
             @click.self="showSettingsModal = false"
           >
-            <div class="bg-white dark:bg-neutral-800 rounded-lg p-6 w-80 max-w-full">
+            <div
+              class="bg-white dark:bg-neutral-800 rounded-lg p-6 w-80 max-w-full"
+            >
               <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-semibold">{{ $t("settings") }}</h3>
                 <button @click="showSettingsModal = false">
@@ -162,7 +173,8 @@ const toggleTheme = () => {
                       class="px-3 py-1 rounded-md"
                       :class="{
                         'bg-[#F02C56] text-white': $i18n.locale === locale.code,
-                        'bg-gray-200 dark:bg-neutral-700': $i18n.locale !== locale.code,
+                        'bg-gray-200 dark:bg-neutral-700':
+                          $i18n.locale !== locale.code,
                       }"
                     >
                       {{ locale.name }}
@@ -179,7 +191,11 @@ const toggleTheme = () => {
                     class="flex items-center gap-2 p-2 rounded-md hover:bg-gray-200 dark:hover:bg-neutral-700"
                   >
                     <ThemeSwitcher />
-                    <span>{{ colorMode.value === "dark" ? $t("lightMode") : $t("darkMode") }}</span>
+                    <span>{{
+                      colorMode.value === "dark"
+                        ? $t("lightMode")
+                        : $t("darkMode")
+                    }}</span>
                   </button>
                 </div>
               </div>
