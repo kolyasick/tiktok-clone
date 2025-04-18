@@ -129,7 +129,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
         });
 
         for (const user of users) {
-          if (user.lastSeen < oneMinute && user.online) {
+          if (user.lastSeen < oneMinute) {
             await prisma.profile.update({
               where: { id: user.id },
               data: { online: false },
