@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Chat, Profile } from "@prisma/client";
 import UserOverlay from "~/components/chat/UserOverlay.vue";
+import chat from "~/middleware/chat";
 import type { IMessage, IProfile } from "~/types/user.type";
 
 interface IChat extends Chat {
@@ -31,7 +32,7 @@ const filteredChats = computed(() => {
   });
 });
 
-socket.on("chatOpen", async (chat: IChat) => {
+socket.on("chatOpen", async (chat: { id: number; user1Id: number; user2Id: number }) => {
   const isChatExist = chats.value?.some((c) => c.id === chat.id);
 
   if (!isChatExist) {
@@ -107,15 +108,14 @@ const sendMessage = async (text: string) => {
 
   if (!currentChat.value || !$authStore.profile) return;
 
-  const message: IMessage = {
-    id: Date.now(),
-    chatId: currentChat.value?.id,
-    senderId: $authStore.profile?.id,
-    text,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    sender: $authStore.profile,
-  };
+  const message = await $fetch("/api/chat/message/create", {
+    method: "POST",
+    body: {
+      text,
+      senderId: $authStore.profile?.id,
+      chatId: currentChat.value?.id,
+    },
+  });
 
   socket.emit("chatMessage", message);
   socket.emit("notification", {
@@ -124,15 +124,17 @@ const sendMessage = async (text: string) => {
     message: message.text,
     messageType: "message",
   });
+};
 
-  await $fetch("/api/chat/message/create", {
-    method: "POST",
-    body: {
-      text,
-      senderId: $authStore.profile?.id,
-      chatId: currentChat.value?.id,
-    },
-  });
+const updateMessages = (chatId: number, messageId: number) => {
+  const chat = chats.value.find((c) => c.id === chatId);
+
+  if (chat) {
+    const message = chat.messages.find((m) => m.id === messageId);
+    if (message) {
+      message.isReaded = true;
+    }
+  }
 };
 
 useSeoMeta({
@@ -155,6 +157,18 @@ onMounted(() => {
     }
     if (currentChat.value?.id === message.chatId) {
       currentChat.value.messages.push(message);
+    }
+  });
+
+  socket.on("readMessages", (chatId: number, messageIds: number[]) => {
+    const chat = chats.value?.find((chat) => chat.id === chatId);
+    if (chat) {
+      messageIds.forEach((messageId) => {
+        const message = chat.messages.find((message) => message.id === messageId);
+        if (message) {
+          message.isReaded = true;
+        }
+      });
     }
   });
 
@@ -221,6 +235,7 @@ onUnmounted(() => {
       <template v-else>
         <ChatOverlay
           :current-chat="currentChat"
+          @update-messages="updateMessages"
           @send-message="sendMessage"
           @clear-current-chat="currentChat = null"
         />

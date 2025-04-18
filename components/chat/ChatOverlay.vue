@@ -2,7 +2,7 @@
 import type { Chat, Profile } from "@prisma/client";
 import type { IMessage } from "~/types/user.type";
 
-const emit = defineEmits(["send-message", "clear-current-chat"]);
+const emit = defineEmits(["send-message", "clear-current-chat", "update-messages"]);
 
 interface IChat extends Chat {
   messages: IMessage[];
@@ -15,6 +15,7 @@ const localePath = useLocalePath();
 
 let text = ref<string>("");
 let typingTimeout: NodeJS.Timeout;
+const messagesContainer = ref<HTMLDivElement | null>(null);
 const typingUser = ref<string | null>(null);
 const { $io: socket } = useNuxtApp();
 
@@ -26,6 +27,7 @@ const handleSend = () => {
 };
 
 const handleTyping = () => {
+  if (!props.currentChat || props.currentChat.user1Id === props.currentChat.user2Id) return;
   const data = {
     name: $authStore.profile?.name,
     chatId: props.currentChat?.id.toString(),
@@ -39,37 +41,55 @@ const handleTyping = () => {
   }, 1000);
 };
 
-const messagesContainer = ref<HTMLDivElement | null>(null);
-
 watch(
-  () => [props.currentChat?.messages, typingUser],
+  () => [props.currentChat?.messages],
   async () => {
     await nextTick();
-    if (messagesContainer.value) {
-      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
-    }
+    checkUnreaded();
   },
   { deep: true }
 );
 
-onMounted(() => {
-  if (messagesContainer.value) {
-    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
+const checkUnreaded = async () => {
+  const unreadMessageIds = new Set<number>();
+  const messagesToUpdate = new Map<number, { element: Element; dataId: number }>();
+
+  messagesContainer.value?.querySelectorAll(".message[data-readed='false']").forEach((m) => {
+    const senderId = Number(m.getAttribute("data-sender"));
+    const dataId = Number(m.getAttribute("data-id"));
+
+    if (senderId !== $authStore.profile?.id) {
+      if (messagesContainer.value?.getBoundingClientRect().bottom! > m.getBoundingClientRect().y) {
+        unreadMessageIds.add(dataId);
+        messagesToUpdate.set(dataId, { element: m, dataId });
+      }
+    }
+  });
+
+  if (unreadMessageIds.size === 0) return;
+
+  try {
+    await $fetch("/api/chat/message/read", {
+      method: "PATCH",
+      body: {
+        ids: Array.from(unreadMessageIds),
+        isReaded: true,
+      },
+    });
+    socket.emit("readMessages", props.currentChat.id, Array.from(unreadMessageIds));
+
+    messagesToUpdate.forEach(({ element, dataId }) => {
+      const message = props.currentChat.messages.find((m) => m.id === dataId);
+      if (message) {
+        message.isReaded = true;
+      }
+      element.setAttribute("data-readed", "true");
+      emit("update-messages", props.currentChat.id, dataId);
+    });
+  } catch (error) {
+    console.error("Ошибка при обновлении статуса сообщений:", error);
   }
-
-  socket.on("typing", (name: string) => {
-    typingUser.value = name;
-  });
-
-  socket.on("stopTyping", () => {
-    typingUser.value = "";
-  });
-});
-
-onUnmounted(() => {
-  socket.off("typing");
-  socket.off("stopTyping");
-});
+};
 
 const goBack = async () => {
   socket.emit("leaveChat", props.currentChat?.id.toString());
@@ -84,6 +104,70 @@ const companion = computed(() => {
 
 const isFavorite = computed(() => {
   return companion.value?.id === $authStore.profile?.id;
+});
+
+const scrollToLastReadedMessage = () => {
+  if (!messagesContainer.value || !$authStore.profile?.id) return;
+
+  const readMessagesFromOthers = Array.from(
+    messagesContainer.value.querySelectorAll(".message[data-readed='true']")
+  ).filter((message) => Number(message.getAttribute("data-sender")) !== $authStore.profile?.id);
+
+  if (readMessagesFromOthers.length) {
+    const lastReadMessage = readMessagesFromOthers[readMessagesFromOthers.length - 1];
+
+    lastReadMessage.scrollIntoView({
+      behavior: "smooth",
+      block: "end",
+    });
+
+    setTimeout(() => {
+      const messageRect = lastReadMessage.getBoundingClientRect();
+      const containerRect = messagesContainer.value!.getBoundingClientRect();
+
+      if (messageRect.bottom < containerRect.bottom) {
+        messagesContainer.value!.scrollTop += containerRect.bottom - messageRect.bottom;
+      }
+    }, 500);
+  }
+};
+
+let isCheckingUnread = false;
+let scrollTimeout: NodeJS.Timeout;
+
+onMounted(() => {
+  if (messagesContainer.value) {
+    scrollToLastReadedMessage();
+  }
+
+  socket.on("typing", (data: { name: string; chatId: string }) => {
+    typingUser.value = data.name;
+  });
+
+  socket.on("stopTyping", (chatId: string) => {
+    if (Number(chatId) !== props.currentChat?.id) return;
+    typingUser.value = "";
+  });
+
+  messagesContainer.value?.addEventListener("scroll", () => {
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => {
+      if (!isCheckingUnread) {
+        isCheckingUnread = true;
+        checkUnreaded().finally(() => {
+          isCheckingUnread = false;
+        });
+      }
+    }, 200);
+  });
+
+  checkUnreaded();
+});
+
+onUnmounted(() => {
+  socket.off("typing");
+  socket.off("stopTyping");
+  messagesContainer.value?.removeEventListener("scroll", checkUnreaded);
 });
 </script>
 
@@ -109,9 +193,18 @@ const isFavorite = computed(() => {
         >
           {{ !isFavorite ? companion?.name : $t("savedMessages") }}
         </NuxtLink>
-        <p v-if="!isFavorite" class="text-sm text-gray-500 dark:text-gray-400">
+        <p
+          v-if="!isFavorite && (!typingUser || typingUser === $authStore.profile?.name)"
+          class="text-sm text-gray-500 dark:text-gray-400"
+        >
           {{ companion?.online ? $t("online") : $t("lastSeen") }}
           {{ !companion?.online ? formatRelativeTime(companion!.lastSeen, $i18n.locale) : "" }}
+        </p>
+        <p
+          v-else-if="!isFavorite && typingUser && typingUser !== $authStore.profile?.name"
+          class="typing-animation text-sm text-gray-500 dark:text-gray-400 flex items-center justify-center"
+        >
+          {{ typingUser }} {{ $t("isTyping") }}<span></span><span></span><span></span>
         </p>
       </span>
       <NuxtLink
@@ -131,9 +224,12 @@ const isFavorite = computed(() => {
     </div>
     <div ref="messagesContainer" class="flex-1 overflow-y-auto p-6 mt-14 sm:mt-0">
       <div
-        v-for="message in props.currentChat?.messages"
+        v-for="(message, index) in props.currentChat?.messages"
         :key="message.id"
-        class="flex items-start mb-1"
+        :data-id="message.id"
+        class="flex items-start mb-1 message"
+        :data-readed="message.isReaded"
+        :data-sender="message.senderId"
         :class="{
           'justify-end': message.senderId === $authStore.profile?.id,
           'justify-start': message.senderId !== $authStore.profile?.id,
@@ -142,31 +238,31 @@ const isFavorite = computed(() => {
         <div class="flex items-start">
           <div
             :class="{
-              'bg-[#F02C56] text-white rounded-tl-xl rounded-tr-xl rounded-bl-xl':
+              'bg-[#F02C56] text-white rounded-tl-xl rounded-tr-xl rounded-bl-xl pe-20':
                 message.senderId === $authStore.profile?.id,
-              'bg-gray-200 dark:bg-neutral-800 text-gray-900 dark:text-white rounded-tr-xl rounded-tl-xl rounded-br-xl':
+              'bg-gray-200 dark:bg-neutral-800 text-gray-900 dark:text-white rounded-tr-xl rounded-tl-xl rounded-br-xl pe-10':
                 message.senderId !== $authStore.profile?.id,
             }"
-            class="p-3 pe-10 max-w-xs w-fit break-all shadow-md min-w-20 relative"
+            class="p-3 max-w-xs w-fit break-all shadow-md min-w-20 relative"
           >
             <span>
               {{ message.text }}
             </span>
 
-            <span class="text-xs text-gray-300/60 dark:text-gray-400 absolute bottom-1 right-1">{{
-              new Date(message.createdAt).toLocaleTimeString("ru-RU", {
-                hour: "numeric",
-                minute: "numeric",
-              })
-            }}</span>
+            <div class="absolute bottom-1 right-1 flex items-center gap-1">
+              <span class="text-xs text-gray-300/60 dark:text-gray-400">{{
+                new Date(message.createdAt).toLocaleTimeString("ru-RU", {
+                  hour: "numeric",
+                  minute: "numeric",
+                })
+              }}</span>
+              <span v-if="message.senderId === $authStore.profile?.id">
+                <IconsRead v-if="message.isReaded" class="w-5 h-5" />
+                <IconsUnread v-else class="w-5 h-5" />
+              </span>
+            </div>
           </div>
         </div>
-      </div>
-      <div
-        v-if="typingUser && typingUser !== $authStore.profile?.name"
-        class="typing-animation mt-5"
-      >
-        {{ typingUser }} {{ $t("isTyping") }}<span></span><span></span><span></span>
       </div>
     </div>
 

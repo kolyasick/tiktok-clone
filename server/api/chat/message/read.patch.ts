@@ -1,12 +1,11 @@
 import prisma from "~/lib/prisma";
 
 interface IBody {
-  chatId: number;
-  text: string;
+  ids: number[];
   isReaded?: boolean;
 }
 export default defineEventHandler(async (event) => {
-  const { chatId, text, isReaded } = await readBody<IBody>(event);
+  const { ids, isReaded } = await readBody<IBody>(event);
 
   const { user } = await getUserSession(event);
 
@@ -17,24 +16,21 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  if (!chatId || !user.id || !text) {
+  if (!ids.length) {
     throw createError({
       statusCode: 400,
-      statusMessage: "Chat id, senderId and text required",
+      statusMessage: "Chat id required",
     });
   }
 
-  const message = await prisma.message.create({
+  await prisma.message.updateMany({
+    where: {
+      id: {
+        in: ids,
+      },
+    },
     data: {
-      chatId,
-      senderId: user.id,
-      text,
       isReaded,
     },
-    include: {
-      sender: true,
-    },
   });
-
-  return message;
 });

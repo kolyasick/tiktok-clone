@@ -58,16 +58,20 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
       io.emit("chatMessage", msg);
     });
 
+    socket.on("readMessages", (chatId: number, messageIds: number[]) => {
+      io.emit("readMessages", chatId, messageIds);
+    });
+
     socket.on("notification", (msg: Notification) => {
       io.emit("notification", msg);
     });
 
     socket.on("typing", (data: { name: string; chatId: string }) => {
-      io.to(data.chatId).emit("typing", data.name);
+      io.to(data.chatId).emit("typing", data);
     });
 
     socket.on("stopTyping", (chatId: string) => {
-      io.to(chatId).emit("stopTyping");
+      io.to(chatId).emit("stopTyping", chatId);
     });
 
     socket.on("chatOpen", (chat) => {
@@ -92,36 +96,6 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
         console.error("Failed to update online status:", error);
       }
     });
-
-    const interval = setInterval(async () => {
-      try {
-        const now = new Date();
-        const oneMinute = new Date(now.getTime() - 1 * 60 * 1000);
-
-        const users = await prisma.profile.findMany({
-          select: {
-            id: true,
-            online: true,
-            lastSeen: true,
-          },
-        });
-
-        for (const user of users) {
-          if (user.lastSeen < oneMinute) {
-            await prisma.profile.update({
-              where: { id: user.id },
-              data: { online: false },
-              select: {
-                online: true,
-              },
-            });
-            io.emit("offline", user.id);
-          }
-        }
-      } catch (error) {
-        console.error("Ошибка при обновлении статусов:", error);
-      }
-    }, 60000);
 
     socket.on("offline", async (userId: number) => {
       if (!userId) return;
@@ -156,7 +130,6 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
             },
           });
           io.emit("offline", userId);
-          clearInterval(interval);
         } catch (error) {
           console.error("Failed to update offline status on disconnect:", error);
         }
