@@ -91,7 +91,7 @@ const onVideoLoaded = () => {
 const addComment = (comment: IComment) => {
   if (!comment || props.video.commentsCount === undefined) return;
   props.video.commentsCount += 1;
-  console.log(comment);
+
   if (props.video.profileId !== $authStore.profile?.id) {
     socket.emit("notification", {
       to: props.video.profileId,

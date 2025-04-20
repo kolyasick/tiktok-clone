@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import type { IComment, IVideo } from "~/types/user.type";
+import type { IComment } from "~/types/user.type";
 import CommentItem from "./comments/CommentItem.vue";
 import CommentReplies from "./comments/CommentReplies.vue";
 import CommentForm from "./comments/CommentForm.vue";
-import { usePlural } from "~/composables/usePlural";
 
 const { $authStore, $generalStore } = useNuxtApp();
 const { plural } = usePlural();
@@ -18,30 +17,97 @@ type Props = {
 const props = defineProps<Props>();
 const emits = defineEmits(["close", "addComment"]);
 
-const isCimmentsLoading = ref(false);
+const hasMore = ref(true);
+const limit = ref(20);
+const offset = ref(0);
+const loadMore = ref<HTMLDivElement>();
+
+const isInitialLoading = ref(false);
+const isCommentsLoading = ref(false);
+const isLoadingMore = ref(false);
+
 const isFormLoading = ref(false);
 const comments = ref<IComment[]>([]);
 const openReplies = ref<Set<number>>(new Set());
 
+let observer = null as IntersectionObserver | null;
 const replyComment = ref<IComment>();
 const replyCommentDiscussionId = ref<number>();
 
-onMounted(async () => {
+const getComments = async (isInitialLoad = false) => {
+  if (
+    !hasMore.value || (isInitialLoad ? isInitialLoading.value : isLoadingMore.value)
+  )
+    return;
+
+  if (isInitialLoad) {
+    isInitialLoading.value = true;
+  } else {
+    isLoadingMore.value = true;
+  }
+
   try {
-    isCimmentsLoading.value = true;
-    const data = await $fetch<IComment[]>(`/api/video/${props.videoId}/comment`);
+    const data = await $fetch<IComment[]>(
+      `/api/video/${props.videoId}/comment`,
+      {
+        query: {
+          limit: limit.value,
+          offset: offset.value,
+        },
+      }
+    );
+
     if (data) {
-      comments.value = data.map((comment) => ({
-        ...comment,
-        liked: comment.likes?.some((like) => like.profileId === $authStore.profile?.id),
-        disliked: comment.dislikes?.some((like) => like.profileId === $authStore.profile?.id),
-      }));
+      comments.value = [
+        ...(isInitialLoad ? [] : comments.value),
+        ...data.map((comment) => ({
+          ...comment,
+          liked: comment.likes?.some(
+            (like) => like.profileId === $authStore.profile?.id
+          ),
+          disliked: comment.dislikes?.some(
+            (like) => like.profileId === $authStore.profile?.id
+          ),
+        })),
+      ];
+
+      offset.value += limit.value;
+      hasMore.value = data.length === limit.value;
     }
   } catch (e) {
     console.error(e);
   } finally {
-    isCimmentsLoading.value = false;
+    if (isInitialLoad) {
+      isInitialLoading.value = false;
+    } else {
+      isLoadingMore.value = false;
+    }
   }
+};
+
+onMounted(async () => {
+  await getComments(true);
+
+  if (!loadMore.value) return;
+
+  observer = new IntersectionObserver(
+    async (entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting && hasMore.value && !isLoadingMore.value) {
+          await getComments();
+        }
+      }
+    },
+    {
+      threshold: 0.1,
+    }
+  );
+
+  observer.observe(loadMore.value);
+});
+
+onUnmounted(() => {
+  observer?.disconnect();
 });
 
 const reply = (comment: IComment, discussionId: number) => {
@@ -182,7 +248,9 @@ const updateCommentReactions = (comment: IComment, reaction: number) => {
               updatedAt: new Date(),
             },
           ]
-        : comment.likes?.filter((like) => like.profileId !== $authStore.profile?.id),
+        : comment.likes?.filter(
+            (like) => like.profileId !== $authStore.profile?.id
+          ),
     dislikes:
       reaction === -1
         ? [
@@ -196,7 +264,9 @@ const updateCommentReactions = (comment: IComment, reaction: number) => {
               updatedAt: new Date(),
             },
           ]
-        : comment.dislikes?.filter((dislike) => dislike.profileId !== $authStore.profile?.id),
+        : comment.dislikes?.filter(
+            (dislike) => dislike.profileId !== $authStore.profile?.id
+          ),
   };
 
   if (reaction === 1) {
@@ -233,8 +303,12 @@ const toggleReplies = async (id: number) => {
             ...comment,
             replies: data.map((reply) => ({
               ...reply,
-              liked: reply.likes?.some((like) => like.profileId === $authStore.profile?.id),
-              disliked: reply.dislikes?.some((like) => like.profileId === $authStore.profile?.id),
+              liked: reply.likes?.some(
+                (like) => like.profileId === $authStore.profile?.id
+              ),
+              disliked: reply.dislikes?.some(
+                (like) => like.profileId === $authStore.profile?.id
+              ),
             })),
           };
         }
@@ -252,9 +326,17 @@ const getRepliesText = (count: number) => {
   const repliesCount = count || 0;
 
   if (locale.value === "ru") {
-    return plural(repliesCount, [t("replies.one"), t("replies.few"), t("replies.many")]);
+    return plural(repliesCount, [
+      t("replies.one"),
+      t("replies.few"),
+      t("replies.many"),
+    ]);
   } else {
-    return plural(repliesCount, [t("replies.one"), t("replies.many"), t("replies.many")]);
+    return plural(repliesCount, [
+      t("replies.one"),
+      t("replies.many"),
+      t("replies.many"),
+    ]);
   }
 };
 </script>
@@ -264,7 +346,9 @@ const getRepliesText = (count: number) => {
     id="commentsSection"
     class="overflow-y-scroll absolute rounded-xl bottom-0 h-4/5 max-w-full w-full z-20 bg-white dark:bg-neutral-900 border dark:border-neutral-800"
   >
-    <div class="px-4 py-2 border-b dark:border-neutral-800 flex items-center justify-between">
+    <div
+      class="px-4 py-2 border-b dark:border-neutral-800 flex items-center justify-between"
+    >
       <h2 class="xl:text-xl text-lg font-semibold dark:text-white">
         {{ $t("comments") }}
         <span class="text-gray-400 font-normal">
@@ -280,14 +364,21 @@ const getRepliesText = (count: number) => {
     </div>
 
     <div
-      v-if="isCimmentsLoading"
+      v-if="isCommentsLoading"
       class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
     >
       <IconsLoader class="w-20 h-20 animate-spin" />
     </div>
 
-    <div v-else class="p-4 overflow-y-auto h-[calc(100%-150px)]">
-      <div v-if="comments?.length === 0" class="text-center text-gray-500 dark:text-gray-400 mt-4">
+    <div
+      v-else
+      class="p-4 overflow-y-auto"
+      :class="$authStore.profile ? 'h-[calc(100%-130px)]' : ''"
+    >
+      <div
+        v-if="comments?.length === 0"
+        class="text-center text-gray-500 dark:text-gray-400 mt-4"
+      >
         {{ $t("noComments") }}
       </div>
       <div v-else class="space-y-4">
@@ -313,7 +404,11 @@ const getRepliesText = (count: number) => {
                   {{ comment.repliesCount || comment.replies?.length || 0 }}
                 </span>
                 <span class="text-sm font-semibold dark:text-gray-300">
-                  {{ getRepliesText(comment.repliesCount || comment.replies?.length || 0) }}
+                  {{
+                    getRepliesText(
+                      comment.repliesCount || comment.replies?.length || 0
+                    )
+                  }}
                 </span>
               </button>
             </template>
@@ -327,6 +422,9 @@ const getRepliesText = (count: number) => {
             @dislike="dislikeComment"
             @reply="reply"
           />
+        </div>
+        <div ref="loadMore" class="w-full flex justify-center items-center">
+          <IconsLoader v-if="isLoadingMore" class="w-10 h-10 animate-spin" />
         </div>
       </div>
     </div>

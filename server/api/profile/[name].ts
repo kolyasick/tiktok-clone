@@ -15,8 +15,22 @@ export default defineEventHandler(async (event) => {
       name,
     },
     include: {
-      followsAsFollower: true,
-      followsAsFollowing: true,
+      followsAsFollower: {
+        omit: {
+          updatedAt: true,
+          createdAt: true,
+        },
+      },
+      followsAsFollowing: {
+        omit: {
+          updatedAt: true,
+          createdAt: true,
+        },
+      },
+    },
+    omit: {
+      updatedAt: true,
+      userId: true,
     },
   });
 
@@ -31,11 +45,17 @@ export default defineEventHandler(async (event) => {
     ...profile,
     following: [
       ...profile.followsAsFollower.filter((f) => f.isFollowing),
-      ...profile.followsAsFollowing.filter((f) => f.isFollowing && f.status === "accepted"),
+      ...profile.followsAsFollowing.filter(
+        (f) => f.isFollowing && f.status === "accepted"
+      ),
     ],
     followers: [
-      ...profile.followsAsFollowing.filter((f) => f.isFollowing && f.status !== "rejected"),
-      ...profile.followsAsFollower.filter((f) => f.isFollowing && f.status === "accepted"),
+      ...profile.followsAsFollowing.filter(
+        (f) => f.isFollowing && f.status !== "rejected"
+      ),
+      ...profile.followsAsFollower.filter(
+        (f) => f.isFollowing && f.status === "accepted"
+      ),
     ],
   };
 

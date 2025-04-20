@@ -8,7 +8,7 @@ datasource db {
 }
 
 model User {
-  id       Int      @id @default(autoincrement())
+  id       Int      @id @default(autoincrement()) 
   email    String   @unique
   password String
   verified Boolean @default(false)
@@ -24,6 +24,8 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([id])
 }
 
 model ActivationLink {
@@ -31,6 +33,8 @@ model ActivationLink {
   link  String @unique
   userId Int @unique
   user   User  @relation(fields: [userId], references: [id])
+
+  @@index([userId])
 }
 
 model Block {
@@ -44,6 +48,8 @@ model Block {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model Profile {
@@ -70,12 +76,17 @@ model Profile {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([name])
+  @@index([userId])
 }
 
 model Role {
   id      Int    @id @default(autoincrement())
   title   String  @unique
   User    User[]
+
+  @@index([title])
 }
 
 model Video {
@@ -97,12 +108,16 @@ model Video {
  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  @@index([id])
+  @@index([randomSort])
 }
 
 model Status {
   id      Int       @id @default(autoincrement())
   title   String    @unique 
   Video   Video[]
+
+  @@index([title])
 }
 
 model Like {
@@ -116,6 +131,7 @@ model Like {
   updatedAt DateTime @updatedAt
 
   @@unique([profileId, videoId])
+  @@index([videoId])
 }
 
 model CommentLike {
@@ -177,6 +193,8 @@ model Follows {
 
   @@unique([userId, friendId]) 
   @@unique([friendId, userId])
+  @@index([userId])
+  @@index([friendId])
 }
 
 model Chat {
@@ -192,6 +210,8 @@ model Chat {
   messages  Message[]
 
   @@unique([user1Id, user2Id])
+  @@index([user1Id])
+  @@index([user2Id])
 }
 
 model Message {
@@ -205,4 +225,5 @@ model Message {
 
   chat      Chat     @relation(fields: [chatId], references: [id])
   sender    Profile     @relation(fields: [senderId], references: [id])
+  @@index([chatId])
 }

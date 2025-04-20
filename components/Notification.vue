@@ -4,7 +4,7 @@ const { notifications, removeNotification } = useNotification();
 
 <template>
   <div
-    class="fixed z-50 space-y-2 top-16 xl:right-8 right-4 inline-flex flex-col items-end gap-2 w-full"
+    class="fixed z-50 space-y-2 top-16 xl:right-8 right-4 inline-flex flex-col items-end gap-2"
   >
     <TransitionGroup name="notification">
       <div

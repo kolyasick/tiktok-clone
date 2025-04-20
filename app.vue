@@ -128,7 +128,7 @@ onMounted(async () => {
 
           sender: data.sender,
           messageType: data.messageType,
-          duration: null,
+          duration: 5000,
           type: "info",
         });
       }

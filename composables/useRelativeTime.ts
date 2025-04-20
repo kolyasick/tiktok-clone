@@ -5,9 +5,12 @@ export function useRelativeTime(dateInput: string | Date, lang: string = "ru") {
   const formattedDate = ref("");
 
   const updateTime = () => {
-    const date = typeof dateInput === "string" ? new Date(dateInput) : dateInput;
+    const date =
+      typeof dateInput === "string" ? new Date(dateInput) : dateInput;
     const now = new Date();
-    const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+    const diffInDays = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24)
+    );
 
     if (diffInDays <= 7) {
       formattedDate.value = formatDistanceToNow(date, {
@@ -22,8 +25,6 @@ export function useRelativeTime(dateInput: string | Date, lang: string = "ru") {
   updateTime();
 
   const intervalId = setInterval(updateTime, 60000);
-
-  onUnmounted(() => clearInterval(intervalId));
 
   return formattedDate.value;
 }

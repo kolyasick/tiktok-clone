@@ -7,9 +7,27 @@ export default defineEventHandler(async (event) => {
     where: {
       videoId: id,
     },
-    include: {
-      profile: true,
-      likes: true,
+
+    select: {
+      profile: {
+        select: {
+          avatar: true,
+          name: true,
+        },
+      },
+      likes: {
+        select: {
+          profileId: true,
+          createdAt: true,
+          reaction: true,
+          commentDislike: {
+            select: {
+              profileId: true,
+              createdAt: true,
+            },
+          },
+        },
+      },
     },
     take: 50,
   });

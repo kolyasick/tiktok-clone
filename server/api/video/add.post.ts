@@ -35,19 +35,24 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    // name: "IMG_3207.MP4"
-    const fileData = body.file.content as string;
-    const base64Data = fileData.replace(/^data:video\/mp4;base64,/, "");
-    const buffer = Buffer.from(base64Data, "base64");
+    let file;
+    if (Number(body.file.size) > 50000000) {
+      const fileData = body.file.content as string;
+      const base64Data = fileData.replace(/^data:video\/mp4;base64,/, "");
+      const buffer = Buffer.from(base64Data, "base64");
 
-    const compressedBuffer = await compressVideo(buffer);
+      const compressedBuffer = await compressVideo(buffer);
 
-    const compressedFile = {
-      ...body.file,
-      content: `data:video/mp4;base64,${compressedBuffer.toString("base64")}`,
-    };
+      const compressedFile = {
+        ...body.file,
+        content: `data:video/mp4;base64,${compressedBuffer.toString("base64")}`,
+      };
 
-    const file = await storeFileLocally(compressedFile, 6, "/videos");
+      file = await storeFileLocally(compressedFile, 6, "/videos");
+    } else {
+      file = await storeFileLocally(body.file, 6, "/videos");
+    }
+
     const status = await prisma.status.findFirst({
       where: {
         title: "new",

@@ -2,22 +2,49 @@ import prisma from "~/lib/prisma";
 
 export default defineEventHandler(async (event) => {
   const { id } = event.context.params as { id: string };
+  const { limit, offset } = getQuery<{ limit: string; offset: string }>(event);
 
   const comments = await prisma.comment.findMany({
     where: {
       videoId: id,
       parentId: null,
     },
-    include: {
-      profile: true,
-      likes: true,
+    // include: {
+    //   profile: true,
+    //   likes: true,
+    //   _count: {
+    //     select: {
+    //       discussionReplies: true,
+    //     },
+    //   },
+    // },
+    select: {
+      createdAt: true,
+      text: true,
+      id: true,
+      profile: {
+        select: {
+          name: true,
+          avatar: true,
+        },
+      },
+      likes: {
+        select: {
+          profileId: true,
+          reaction: true,
+        },
+      },
       _count: {
         select: {
           discussionReplies: true,
         },
       },
     },
-    take: 50,
+    skip: Number(offset),
+    take: Number(limit),
+    orderBy: {
+      createdAt: "asc",
+    },
   });
 
   return comments.map((c) => {

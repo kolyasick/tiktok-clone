@@ -23,6 +23,11 @@ export default defineEventHandler(async (event) => {
         },
       },
     },
+    select: {
+      title: true,
+      url: true,
+      id: true,
+    },
   });
 
   return videos ?? [];

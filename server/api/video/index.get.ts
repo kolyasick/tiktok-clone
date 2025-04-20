@@ -38,10 +38,15 @@ export default defineEventHandler(async (event) => {
     skip: Number(offset),
     take: Number(limit),
     include: {
-      profile: true,
+      profile: {
+        select: {
+          name: true,
+          avatar: true,
+        },
+      },
       likes: {
-        include: {
-          profile: true,
+        select: {
+          profileId: true,
         },
       },
       _count: {
@@ -52,6 +57,15 @@ export default defineEventHandler(async (event) => {
     },
     orderBy: {
       randomSort: "desc",
+    },
+    omit: {
+      blockReason: true,
+      createdAt: true,
+      isBlocked: true,
+      randomSort: true,
+      statusId: true,
+      profileId: true,
+      updatedAt: true,
     },
   });
 

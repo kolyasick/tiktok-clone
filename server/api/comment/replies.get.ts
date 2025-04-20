@@ -7,9 +7,22 @@ export default defineEventHandler(async (event) => {
     where: {
       discussionId: parseInt(id),
     },
-    include: {
-      profile: true,
-      likes: true,
+    select: {
+      createdAt: true,
+      text: true,
+      id: true,
+      profile: {
+        select: {
+          name: true,
+          avatar: true,
+        },
+      },
+      likes: {
+        select: {
+          profileId: true,
+          reaction: true,
+        },
+      },
     },
   });
 

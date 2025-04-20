@@ -43,6 +43,7 @@ export const useVideosStore = defineStore("general", {
         } else {
           this.hasMore = false;
         }
+
       } catch (error) {
         console.error("Failed to fetch videos:", error);
       } finally {

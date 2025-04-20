@@ -15,13 +15,31 @@ export default defineEventHandler(async (event) => {
       id,
     },
     include: {
-      profile: true,
-      likes: true,
+      profile: {
+        select: {
+          name: true,
+          avatar: true,
+        },
+      },
+      likes: {
+        select: {
+          profileId: true,
+        },
+      },
       _count: {
         select: {
           comments: true,
         },
       },
+    },
+    omit: {
+      blockReason: true,
+      createdAt: true,
+      isBlocked: true,
+      randomSort: true,
+      statusId: true,
+      profileId: true,
+      updatedAt: true,
     },
   });
 
