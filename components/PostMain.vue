@@ -9,6 +9,7 @@ type Props = {
   video: IVideo;
 };
 const props = defineProps<Props>();
+const emits = defineEmits(["toggleComments"]);
 
 let videoplay = ref<HTMLVideoElement | null>(null);
 let videoContainer = ref(null);
@@ -65,10 +66,12 @@ const shareVideo = async (video: IVideo) => {
 
 const toggleComments = () => {
   isCommentsVisible.value = !isCommentsVisible.value;
+  emits("toggleComments");
 };
 
 const closeComments = () => {
   isCommentsVisible.value = false;
+  emits("toggleComments");
 };
 
 onMounted(() => {
@@ -118,7 +121,8 @@ const isFollowed = (userId: number) => {
   return computed(() => {
     return $authStore.followers.some(
       (follower) =>
-        (follower.userId === userId || follower.friendId === userId) && follower.isFollowing
+        (follower.userId === userId || follower.friendId === userId) &&
+        follower.isFollowing
     );
   });
 };
@@ -133,7 +137,10 @@ const handleFollow = async () => {
     return;
   }
   try {
-    await $profileStore.handleFriendAction("add", props.video.profile as IProfile);
+    await $profileStore.handleFriendAction(
+      "add",
+      props.video.profile as IProfile
+    );
     if (props.video.profileId !== $authStore.profile?.id) {
       socket.emit("notification", {
         to: props.video.profileId,
@@ -298,7 +305,10 @@ const openFullscreen = () => {
           @click="shareVideo(video)"
           class="rounded-full flex items-center justify-center cursor-pointer aspect-square w-8"
         >
-          <IconsShare style="filter: drop-shadow(0px 0px 1px black)" class="w-full aspect-square" />
+          <IconsShare
+            style="filter: drop-shadow(0px 0px 1px black)"
+            class="w-full aspect-square"
+          />
         </button>
       </div>
 

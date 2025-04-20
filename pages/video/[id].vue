@@ -12,6 +12,7 @@ definePageMeta({
 const scrollContainer = ref<HTMLElement | null>(null);
 const currentVideoIndex = ref(0);
 const route = useRoute();
+const isCommentsVisible = ref(false);
 
 let isScrolling = false;
 let scrollTimeout: NodeJS.Timeout | null = null;
@@ -61,23 +62,23 @@ if (data.value) {
   }, 100);
 }
 
+const toggleComments = () => {
+  isCommentsVisible.value = !isCommentsVisible.value;
+  document.body.style.overflow = isCommentsVisible.value ? "hidden" : "";
+};
+
 let startY: number = 0;
 let isTouchScrolling: boolean = false;
 
 const handleTouchStart = (e: TouchEvent) => {
-  const commentsSection = document.getElementById("commentsSection");
-  if (commentsSection && commentsSection.contains(e.target as Node)) {
-    return;
-  }
+  if (isCommentsVisible.value) return;
   startY = e.touches[0].clientY;
   isTouchScrolling = true;
 };
 
 const handleScroll = async (e: WheelEvent) => {
-  const commentsSection = document.getElementById("commentsSection");
-  if (commentsSection && commentsSection.contains(e.target as Node)) {
-    return;
-  }
+  if (isCommentsVisible.value) return;
+
   e.preventDefault();
   if (isScrolling) return;
   isScrolling = true;
@@ -125,12 +126,15 @@ const handleScroll = async (e: WheelEvent) => {
 };
 
 const handleTouchMove = async (e: TouchEvent) => {
+  if (isCommentsVisible.value) return;
   if (!isTouchScrolling) return;
 
-  const commentsSection = document.getElementById("commentsSection");
-  if (commentsSection && commentsSection.contains(e.target as Node)) {
-    return;
-  }
+  const commentsSection = document.querySelectorAll("#commentsSection");
+  commentsSection.forEach((comment) => {
+    if (comment && comment.contains(e.target as Node)) {
+      return;
+    }
+  });
 
   e.preventDefault();
   if (isScrolling) return;
@@ -199,9 +203,10 @@ onUnmounted(() => {
 
 <template>
   <div
+    :class="isCommentsVisible ? 'overflow-y-hidden' : 'overflow-y-scroll'"
     ref="scrollContainer"
     style="scrollbar-width: none"
-    class="h-[calc(100dvh+40px)] overflow-y-scroll snap-y snap-mandatory w-full"
+    class="h-[calc(100dvh+40px)] snap-y snap-mandatory w-full"
   >
     <div
       v-for="(video, index) in $videosStore.videos"
@@ -209,7 +214,7 @@ onUnmounted(() => {
       :key="video.id"
       class="w-full snap-start flex items-center justify-center last:mb-8"
     >
-      <PostMain class="mt-8" :video="video" />
+      <PostMain class="mt-8" :video="video" @toggle-comments="toggleComments" />
     </div>
     <div
       v-if="$videosStore.isLoading"
