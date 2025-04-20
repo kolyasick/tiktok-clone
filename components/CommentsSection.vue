@@ -36,7 +36,8 @@ const replyCommentDiscussionId = ref<number>();
 
 const getComments = async (isInitialLoad = false) => {
   if (
-    !hasMore.value || (isInitialLoad ? isInitialLoading.value : isLoadingMore.value)
+    !hasMore.value ||
+    (isInitialLoad ? isInitialLoading.value : isLoadingMore.value)
   )
     return;
 
@@ -373,7 +374,7 @@ const getRepliesText = (count: number) => {
     <div
       v-else
       class="p-4 overflow-y-auto"
-      :class="$authStore.profile ? 'h-[calc(100%-130px)]' : 'h-full'"
+      :class="$authStore.profile ? 'h-[calc(100%-130px)]' : 'h-[calc(100%-20px)]'"
     >
       <div
         v-if="comments?.length === 0"
@@ -423,7 +424,10 @@ const getRepliesText = (count: number) => {
             @reply="reply"
           />
         </div>
-        <div ref="loadMore" class="w-full flex justify-center items-center">
+        <div
+          ref="loadMore"
+          class="w-full flex justify-center items-center"
+        >
           <IconsLoader v-if="isLoadingMore" class="w-10 h-10 animate-spin" />
         </div>
       </div>

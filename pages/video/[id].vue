@@ -201,7 +201,7 @@ onUnmounted(() => {
   <div
     ref="scrollContainer"
     style="scrollbar-width: none"
-    class="h-[calc(100dvh+40px)] overflow-y-scroll snap-y scroll-pt-0 snap-mandatory w-full"
+    class="h-[calc(100dvh+40px)] overflow-y-scroll snap-y snap-mandatory w-full"
   >
     <div
       v-for="(video, index) in $videosStore.videos"
