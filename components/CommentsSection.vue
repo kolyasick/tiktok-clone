@@ -373,7 +373,7 @@ const getRepliesText = (count: number) => {
     <div
       v-else
       class="p-4 overflow-y-auto"
-      :class="$authStore.profile ? 'h-[calc(100%-130px)]' : ''"
+      :class="$authStore.profile ? 'h-[calc(100%-130px)]' : 'h-full'"
     >
       <div
         v-if="comments?.length === 0"
