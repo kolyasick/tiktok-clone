@@ -183,7 +183,7 @@ onUnmounted(() => {
 <template>
   <div>
     <TopNav />
-    <div class="container flex h-[calc(100dvh-61px)]">
+    <div class="container flex h-[calc(100vh-61px)]">
       <div class="w-full lg:w-1/4 dark:bg-neutral-800 bg-gray-100 relative mr-[1px]">
         <form class="flex justify-center items-center h-[64px] mx-4">
           <input
