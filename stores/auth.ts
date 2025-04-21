@@ -17,6 +17,11 @@ export const useAuthStore = defineStore("auth", {
     status: "offline" as string,
     message: null as string | null,
     followers: [] as Follows[],
+    confirmationCredentials: null as null | {
+      name: string;
+      email: string;
+      password: string;
+    },
   }),
   actions: {
     clearErrors() {
@@ -45,13 +50,12 @@ export const useAuthStore = defineStore("auth", {
           body: { name, email, password },
         });
 
-        this.$patch({ message: response });
-
-        try {
-          await useUserSession().fetch();
-        } catch (sessionError) {
-          console.error("Session fetch error:", sessionError);
-          this.errors.other = "Failed to update session after registration";
+        if (response === "OK") {
+          this.confirmationCredentials = {
+            email,
+            password,
+            name,
+          };
         }
       } catch (error: any) {
         console.error("Registration error:", error);
@@ -114,9 +118,14 @@ export const useAuthStore = defineStore("auth", {
 
     async logout() {
       const localePath = useLocalePath();
-      await useUserSession().clear();
-      await navigateTo(localePath("/"));
-      this.$patch({ profile: null });
+      try {
+        await useUserSession().clear();
+        await $fetch("/api/auth/logout");
+        this.$patch({ profile: null });
+        await navigateTo(localePath("/"));
+      } catch (error) {
+        console.error("Logout error:", error);
+      }
     },
   },
 });

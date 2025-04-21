@@ -104,6 +104,14 @@
     "login": "You've successfully logged in"
   },
 
+  "emailConfirmation": {
+    "title": "Verification Code",
+    "descr": "Enter the 4-digit code sent to your email",
+    "confirm": "Confirm",
+    "resend": "Send a new code",
+    "resendCountdown": "Resend in {seconds}s"
+  },
+
   "copyVideo": "Video link copied to clipboard",
 
   "notification": {

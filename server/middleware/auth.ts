@@ -4,8 +4,7 @@ export default defineEventHandler(async (event) => {
   if (
     event.method !== "GET" &&
     path.startsWith("/api") &&
-    path !== "/api/auth/login" &&
-    path !== "/api/auth/register"
+    !path.startsWith("/api/auth") 
   ) {
     await requireUserSession(event);
   }

@@ -20,6 +20,10 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  const code = Math.floor(Math.random() * 10000)
+    .toString()
+    .padStart(4, "0");
+
   validateName(name);
   validateEmail(email);
   validatePassword(password);
@@ -48,36 +52,30 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const hashedPassword = await hashPassword(password);
-
-  const user = await prisma.user.create({
-    data: {
+  const activationCode = await prisma.activationCode.findUnique({
+    where: {
       email,
-      password: hashedPassword,
-      role: {
-        connect: {
-          title: "user",
-        },
+    },
+  });
+
+  if (!activationCode) {
+    await prisma.activationCode.create({
+      data: {
+        email,
+        code,
       },
-    },
-    include: {
-      role: true,
-    },
-  });
-
-  const profile = await prisma.profile.create({
-    data: {
-      name,
-      userId: user.id,
-    },
-  });
-
-  if (!profile) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: "Something went wrong",
+    });
+  } else {
+    await prisma.activationCode.update({
+      where: {
+        email,
+      },
+      data: {
+        code,
+        createdAt: new Date(),
+      },
     });
   }
 
-  return mail(user);
+  return mail(email, code);
 });

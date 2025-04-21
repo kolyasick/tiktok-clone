@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const { $generalStore, $authStore } = useNuxtApp();
+
 let isRegister = ref(true);
 
 const switchForm = () => {
@@ -10,6 +11,7 @@ const switchForm = () => {
 const closeModal = () => {
   $generalStore.bodySwitch(false);
   $authStore.clearErrors();
+  $authStore.confirmationCredentials = null;
   $generalStore.isLoginOpen = false;
 };
 </script>
@@ -34,23 +36,31 @@ const closeModal = () => {
       </div>
 
       <Transition name="form-switch" mode="out-in">
-        <Login @close-modal="closeModal" v-if="isRegister" key="login" />
-        <Register @close-modal="closeModal" v-else key="register" />
+        <AuthLogin
+          @close-modal="closeModal"
+          v-if="isRegister && !$authStore.confirmationCredentials"
+          key="login"
+        />
+        <AuthRegister
+          @close-modal="closeModal"
+          v-else-if="!$authStore.confirmationCredentials && !isRegister"
+          key="register"
+        />
+        <AuthEmailActivation v-else />
       </Transition>
 
-      <Transition name="form-switch" mode="out-in">
-        <div
-          class="absolute flex items-center justify-center py-5 left-0 bottom-0 border-t border-gray-200 dark:border-[#ebebeb6c] w-full"
-        >
-          <span class="text-[14px] text-gray-500">{{
-            isRegister ? $t('haveAcc')  :  $t('dHaveAcc')
-          }}</span>
-          <button @click="switchForm" class="text-[14px] text-[#F02C56] font-semibold pl-1">
-            <span v-if="isRegister">{{ $t('register') }}</span>
-            <span v-else>{{ $t('login') }}</span>
-          </button>
-        </div>
-      </Transition>
+      <div
+        v-if="!$authStore.confirmationCredentials"
+        class="absolute flex items-center justify-center py-5 left-0 bottom-0 border-t border-gray-200 dark:border-neutral-800 w-full"
+      >
+        <span class="text-[14px] text-gray-500">{{
+          isRegister ? $t("haveAcc") : $t("dHaveAcc")
+        }}</span>
+        <button @click="switchForm" class="text-[14px] text-[#F02C56] font-semibold pl-1">
+          <span v-if="isRegister">{{ $t("register") }}</span>
+          <span v-else>{{ $t("login") }}</span>
+        </button>
+      </div>
     </div>
   </Transition>
 </template>
