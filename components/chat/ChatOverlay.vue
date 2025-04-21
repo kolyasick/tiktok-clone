@@ -47,7 +47,7 @@ watch(
   () => [props.currentChat?.messages],
   async () => {
     await nextTick();
-    await checkUnreaded();
+    // await checkUnreaded();
   },
   { deep: true }
 );
