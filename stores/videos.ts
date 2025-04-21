@@ -57,6 +57,7 @@ export const useVideosStore = defineStore("general", {
 
       if (!$authStore.profile) {
         $generalStore.isLoginOpen = true;
+        $generalStore.bodySwitch(true);
         return;
       }
 

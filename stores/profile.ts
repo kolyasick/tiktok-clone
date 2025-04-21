@@ -16,6 +16,7 @@ export const useProfileStore = defineStore("profile", {
 
       if (!$authStore.profile) {
         $generalStore.isLoginOpen = true;
+        $generalStore.bodySwitch(true);
         return;
       }
 
@@ -31,7 +32,9 @@ export const useProfileStore = defineStore("profile", {
           });
 
           this.friend = res;
-          const index = profile.followers?.findIndex((f) => f.userId === userId || f.friendId === userId);
+          const index = profile.followers?.findIndex(
+            (f) => f.userId === userId || f.friendId === userId
+          );
 
           if (index !== undefined && index !== -1) {
             profile.followers?.splice(index, 1);

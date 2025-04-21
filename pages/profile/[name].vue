@@ -68,6 +68,7 @@ await loadData();
 const chatOpen = async () => {
   if (!$authStore.profile) {
     $generalStore.isLoginOpen = true;
+    $generalStore.bodySwitch(true);
     return;
   }
   const chat = await $fetch<IChat>("/api/chat/open", {
