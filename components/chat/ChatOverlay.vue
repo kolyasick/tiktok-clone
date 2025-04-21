@@ -135,10 +135,16 @@ const isLoadingMore = ref(false);
 const loadMore = ref<HTMLDivElement>();
 
 const loadMoreMessages = async () => {
-  if (!hasMore.value) return;
+  if (!hasMore.value || isLoadingMore.value) return;
 
   try {
     isLoadingMore.value = true;
+
+    const container = messagesContainer.value;
+    if (!container) return;
+
+    const scrollTopBefore = container.scrollTop;
+    const scrollHeightBefore = container.scrollHeight;
 
     const messages = await $fetch<IMessage[]>(`/api/chat/${props.currentChat.id}/messages`, {
       query: {
@@ -151,6 +157,11 @@ const loadMoreMessages = async () => {
       props.currentChat.messages.unshift(...messages.reverse());
       offset.value += limit.value;
       hasMore.value = messages.length === limit.value;
+
+      await nextTick();
+
+      const scrollHeightAfter = container.scrollHeight;
+      container.scrollTop = scrollTopBefore + (scrollHeightAfter - scrollHeightBefore);
     }
   } catch (error) {
     console.log(error);
