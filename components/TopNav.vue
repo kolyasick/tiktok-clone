@@ -71,7 +71,7 @@ const toggleTheme = () => {
       <div class="flex items-center justify-end gap-3 max-w-[350px] w-full">
         <button
           @click="isLoggedIn()"
-          class="flex items-center transition bg-gray-200 dark:bg-neutral-800 rounded-md px-3 sm:h-9 h-8 hover:bg-gray-300 dark:hover:bg-neutral-800"
+          class="flex items-center transition bg-gray-200 dark:bg-neutral-800 rounded-md px-3 sm:h-9 h-8 hover:bg-gray-300 dark:hover:bg-neutral-700"
         >
           <IconsPlus class="w-5 h-5" />
           <span class="px-2 font-medium text-[15px] max-[400px]:hidden">{{
@@ -188,7 +188,7 @@ const toggleTheme = () => {
                   <span class="font-medium">{{ $t("theme") }}</span>
                   <button
                     @click="toggleTheme"
-                    class="flex items-center gap-2 p-2 rounded-md hover:bg-gray-200 dark:hover:bg-neutral-700"
+                    class="flex items-center gap-2 p-2 rounded-md hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors"
                   >
                     <ThemeSwitcher />
                     <span>{{

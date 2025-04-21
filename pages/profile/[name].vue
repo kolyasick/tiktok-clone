@@ -176,7 +176,7 @@ useSeoMeta({
               <button
                 v-else-if="isUnfollowButtonShow"
                 @click="handleFollow('unfollow', profile)"
-                class="flex items-center rounded-md h-8 md:h-9 px-3 mt-3 text-black font-semibold bg-white hover:bg-gray-400"
+                class="flex items-center rounded-md h-8 md:h-9 px-3 mt-3 text-black font-medium bg-white hover:bg-gray-300 transition-colors hover:border-gray-300 border border-gray-200"
               >
                 <IconsLoader
                   class="w-6 aspect-square animate-spin"
@@ -199,9 +199,9 @@ useSeoMeta({
 
               <button
                 @click="chatOpen"
-                class="flex items-center rounded-md h-8 md:h-9 px-5 mt-3 md:text-[15px] text-[13px] text-white font-semibold bg-gray-400 dark:bg-[#666666] hover:bg-gray-500 dark:hover:bg-[#555555]"
+                class="flex items-center rounded-md h-8 md:h-9 px-3 mt-3 md:text-[15px] text-[13px] text-white font-semibold bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-800 hover:bg-gray-200 dark:hover:bg-neutral-700 dark:hover:border-neutral-700 transition-colors"
               >
-                {{ $t("chat") }}
+                <IconsSend class="w-6 h-6 text-black dark:text-white" />
               </button>
             </template>
           </div>
