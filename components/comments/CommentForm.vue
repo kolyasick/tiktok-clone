@@ -11,6 +11,7 @@ const props = defineProps<{
   isFormLoading: boolean;
   replyComment?: IComment;
   discussionId?: number;
+  isAdding: boolean;
 }>();
 
 const emits = defineEmits(["submit", "removeReply"]);
@@ -49,7 +50,6 @@ const removeTag = () => {
   tagName.value = "";
   emits("removeReply");
 };
-
 </script>
 
 <template>
@@ -110,8 +110,9 @@ const removeTag = () => {
           ref="commentInput"
           v-model="commentText"
           type="text"
+          :disabled="isAdding"
           :placeholder="$t(showTag ? 'reply' : 'addComment')"
-          class="w-full px-4 py-2 rounded-md bg-gray-100 dark:bg-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#F02C56]"
+          class="w-full px-4 py-2 rounded-md bg-gray-100 dark:bg-neutral-800 dark:text-white transition focus:outline-none focus:ring-2 focus:ring-[#F02C56] disabled:opacity-40"
         />
       </div>
     </form>

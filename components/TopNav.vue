@@ -45,7 +45,7 @@ const toggleTheme = () => {
 <template>
   <div
     id="TopNav"
-    class="sticky top-0 bg-light dark:bg-dark z-30 flex items-center w-full h-[61px] border-b border-gray-200 dark:border-[#ebebeb6c]"
+    class="sticky top-0 bg-light dark:bg-dark z-30 flex items-center w-full h-[61px] border-b border-gray-200 dark:border-neutral-800"
   >
     <div class="flex items-center justify-between container gap-2">
       <NuxtLink class="flex items-center gap-1" :to="$localePath('index')">

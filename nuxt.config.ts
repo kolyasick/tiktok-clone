@@ -17,7 +17,9 @@ export default defineNuxtConfig({
     "@nuxtjs/google-fonts",
     "@nuxtjs/color-mode",
     "@nuxtjs/i18n",
+    "nuxt-security",
   ],
+
   i18n: {
     defaultLocale: "ru",
     locales: [
@@ -78,7 +80,53 @@ export default defineNuxtConfig({
   routeRules: {
     "/admin/*": { ssr: false },
     "/api/**": { cors: true },
+    "/api/video/like": {
+      security: {
+        rateLimiter: {
+          headers: true,
+          tokensPerInterval: 5,
+          interval: 3000,
+        },
+      },
+    },
+    "/api/comment/:id/like": {
+      security: {
+        rateLimiter: {
+          headers: true,
+          tokensPerInterval: 5,
+          interval: 3000,
+        },
+      },
+    },
+    "/api/comment/add": {
+      security: {
+        rateLimiter: {
+          headers: true,
+          tokensPerInterval: 5,
+          interval: 3000,
+        },
+      },
+    },
+    "/api/chat/message/create": {
+      security: {
+        rateLimiter: {
+          headers: true,
+          tokensPerInterval: 5,
+          interval: 3000,
+        },
+      },
+    },
+    "/api/auth/login": {
+      security: {
+        rateLimiter: {
+          headers: true,
+          tokensPerInterval: 10,
+          interval: 60000,
+        },
+      },
+    },
   },
+
   app: {
     head: {
       // meta: [

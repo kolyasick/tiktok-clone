@@ -35,11 +35,7 @@ const replyComment = ref<IComment>();
 const replyCommentDiscussionId = ref<number>();
 
 const getComments = async (isInitialLoad = false) => {
-  if (
-    !hasMore.value ||
-    (isInitialLoad ? isInitialLoading.value : isLoadingMore.value)
-  )
-    return;
+  if (!hasMore.value || (isInitialLoad ? isInitialLoading.value : isLoadingMore.value)) return;
 
   if (isInitialLoad) {
     isInitialLoading.value = true;
@@ -48,27 +44,20 @@ const getComments = async (isInitialLoad = false) => {
   }
 
   try {
-    const data = await $fetch<IComment[]>(
-      `/api/video/${props.videoId}/comment`,
-      {
-        query: {
-          limit: limit.value,
-          offset: offset.value,
-        },
-      }
-    );
+    const data = await $fetch<IComment[]>(`/api/video/${props.videoId}/comment`, {
+      query: {
+        limit: limit.value,
+        offset: offset.value,
+      },
+    });
 
     if (data.length) {
       comments.value = [
         ...(isInitialLoad ? [] : comments.value),
         ...data.map((comment) => ({
           ...comment,
-          liked: comment.likes?.some(
-            (like) => like.profileId === $authStore.profile?.id
-          ),
-          disliked: comment.dislikes?.some(
-            (like) => like.profileId === $authStore.profile?.id
-          ),
+          liked: comment.likes?.some((like) => like.profileId === $authStore.profile?.id),
+          disliked: comment.dislikes?.some((like) => like.profileId === $authStore.profile?.id),
         })),
       ];
 
@@ -121,7 +110,10 @@ const reply = (comment: IComment, discussionId: number) => {
   replyCommentDiscussionId.value = discussionId;
 };
 
+const isAdding = ref(false);
+
 const addComment = async (text: string, commentId?: number) => {
+  isAdding.value = true;
   try {
     isFormLoading.value = true;
     const comment = await $fetch<IComment>("/api/comment/add", {
@@ -152,6 +144,10 @@ const addComment = async (text: string, commentId?: number) => {
     console.error("Error adding comment:", error);
   } finally {
     isFormLoading.value = false;
+
+    setTimeout(() => {
+      isAdding.value = false;
+    }, 200);
   }
 };
 
@@ -249,9 +245,7 @@ const updateCommentReactions = (comment: IComment, reaction: number) => {
               updatedAt: new Date(),
             },
           ]
-        : comment.likes?.filter(
-            (like) => like.profileId !== $authStore.profile?.id
-          ),
+        : comment.likes?.filter((like) => like.profileId !== $authStore.profile?.id),
     dislikes:
       reaction === -1
         ? [
@@ -265,9 +259,7 @@ const updateCommentReactions = (comment: IComment, reaction: number) => {
               updatedAt: new Date(),
             },
           ]
-        : comment.dislikes?.filter(
-            (dislike) => dislike.profileId !== $authStore.profile?.id
-          ),
+        : comment.dislikes?.filter((dislike) => dislike.profileId !== $authStore.profile?.id),
   };
 
   if (reaction === 1) {
@@ -304,12 +296,8 @@ const toggleReplies = async (id: number) => {
             ...comment,
             replies: data.map((reply) => ({
               ...reply,
-              liked: reply.likes?.some(
-                (like) => like.profileId === $authStore.profile?.id
-              ),
-              disliked: reply.dislikes?.some(
-                (like) => like.profileId === $authStore.profile?.id
-              ),
+              liked: reply.likes?.some((like) => like.profileId === $authStore.profile?.id),
+              disliked: reply.dislikes?.some((like) => like.profileId === $authStore.profile?.id),
             })),
           };
         }
@@ -327,17 +315,9 @@ const getRepliesText = (count: number) => {
   const repliesCount = count || 0;
 
   if (locale.value === "ru") {
-    return plural(repliesCount, [
-      t("replies.one"),
-      t("replies.few"),
-      t("replies.many"),
-    ]);
+    return plural(repliesCount, [t("replies.one"), t("replies.few"), t("replies.many")]);
   } else {
-    return plural(repliesCount, [
-      t("replies.one"),
-      t("replies.many"),
-      t("replies.many"),
-    ]);
+    return plural(repliesCount, [t("replies.one"), t("replies.many"), t("replies.many")]);
   }
 };
 </script>
@@ -347,9 +327,7 @@ const getRepliesText = (count: number) => {
     id="commentsSection"
     class="overflow-y-scroll absolute rounded-xl bottom-0 h-4/5 max-w-full w-full z-20 bg-white dark:bg-neutral-900 border dark:border-neutral-800"
   >
-    <div
-      class="px-4 py-2 border-b dark:border-neutral-800 flex items-center justify-between"
-    >
+    <div class="px-4 py-2 border-b dark:border-neutral-800 flex items-center justify-between">
       <h2 class="xl:text-xl text-lg font-semibold dark:text-white">
         {{ $t("comments") }}
         <span class="text-gray-400 font-normal">
@@ -376,10 +354,7 @@ const getRepliesText = (count: number) => {
       class="p-4 overflow-y-auto"
       :class="$authStore.profile ? 'h-[calc(100%-130px)]' : 'h-[calc(100%-70px)]'"
     >
-      <div
-        v-if="comments?.length === 0"
-        class="text-center text-gray-500 dark:text-gray-400 mt-4"
-      >
+      <div v-if="comments?.length === 0" class="text-center text-gray-500 dark:text-gray-400 mt-4">
         {{ $t("noComments") }}
       </div>
       <div v-else class="space-y-4">
@@ -405,11 +380,7 @@ const getRepliesText = (count: number) => {
                   {{ comment.repliesCount || comment.replies?.length || 0 }}
                 </span>
                 <span class="text-sm font-semibold dark:text-gray-300">
-                  {{
-                    getRepliesText(
-                      comment.repliesCount || comment.replies?.length || 0
-                    )
-                  }}
+                  {{ getRepliesText(comment.repliesCount || comment.replies?.length || 0) }}
                 </span>
               </button>
             </template>
@@ -424,10 +395,7 @@ const getRepliesText = (count: number) => {
             @reply="reply"
           />
         </div>
-        <div
-          ref="loadMore"
-          class="w-full flex justify-center items-center"
-        >
+        <div ref="loadMore" class="w-full flex justify-center items-center">
           <IconsLoader v-if="isLoadingMore" class="w-10 h-10 animate-spin" />
         </div>
       </div>
@@ -438,6 +406,7 @@ const getRepliesText = (count: number) => {
       :is-form-loading="isFormLoading"
       :reply-comment="replyComment"
       :discussion-id="replyCommentDiscussionId"
+      :is-adding="isAdding"
       @submit="addComment"
       @remove-reply="
         replyComment = undefined;

@@ -107,14 +107,22 @@ const addComment = (comment: IComment) => {
 };
 
 const likeVideo = async (video: IVideo) => {
-  await $videosStore.toggleLike(video);
-  if (video.profileId !== $authStore.profile?.id && video.liked) {
-    socket.emit("notification", {
-      to: video.profileId,
-      sender: $authStore.profile,
-      messageType: "like",
-      message: `Понравилось ваше видео "${video.title}"`,
-    });
+  try {
+    isLiking.value = true;
+    await $videosStore.toggleLike(video);
+    if (video.profileId !== $authStore.profile?.id && video.liked) {
+      socket.emit("notification", {
+        to: video.profileId,
+        sender: $authStore.profile,
+        messageType: "like",
+        message: `Понравилось ваше видео "${video.title}"`,
+      });
+    }
+  } catch (error) {
+  } finally {
+    setTimeout(() => {
+      isLiking.value = false;
+    }, 150);
   }
 };
 
@@ -282,12 +290,12 @@ const openFullscreen = () => {
         <button
           :disabled="isLiking"
           @click="likeVideo(video)"
-          class="rounded-full flex items-center justify-center cursor-pointer aspect-square w-8"
+          class="rounded-full flex items-center justify-center cursor-pointer aspect-square w-8 group"
         >
           <IconsHeart
             style="filter: drop-shadow(0px 0px 1px black)"
             :class="video.liked ? 'text-red-500' : 'text-white '"
-            class="transition w-full aspect-square"
+            class="transition w-full aspect-square group-disabled:opacity-50 group-active:scale-75"
           />
         </button>
         <span
