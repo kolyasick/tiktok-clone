@@ -2,14 +2,14 @@ import prisma from "~/lib/prisma";
 
 export default defineEventHandler(async (event) => {
   const {
-    offset = 0,
-    limit = 5,
+    offset,
+    limit,
     excludeId,
     userId,
     type,
   } = getQuery<{
-    offset: string;
-    limit: string;
+    offset?: string;
+    limit?: string;
     excludeId: string;
     userId?: string;
     type?: "following";
@@ -35,8 +35,8 @@ export default defineEventHandler(async (event) => {
       profileId: userId ? parseInt(userId) : undefined,
     },
 
-    skip: Number(offset),
-    take: Number(limit),
+    skip: offset ? Number(offset) : undefined,
+    take: limit ? Number(limit) : undefined,
     include: {
       profile: {
         select: {
@@ -64,7 +64,6 @@ export default defineEventHandler(async (event) => {
       isBlocked: true,
       randomSort: true,
       statusId: true,
-      profileId: true,
       updatedAt: true,
     },
   });

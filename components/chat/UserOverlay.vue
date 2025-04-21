@@ -4,7 +4,6 @@ import type { IMessage } from "~/types/user.type";
 
 const { t } = useI18n();
 const localePath = useLocalePath();
-const { currentChat } = useChat();
 
 interface IChat extends Chat {
   messages: IMessage[];

@@ -18,6 +18,7 @@ let volume = ref(5);
 let isLiking = ref(false);
 let isVideoLoading = ref(true);
 let isCommentsVisible = ref(false);
+let isVideoPaused = ref(false);
 
 const toggleMute = () => {
   if (videoplay.value) {
@@ -121,8 +122,7 @@ const isFollowed = (userId: number) => {
   return computed(() => {
     return $authStore.followers.some(
       (follower) =>
-        (follower.userId === userId || follower.friendId === userId) &&
-        follower.isFollowing
+        (follower.userId === userId || follower.friendId === userId) && follower.isFollowing
     );
   });
 };
@@ -137,10 +137,7 @@ const handleFollow = async () => {
     return;
   }
   try {
-    await $profileStore.handleFriendAction(
-      "add",
-      props.video.profile as IProfile
-    );
+    await $profileStore.handleFriendAction("add", props.video.profile as IProfile);
     if (props.video.profileId !== $authStore.profile?.id) {
       socket.emit("notification", {
         to: props.video.profileId,
@@ -162,7 +159,7 @@ const onDoubleClick = () => {
   const currentTime = Date.now();
   const timeBetweenClicks = currentTime - lastClickTime;
 
-  if (timeBetweenClicks < 300) {
+  if (timeBetweenClicks < 200) {
     clearTimeout(timeoutId!);
     timeoutId = null;
     handleDoubleClick();
@@ -170,13 +167,18 @@ const onDoubleClick = () => {
     timeoutId = setTimeout(() => {
       handleSingleClick();
       timeoutId = null;
-    }, 300);
+    }, 200);
   }
 
   lastClickTime = currentTime;
 };
 
-const handleSingleClick = () => {};
+const handleSingleClick = () => {
+  if (videoplay.value) {
+    videoplay.value.paused ? videoplay.value.play() : videoplay.value.pause();
+    isVideoPaused.value = videoplay.value.paused;
+  }
+};
 const isHeartShow = ref(false);
 
 const handleDoubleClick = async () => {
@@ -231,6 +233,18 @@ const openFullscreen = () => {
       @timeupdate="onVideoLoaded"
       :src="'/upload/videos/' + video.url || ''"
     />
+    <ClientOnly>
+      <div
+        class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center"
+      >
+        <span v-if="!isVideoPaused" class="bg-black bg-opacity-50 p-2 rounded-full fade-out">
+          <IconsPlay class="w-14 h-14 text-white" />
+        </span>
+        <span v-else class="bg-black bg-opacity-50 p-2 rounded-full fade-out">
+          <IconsPause class="w-14 h-14 text-white" />
+        </span>
+      </div>
+    </ClientOnly>
     <div
       class="absolute xl:bottom-5 xl:left-5 bottom-2 left-2 grid gap-1 text-white dark:text-white"
     >
@@ -305,10 +319,7 @@ const openFullscreen = () => {
           @click="shareVideo(video)"
           class="rounded-full flex items-center justify-center cursor-pointer aspect-square w-8"
         >
-          <IconsShare
-            style="filter: drop-shadow(0px 0px 1px black)"
-            class="w-full aspect-square"
-          />
+          <IconsShare style="filter: drop-shadow(0px 0px 1px black)" class="w-full aspect-square" />
         </button>
       </div>
 
@@ -380,5 +391,24 @@ const openFullscreen = () => {
 .loader {
   background: rgba(0, 0, 0, 0.5);
   z-index: 100;
+}
+@keyframes fade-in-out {
+  0% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.fade-out {
+  animation: fade-in-out 0.3s ease forwards;
 }
 </style>

@@ -148,7 +148,7 @@ useSeoMeta({
 });
 
 onMounted(() => {
-  socket.on("chatMessage", (message: IMessage) => {
+  socket.on("chatMessage", async (message: IMessage) => {
     const chat = chats.value?.find((chat) => chat.id === message.chatId);
     if (chat) {
       chat.messages.push(message);
@@ -158,8 +158,11 @@ onMounted(() => {
     if (currentChat.value?.id === message.chatId) {
       currentChat.value.messages.push(message);
     }
-  });
 
+    await nextTick();
+    const lastMessage = document.querySelector(".message:last-child");
+    lastMessage?.scrollIntoView({ behavior: "instant", block: "start" });
+  });
 
   socket.on("online", (userId: number) => {
     updateChatStatus(userId, true);

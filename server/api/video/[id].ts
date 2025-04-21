@@ -38,7 +38,6 @@ export default defineEventHandler(async (event) => {
       isBlocked: true,
       randomSort: true,
       statusId: true,
-      profileId: true,
       updatedAt: true,
     },
   });

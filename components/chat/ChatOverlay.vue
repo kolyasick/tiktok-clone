@@ -10,17 +10,19 @@ interface IChat extends Chat {
 }
 
 const props = defineProps<{ currentChat: IChat }>();
-const { $authStore } = useNuxtApp();
+const { $authStore, $io: socket } = useNuxtApp();
 const localePath = useLocalePath();
 
 let text = ref<string>("");
 let typingTimeout: NodeJS.Timeout;
-const messagesContainer = ref<HTMLDivElement | null>(null);
-const typingUser = ref<string | null>(null);
-const { $io: socket } = useNuxtApp();
 
-const handleSend = () => {
+const messagesContainer = ref<HTMLDivElement | null>(null);
+
+const typingUser = ref<string | null>(null);
+
+const handleSend = async () => {
   emit("send-message", text.value);
+
   socket.emit("stopTyping", props.currentChat?.id.toString());
   socket.emit("chatOpen", props.currentChat);
   text.value = "";
@@ -45,13 +47,7 @@ watch(
   () => [props.currentChat?.messages],
   async () => {
     await nextTick();
-    checkUnreaded();
-    if (
-      props.currentChat.messages[props.currentChat.messages.length - 1].senderId ===
-      $authStore.profile?.id
-    ) {
-      messagesContainer.value?.scrollTo(0, messagesContainer.value.scrollHeight);
-    }
+    await checkUnreaded();
   },
   { deep: true }
 );
@@ -113,48 +109,60 @@ const isFavorite = computed(() => {
   return companion.value?.id === $authStore.profile?.id;
 });
 
-const scrollToLastReadedMessage = () => {
+const scrollToTargetMessage = async () => {
   if (!messagesContainer.value || !$authStore.profile?.id) return;
 
-  const readMessagesFromOthers = Array.from(
-    messagesContainer.value.querySelectorAll(".message[data-readed='true']")
-  ).filter((message) => Number(message.getAttribute("data-sender")) !== $authStore.profile?.id);
-  const allMessages = Array.from(messagesContainer.value.querySelectorAll(".message"));
+  const firstUnread = messagesContainer.value.querySelectorAll(
+    `.message[data-readed="false"][data-sender="${props.currentChat.companion.id}"]`
+  );
 
-  if (readMessagesFromOthers.length) {
-    let lastReadMessage = readMessagesFromOthers[readMessagesFromOthers.length - 1];
-    const lastMessage = props.currentChat?.messages[props.currentChat?.messages.length - 1];
-
-    if (
-      lastMessage.senderId === $authStore.profile?.id &&
-      lastMessage?.id > Number(lastReadMessage.getAttribute("data-id"))
-    ) {
-      lastReadMessage = allMessages[allMessages.length - 1];
-    }
-
-    lastReadMessage.scrollIntoView({
-      behavior: "smooth",
-      block: "end",
-    });
-
-    setTimeout(() => {
-      const messageRect = lastReadMessage.getBoundingClientRect();
-      const containerRect = messagesContainer.value!.getBoundingClientRect();
-
-      if (messageRect.bottom < containerRect.bottom) {
-        messagesContainer.value!.scrollTop += containerRect.bottom - messageRect.bottom;
-      }
-    }, 500);
+  if (firstUnread.length) {
+    firstUnread[0].scrollIntoView({ behavior: "instant", block: "end" });
+  } else {
+    const lastMessage = messagesContainer.value.querySelector(".message:last-child");
+    lastMessage?.scrollIntoView({ behavior: "instant", block: "start" });
   }
 };
 
 let isCheckingUnread = false;
 let scrollTimeout: NodeJS.Timeout;
+let observer: IntersectionObserver | null = null;
 
-onMounted(() => {
-  if (messagesContainer.value) {
-    scrollToLastReadedMessage();
+const hasMore = ref(true);
+const limit = ref(20);
+const offset = ref(0);
+const isLoadingMore = ref(false);
+const loadMore = ref<HTMLDivElement>();
+
+const loadMoreMessages = async () => {
+  if (!hasMore.value) return;
+
+  try {
+    isLoadingMore.value = true;
+
+    const messages = await $fetch<IMessage[]>(`/api/chat/${props.currentChat.id}/messages`, {
+      query: {
+        limit: limit.value,
+        offset: offset.value,
+      },
+    });
+
+    if (messages.length) {
+      props.currentChat.messages.unshift(...messages.reverse());
+      offset.value += limit.value;
+      hasMore.value = messages.length === limit.value;
+    }
+  } catch (error) {
+    console.log(error);
+  } finally {
+    isLoadingMore.value = false;
   }
+};
+
+onMounted(async () => {
+  await loadMoreMessages();
+
+  await scrollToTargetMessage();
 
   socket.on("typing", (data: { name: string; chatId: string }) => {
     typingUser.value = data.name;
@@ -187,12 +195,29 @@ onMounted(() => {
   });
 
   checkUnreaded();
+
+  observer = new IntersectionObserver(
+    async (entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          await loadMoreMessages();
+        }
+      }
+    },
+    {
+      threshold: 0.1,
+    }
+  );
+
+  if (loadMore.value) observer.observe(loadMore.value);
 });
 
 onUnmounted(() => {
   socket.off("typing");
   socket.off("stopTyping");
   messagesContainer.value?.removeEventListener("scroll", checkUnreaded);
+
+  if (observer) observer.disconnect();
 });
 </script>
 
@@ -248,6 +273,9 @@ onUnmounted(() => {
       </NuxtLink>
     </div>
     <div ref="messagesContainer" class="flex-1 overflow-y-auto p-6 mt-14 sm:mt-0">
+      <div ref="loadMore" class="w-full flex items-center justify-center">
+        <IconsLoader v-if="isLoadingMore" class="w-10 h-10 animate-spin" />
+      </div>
       <div
         v-for="(message, index) in props.currentChat?.messages"
         :key="message.id"

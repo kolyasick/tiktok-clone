@@ -8,14 +8,8 @@ interface IBody {
 export default defineEventHandler(async (event) => {
   const { chatId, text, isReaded } = await readBody<IBody>(event);
 
+  await requireUserSession(event);
   const { user } = await getUserSession(event);
-
-  if (!user) {
-    throw createError({
-      statusCode: 403,
-      message: "Access denied",
-    });
-  }
 
   if (!chatId || !user.id || !text) {
     throw createError({
@@ -32,7 +26,15 @@ export default defineEventHandler(async (event) => {
       isReaded,
     },
     include: {
-      sender: true,
+      sender: {
+        omit: {
+          createdAt: true,
+          updatedAt: true,
+          bio: true,
+          online: true,
+          lastSeen: true,
+        },
+      },
     },
   });
 
