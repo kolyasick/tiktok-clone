@@ -66,6 +66,10 @@ const loadData = async () => {
 await loadData();
 
 const chatOpen = async () => {
+  if (!$authStore.profile) {
+    $generalStore.isLoginOpen = true;
+    return;
+  }
   const chat = await $fetch<IChat>("/api/chat/open", {
     method: "POST",
     body: {
@@ -198,7 +202,6 @@ useSeoMeta({
               </button>
 
               <button
-                v-if="$authStore.profile"
                 @click="chatOpen"
                 class="flex items-center rounded-md h-8 md:h-9 px-3 mt-3 md:text-[15px] text-[13px] text-white font-semibold bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-800 hover:bg-gray-200 dark:hover:bg-neutral-700 dark:hover:border-neutral-700 transition-colors"
               >
