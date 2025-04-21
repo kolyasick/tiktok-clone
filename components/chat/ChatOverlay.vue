@@ -330,21 +330,21 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <div class="p-4 border-gray-200 dark:border-[#303030] border-t flex items-center">
+    <div class="p-4 border-gray-200 dark:border-[#303030] border-t flex items-center max-w-full">
       <input
         @keyup.enter="handleSend"
         type="text"
         @input="handleTyping"
         :placeholder="$t('typeMessage')"
         v-model="text"
-        class="flex-1 px-4 py-2 transition text-gray-900 dark:text-white bg-white dark:bg-[#222222] rounded border border-gray-300 dark:border-gray-600 shadow-sm focus:ring-2 focus:ring-[#F02C56] focus:outline-none"
+        class="w-full px-4 py-2 transition text-gray-900 dark:text-white bg-white dark:bg-[#222222] rounded border border-gray-300 dark:border-gray-600 shadow-sm focus:ring-2 focus:ring-[#F02C56] focus:outline-none"
       />
       <button
         @click="handleSend"
         :disabled="!text"
-        class="ml-3 bg-[#F02C56] hover:bg-[#F02C56] text-white px-5 py-2 rounded shadow-lg transition-all disabled:bg-gray-400"
+        class="ml-3 bg-[#F02C56] hover:bg-[#F02C56] text-white p-2 px-4 rounded shadow-lg transition-all disabled:bg-gray-400"
       >
-        {{ $t("send") }}
+        <IconsSend class="w-6 h-6" />
       </button>
     </div>
   </div>
