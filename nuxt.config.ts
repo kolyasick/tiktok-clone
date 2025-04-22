@@ -79,6 +79,7 @@ export default defineNuxtConfig({
   },
   security: {
     rateLimiter: false,
+    requestSizeLimiter: false,
   },
   routeRules: {
     "/admin/*": { ssr: false },
