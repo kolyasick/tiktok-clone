@@ -80,6 +80,16 @@ export default defineNuxtConfig({
   security: {
     rateLimiter: false,
     requestSizeLimiter: false,
+    headers: false,
+    corsHandler: false,
+    allowedMethodsRestricter: false,
+    basicAuth: false,
+    hidePoweredBy: false,
+    csrf: false,
+    strict: false,
+    xssValidator: false,
+    nonce: false,
+    removeLoggers: false,
   },
   routeRules: {
     "/admin/*": { ssr: false },

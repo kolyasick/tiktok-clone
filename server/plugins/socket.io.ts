@@ -21,6 +21,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
   io.bind(engine);
 
   io.on("connection", (socket: Socket) => {
+    console.log("socket");
     socket.on("setUser", async (userId: number) => {
       if (!userId) return;
 
@@ -143,6 +144,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
     }, 1000 * 30);
 
     socket.on("disconnect", async () => {
+      console.log("socket");
       const userId = socket.data.userId;
       if (!userId) return;
       clearInterval(interval);
@@ -158,7 +160,10 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
           });
           io.emit("offline", userId);
         } catch (error) {
-          console.error("Failed to update offline status on disconnect:", error);
+          console.error(
+            "Failed to update offline status on disconnect:",
+            error
+          );
         }
       }
     });
@@ -176,8 +181,12 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
         open(peer) {
           // @ts-expect-error private method and property
           engine.prepare(peer._internal.nodeReq);
-          // @ts-expect-error private method and property
-          engine.onWebSocket(peer._internal.nodeReq, peer._internal.nodeReq.socket, peer.websocket);
+          // @ts-ignore
+          engine.onWebSocket(
+            peer._internal.nodeReq,
+            peer._internal.nodeReq.socket,
+            peer.websocket
+          );
         },
       },
     })
