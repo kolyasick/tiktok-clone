@@ -77,6 +77,9 @@ export default defineNuxtConfig({
       },
     },
   },
+  security: {
+    rateLimiter: false,
+  },
   routeRules: {
     "/admin/*": { ssr: false },
     "/api/**": { cors: true },
