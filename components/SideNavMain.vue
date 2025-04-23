@@ -8,7 +8,7 @@ const router = useRouter();
 <template>
   <aside
     id="SideNavMain"
-    class="sticky top-0 left-0 z-20 bg-light dark:bg-dark pt-[70px] hidden sm:block -mt-[70px] h-screen lg:border-r-0 border-r border-gray-200 dark:border-[#ebebeb6c] lg:w-[310px] w-[75px]"
+    class="sticky top-0 left-0 z-20 bg-light dark:bg-dark pt-[70px] hidden sm:block -mt-[70px] h-screen lg:border-r-0 border-r border-gray-200 dark:border-neutral-800 lg:w-[310px] w-[75px]"
   >
     <div class="w-full mt-5 flex flex-col">
       <button @click="navigateTo($localePath('/video'))">
@@ -69,7 +69,7 @@ const router = useRouter();
       </NuxtLink>
 
       <div v-if="true">
-        <div class="border-b border-gray-200 dark:border-[#ebebeb6c] mt-2" />
+        <div class="border-b border-gray-200 dark:border-neutral-800 mt-2" />
 
         <div class="lg:hidden block pt-3" />
 
@@ -77,7 +77,7 @@ const router = useRouter();
           {{ $t("seeMore") }}
         </button>
       </div>
-      <div class="lg:block hidden border-b border-gray-200 dark:border-[#ebebeb6c] mt-2" />
+      <div class="lg:block hidden border-b border-gray-200 dark:border-neutral-800 mt-2" />
 
       <div class="lg:block hidden text-[11px] text-gray-500">
         <div class="pt-4">About Newsroom Clipify Shop Contact Careers ByteDance</div>

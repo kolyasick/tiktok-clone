@@ -213,7 +213,7 @@ const openFullscreen = () => {
 <template>
   <div
     ref="videoContainer"
-    class="xl:w-[65%] md:w-[70%] w-full xl:h-[calc(100dvh-150px)] h-[80dvh] xl:max-h-[800px] max-h-[650px] relative overflow-hidden"
+    class="xl:w-[65%] md:w-[70%] w-full xl:h-[calc(100dvh-150px)] h-[80dvh] xl:max-h-[800px] max-h-[650px] relative overflow-hidden border rounded-xl border-gray-200 dark:border-neutral-800"
   >
     <button
       @click="openFullscreen"
@@ -243,7 +243,8 @@ const openFullscreen = () => {
     />
     <ClientOnly>
       <div
-        class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center"
+        v-if="!isVideoLoading"
+        class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none"
       >
         <span v-if="!isVideoPaused" class="bg-black bg-opacity-50 p-2 rounded-full fade-out">
           <IconsPlay class="w-14 h-14 text-white" />
@@ -252,6 +253,12 @@ const openFullscreen = () => {
           <IconsPause class="w-14 h-14 text-white" />
         </span>
       </div>
+    </ClientOnly>
+    <ClientOnly>
+      <IconsLoader
+        v-if="isVideoLoading"
+        class="w-24 h-24 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+      />
     </ClientOnly>
     <div
       class="absolute xl:bottom-5 xl:left-5 bottom-2 left-2 grid gap-1 text-white dark:text-white"

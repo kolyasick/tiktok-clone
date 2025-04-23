@@ -236,9 +236,9 @@ useSeoMeta({
         class="w-full flex items-center pt-4 border-b border-gray-200 dark:border-[#ebebeb6c] relative"
       >
         <div
-          class="absolute w-48 bottom-0 left-0 h-[2px] bg-[#F02C56] transition-all duration-300"
+          class="absolute w-1/2 bottom-0 left-0 h-[2px] bg-[#F02C56] transition-all duration-300"
           :class="{
-            'translate-x-48': activeTab === 'liked',
+            'translate-x-full': activeTab === 'liked',
           }"
         ></div>
 
@@ -247,7 +247,7 @@ useSeoMeta({
             activeTab = 'videos';
             $profileStore.allVideos();
           "
-          class="w-48 text-center py-2 md:text-[17px] text-[15px] font-semibold cursor-pointer"
+          class="flex-1 text-center py-2 md:text-[17px] text-[15px] font-semibold cursor-pointer"
           :class="{
             'text-[#F02C56]': activeTab === 'videos',
             'text-gray-500': activeTab !== 'videos',
@@ -261,7 +261,7 @@ useSeoMeta({
             activeTab = 'liked';
             $profileStore.liked(profile.id);
           "
-          class="w-48 text-center py-2 md:text-[17px] text-[15px] font-semibold cursor-pointer"
+          class="flex-1 text-center py-2 md:text-[17px] text-[15px] font-semibold cursor-pointer"
           :class="{
             'text-[#F02C56]': activeTab === 'liked',
             'text-gray-500': activeTab !== 'liked',
