@@ -29,10 +29,12 @@ export async function compressVideo(inputBuffer: Buffer): Promise<Buffer> {
             "-pix_fmt yuv420p", // Универсальный формат пикселей
           ])
           .on("start", (commandLine) => {
-            console.log("FFmpeg started with command:", commandLine);
+            console.log("starting upload");
           })
           .on("progress", (progress) => {
-            console.log(`Processing: ${Math.round(progress.percent)}% done`);
+            console.log(
+              `Processing: ${Math.round(progress.percent ?? progress.currentKbps)}% done`
+            );
           })
           .on("end", async () => {
             try {
