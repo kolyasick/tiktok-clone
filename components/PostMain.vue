@@ -257,7 +257,7 @@ const openFullscreen = () => {
     <ClientOnly>
       <IconsLoader
         v-if="isVideoLoading"
-        class="w-24 h-24 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+        class="w-24 h-24 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-spin"
       />
     </ClientOnly>
     <div
