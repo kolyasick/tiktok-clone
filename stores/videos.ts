@@ -5,7 +5,7 @@ export const useVideosStore = defineStore("general", {
   state: () => ({
     videos: [] as IVideo[],
     offset: 0,
-    limit: 2,
+    limit: 3,
     hasMore: true,
     isLoading: false,
   }),
