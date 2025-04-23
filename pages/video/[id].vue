@@ -106,7 +106,7 @@ const handleScroll = async (e: WheelEvent) => {
     }
   }
 
-  if (nextIndex >= $videosStore.videos.length - 3 && $videosStore.hasMore) {
+  if (nextIndex >= $videosStore.videos.length - 2 && $videosStore.hasMore) {
     await $videosStore.getVideos(route.params.id as string, route.query.userId as string);
   }
 
@@ -162,7 +162,7 @@ const handleTouchMove = async (e: TouchEvent) => {
       }
     }
 
-    if (nextIndex >= $videosStore.videos.length - 3 && $videosStore.hasMore) {
+    if (nextIndex >= $videosStore.videos.length - 2 && $videosStore.hasMore) {
       await $videosStore.getVideos(route.params.id as string, route.query.userId as string);
     }
 

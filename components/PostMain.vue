@@ -217,7 +217,7 @@ const openFullscreen = () => {
 <template>
   <div
     ref="videoContainer"
-    class="xl:w-[65%] md:w-[70%] w-full xl:h-[calc(100dvh-150px)] h-[80dvh] xl:max-h-[800px] max-h-[650px] relative overflow-hidden border rounded-xl"
+    class="xl:w-[65%] md:w-[70%] w-full xl:h-[calc(100dvh-150px)] h-[80dvh] xl:max-h-[800px] max-h-[650px] relative overflow-hidden rounded-xl"
   >
     <button
       @click="openFullscreen"
