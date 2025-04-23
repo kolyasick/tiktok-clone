@@ -18,7 +18,7 @@ let volume = ref(100);
 let isLiking = ref(false);
 let isVideoLoading = ref(true);
 let isCommentsVisible = ref(false);
-let isVideoPaused = ref(false);
+let isVideoPaused = ref<boolean | undefined>();
 
 const toggleMute = () => {
   if (videoplay.value) {
@@ -217,7 +217,7 @@ const openFullscreen = () => {
 <template>
   <div
     ref="videoContainer"
-    class="xl:w-[65%] md:w-[70%] w-full xl:h-[calc(100dvh-150px)] h-[80dvh] xl:max-h-[800px] max-h-[650px] relative overflow-hidden border rounded-xl border-gray-200 dark:border-neutral-800"
+    class="xl:w-[65%] md:w-[70%] w-full xl:h-[calc(100dvh-150px)] h-[80dvh] xl:max-h-[800px] max-h-[650px] relative overflow-hidden border rounded-xl"
   >
     <button
       @click="openFullscreen"
@@ -250,12 +250,15 @@ const openFullscreen = () => {
         class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none"
       >
         <span
-          v-if="!isVideoPaused"
+          v-if="isVideoPaused !== undefined && isVideoPaused === false"
           class="bg-black bg-opacity-50 p-2 rounded-full fade-out"
         >
           <IconsPlay class="w-14 h-14 text-white" />
         </span>
-        <span v-else class="bg-black bg-opacity-50 p-2 rounded-full fade-out">
+        <span
+          v-else-if="isVideoPaused !== undefined && isVideoPaused === true"
+          class="bg-black bg-opacity-50 p-2 rounded-full fade-out"
+        >
           <IconsPause class="w-14 h-14 text-white" />
         </span>
       </div>
