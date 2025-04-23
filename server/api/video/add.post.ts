@@ -35,20 +35,27 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-      const fileData = body.file.content as string;
-      const base64Data = fileData.replace(/^data:video\/mp4;base64,/, "");
-      const buffer = Buffer.from(base64Data, "base64");
+    const fileData = body.file.content as string;
+    const base64Data = fileData.replace(/^data:video\/mp4;base64,/, "");
+    const buffer = Buffer.from(base64Data, "base64");
 
-      const compressedBuffer = await compressVideo(buffer);
+    const { compressedVideo, thumbnail } = await compressVideo(buffer);
 
-      const compressedFile = {
-        ...body.file,
-        content: `data:video/mp4;base64,${compressedBuffer.toString("base64")}`,
-      };
+    const compressedFile = {
+      ...body.file,
+      content: `data:video/mp4;base64,${compressedVideo.toString("base64")}`,
+    };
 
-      const file = await storeFileLocally(compressedFile, 6, "/videos");
-   
+    const file = await storeFileLocally(compressedFile, 6, "/videos");
+    const previewFile: ServerFile = {
+      name: `preview_${body.file.name.replace(/\.[^/.]+$/, ".jpg")}`, // Добавляем префикс и меняем расширение
+      content: `data:image/jpeg;base64,${thumbnail.toString("base64")}`,
+      size: thumbnail.length.toString(),
+      type: "image/jpeg",
+      lastModified: Date.now().toString(),
+    };
 
+    const preview = await storeFileLocally(previewFile, 6, "/videos/thumbnail");
     const status = await prisma.status.findFirst({
       where: {
         title: "new",
