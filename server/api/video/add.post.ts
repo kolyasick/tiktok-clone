@@ -68,6 +68,7 @@ export default defineEventHandler(async (event) => {
         profileId: user.id,
         url: file,
         statusId: status!.id,
+        preview: preview,
       },
     });
 

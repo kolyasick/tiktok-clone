@@ -12,8 +12,8 @@ async function main() {
   // });
   // await prisma.like.deleteMany();
 
-  // await prisma.message.deleteMany()
-  // await prisma.chat.deleteMany()
+  // await prisma.commentLike.deleteMany()
+  //  await prisma.comment.deleteMany()
 
   // await prisma.comment.createMany({
   //   data: Array.from({ length: 100000 }, () => {

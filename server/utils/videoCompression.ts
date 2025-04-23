@@ -25,6 +25,7 @@ export async function compressVideo(inputBuffer: Buffer): Promise<{
           folder: path.dirname(tempThumbnailPath),
           size: "640x?",
         })
+        //@ts-ignore
         .on("end", resolve)
         .on("error", reject);
     });
@@ -32,19 +33,20 @@ export async function compressVideo(inputBuffer: Buffer): Promise<{
     await new Promise<void>((resolve, reject) => {
       ffmpeg(tempInputPath)
         .outputOptions([
-          "-c:v libx264", 
-          "-crf 23", 
-          "-preset faster", 
+          "-c:v libx264",
+          "-crf 23",
+          "-preset faster",
           "-tune fastdecode",
-          "-x264-params ref=4:deblock=-1,-1", 
-          "-c:a aac", 
-          "-b:a 128k", 
-          "-movflags +faststart", 
+          "-x264-params ref=4:deblock=-1,-1",
+          "-c:a aac",
+          "-b:a 128k",
+          "-movflags +faststart",
           "-vf scale=1080:-2:flags=lanczos",
           "-max_muxing_queue_size 1024",
-          "-threads 0", 
-          "-pix_fmt yuv420p", 
+          "-threads 0",
+          "-pix_fmt yuv420p",
         ])
+        //@ts-ignore
         .on("end", resolve)
         .on("error", reject)
         .save(tempOutputPath);

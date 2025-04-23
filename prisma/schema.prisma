@@ -91,7 +91,8 @@ model Role {
 model Video {
   id       String      @id @default(uuid())
   title    String
-  url      String?
+  url      String
+  preview  String?
   isBlocked Boolean @default(false)
   profileId Int
   randomSort Float   @default(0.0)

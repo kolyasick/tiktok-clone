@@ -19,7 +19,15 @@ const emit = defineEmits<{
       >
         <div class="flex flex-row items-center">
           <div class="aspect-square w-24 flex-shrink-0 p-4">
+            <img
+              v-if="video.preview"
+              :src="'/upload/videos/thumbnail/' + video.preview"
+              class="w-full h-full object-cover rounded-lg"
+              muted
+              preload="metadata"
+            />
             <video
+              v-else
               :src="'/upload/videos/' + video.url"
               class="w-full h-full object-cover rounded-lg"
               muted

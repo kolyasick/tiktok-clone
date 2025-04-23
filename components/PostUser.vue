@@ -39,13 +39,19 @@ const isHover = (bool: boolean) => {
     class="relative brightness-90 hover:brightness-[1.1] cursor-pointer"
   >
     <div
-      v-if="!isLoaded"
+      v-if="!isLoaded && !video.preview"
       class="absolute flex items-center justify-center top-0 left-0 aspect-[3/4] w-full object-cover rounded-md bg-black"
     >
       <IconsLoader class="animate-spin ml-1 text-white w-24 h-24" />
     </div>
     <div class="rounded aspect-[3/4] object-cover">
+      <img
+        v-if="video.preview"
+        class="w-full h-full object-cover rounded-md"
+        :src="'/upload/videos/thumbnail/' + video.preview || ''"
+      />
       <video
+        v-else
         ref="videoRef"
         muted
         autoplay
