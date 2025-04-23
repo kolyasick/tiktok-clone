@@ -17,14 +17,19 @@ const isCommentsVisible = ref(false);
 let isScrolling = false;
 let scrollTimeout: NodeJS.Timeout | null = null;
 
-const { data, refresh } = await useFetch<IVideo>(`/api/video/${route.params.id}`, {
-  transform: (data) => {
-    return {
-      ...data,
-      liked: data?.likes?.some((like) => like.profileId === $authStore.profile?.id),
-    };
-  },
-});
+const { data, refresh } = await useFetch<IVideo>(
+  `/api/video/${route.params.id}`,
+  {
+    transform: (data) => {
+      return {
+        ...data,
+        liked: data?.likes?.some(
+          (like) => like.profileId === $authStore.profile?.id
+        ),
+      };
+    },
+  }
+);
 
 if (!data.value) {
   throw createError({
@@ -48,10 +53,15 @@ if (data.value) {
   $videosStore.offset = 0;
   $videosStore.hasMore = true;
 
-  currentVideoIndex.value = $videosStore.videos.findIndex((video) => video.id === route.params.id);
+  currentVideoIndex.value = $videosStore.videos.findIndex(
+    (video) => video.id === route.params.id
+  );
 
   setTimeout(async () => {
-    await $videosStore.getVideos(route.params.id as string, route.query.userId as string);
+    await $videosStore.getVideos(
+      route.params.id as string,
+      route.query.userId as string
+    );
   }, 100);
 }
 
@@ -91,7 +101,9 @@ const handleScroll = async (e: WheelEvent) => {
       const newUrl =
         localePath(`/video/${currentVideo.id}`) +
         (Object.keys(route.query).length
-          ? `?${new URLSearchParams(route.query as Record<string, string>).toString()}`
+          ? `?${new URLSearchParams(
+              route.query as Record<string, string>
+            ).toString()}`
           : "");
       window.history.replaceState({}, "", newUrl);
 
@@ -106,8 +118,12 @@ const handleScroll = async (e: WheelEvent) => {
     }
   }
 
-  if (nextIndex >= $videosStore.videos.length - 2 && $videosStore.hasMore) {
-    await $videosStore.getVideos(route.params.id as string, route.query.userId as string);
+  const currentBatchIndex = nextIndex % $videosStore.limit;
+  if (currentBatchIndex === 1 && $videosStore.hasMore) {
+    await $videosStore.getVideos(
+      route.params.id as string,
+      route.query.userId as string
+    );
   }
 
   if (scrollTimeout) clearTimeout(scrollTimeout);
@@ -148,7 +164,11 @@ const handleTouchMove = async (e: TouchEvent) => {
         });
 
         const currentVideo = $videosStore.videos[nextIndex];
-        window.history.replaceState({}, "", localePath(`/video/${currentVideo.id}`));
+        window.history.replaceState(
+          {},
+          "",
+          localePath(`/video/${currentVideo.id}`)
+        );
 
         useSeoMeta({
           title: "Clipify | " + currentVideo.title,
@@ -162,12 +182,16 @@ const handleTouchMove = async (e: TouchEvent) => {
       }
     }
 
-    if (nextIndex >= $videosStore.videos.length - 2 && $videosStore.hasMore) {
-      await $videosStore.getVideos(route.params.id as string, route.query.userId as string);
+    const currentBatchIndex = nextIndex % $videosStore.limit;
+    if (currentBatchIndex === 1 && $videosStore.hasMore) {
+      await $videosStore.getVideos(
+        route.params.id as string,
+        route.query.userId as string
+      );
     }
 
-    isTouchScrolling = false;
-    setTimeout(() => {
+    if (scrollTimeout) clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => {
       isScrolling = false;
     }, 500);
   }

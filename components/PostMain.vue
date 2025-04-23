@@ -245,29 +245,26 @@ const openFullscreen = () => {
       @timeupdate="onVideoLoaded"
       :src="'/upload/videos/' + video.url || ''"
     />
-    <ClientOnly v-if="!isVideoLoading">
+    <ClientOnly>
       <div
         class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none"
       >
         <span
-          v-if="isVideoPaused !== undefined && isVideoPaused === false"
+          v-if="!isVideoPaused"
           class="bg-black bg-opacity-50 p-2 rounded-full fade-out"
         >
           <IconsPlay class="w-14 h-14 text-white" />
         </span>
-        <span
-          v-else-if="isVideoPaused !== undefined && isVideoPaused === true"
-          class="bg-black bg-opacity-50 p-2 rounded-full fade-out"
-        >
+        <span v-else class="bg-black bg-opacity-50 p-2 rounded-full fade-out">
           <IconsPause class="w-14 h-14 text-white" />
         </span>
       </div>
     </ClientOnly>
-    <ClientOnly v-else>
+    <!-- <ClientOnly v-else>
       <div class="absolute inset-0 flex items-center justify-center">
         <IconsLoader class="w-24 h-24 animate-spin text-white" />
       </div>
-    </ClientOnly>
+    </ClientOnly> -->
     <div
       class="absolute xl:bottom-5 xl:left-5 bottom-2 left-2 grid gap-1 text-white dark:text-white"
     >
