@@ -27,6 +27,7 @@ export default defineEventHandler(async (event) => {
       title: true,
       url: true,
       id: true,
+      profileId: true,
     },
   });
 

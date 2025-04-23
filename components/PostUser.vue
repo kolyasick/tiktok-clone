@@ -33,7 +33,7 @@ const isHover = (bool: boolean) => {
 </script>
 <template>
   <div
-    @click="navigateTo(localPath(`/video/${video.id}`))"
+    @click="navigateTo(localPath(`/video/${video.id}?userId=${video.profileId}`))"
     @mouseenter="isHover(true)"
     @mouseleave="isHover(false)"
     class="relative brightness-90 hover:brightness-[1.1] cursor-pointer"

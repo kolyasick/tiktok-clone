@@ -11,7 +11,7 @@ export const useVideosStore = defineStore("general", {
   }),
 
   actions: {
-    async getVideos(excludeId?: string) {
+    async getVideos(excludeId?: string, userId?: string) {
       if (this.isLoading || !this.hasMore) return;
 
       this.isLoading = true;
@@ -23,6 +23,7 @@ export const useVideosStore = defineStore("general", {
             offset: this.offset,
             limit: this.limit,
             excludeId: excludeId,
+            userId: userId ?? undefined,
           },
         });
 
@@ -43,7 +44,6 @@ export const useVideosStore = defineStore("general", {
         } else {
           this.hasMore = false;
         }
-
       } catch (error) {
         console.error("Failed to fetch videos:", error);
       } finally {
