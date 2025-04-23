@@ -130,7 +130,8 @@ const isFollowed = (userId: number) => {
   return computed(() => {
     return $authStore.followers.some(
       (follower) =>
-        (follower.userId === userId || follower.friendId === userId) && follower.isFollowing
+        (follower.userId === userId || follower.friendId === userId) &&
+        follower.isFollowing
     );
   });
 };
@@ -145,7 +146,10 @@ const handleFollow = async () => {
     return;
   }
   try {
-    await $profileStore.handleFriendAction("add", props.video.profile as IProfile);
+    await $profileStore.handleFriendAction(
+      "add",
+      props.video.profile as IProfile
+    );
     if (props.video.profileId !== $authStore.profile?.id) {
       socket.emit("notification", {
         to: props.video.profileId,
@@ -237,16 +241,18 @@ const openFullscreen = () => {
       muted
       playsinline
       class="rounded-xl border dark:border-neutral-800 border-gray-200 aspect-video object-cover w-full h-full transition-opacity"
-      :class="{ 'opacity-80': isHeartShow }"
+      :class="{ 'opacity-80': isHeartShow || isVideoLoading }"
       @timeupdate="onVideoLoaded"
       :src="'/upload/videos/' + video.url || ''"
     />
-    <ClientOnly>
+    <ClientOnly v-if="!isVideoLoading">
       <div
-        v-if="!isVideoLoading"
         class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none"
       >
-        <span v-if="!isVideoPaused" class="bg-black bg-opacity-50 p-2 rounded-full fade-out">
+        <span
+          v-if="!isVideoPaused"
+          class="bg-black bg-opacity-50 p-2 rounded-full fade-out"
+        >
           <IconsPlay class="w-14 h-14 text-white" />
         </span>
         <span v-else class="bg-black bg-opacity-50 p-2 rounded-full fade-out">
@@ -254,11 +260,10 @@ const openFullscreen = () => {
         </span>
       </div>
     </ClientOnly>
-    <ClientOnly>
-      <IconsLoader
-        v-if="isVideoLoading"
-        class="w-24 h-24 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-spin"
-      />
+    <ClientOnly v-else>
+      <div class="absolute inset-0 flex items-center justify-center">
+        <IconsLoader class="w-24 h-24 animate-spin text-white" />
+      </div>
     </ClientOnly>
     <div
       class="absolute xl:bottom-5 xl:left-5 bottom-2 left-2 grid gap-1 text-white dark:text-white"
@@ -334,7 +339,10 @@ const openFullscreen = () => {
           @click="shareVideo(video)"
           class="rounded-full flex items-center justify-center cursor-pointer aspect-square w-8"
         >
-          <IconsShare style="filter: drop-shadow(0px 0px 1px black)" class="w-full aspect-square" />
+          <IconsShare
+            style="filter: drop-shadow(0px 0px 1px black)"
+            class="w-full aspect-square"
+          />
         </button>
       </div>
 
