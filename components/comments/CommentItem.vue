@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { IComment } from "~/types/user.type";
+import { ref, computed } from "vue";
 
 const { $authStore, $generalStore } = useNuxtApp();
 
@@ -11,6 +12,9 @@ type Props = {
 const props = defineProps<Props>();
 const emits = defineEmits(["like", "dislike", "reply"]);
 
+const isExpanded = ref(false);
+const MAX_PREVIEW_LENGTH = 200; // Максимальная длина текста для предпросмотра
+
 const likeComment = () => {
   emits("like", props.comment);
 };
@@ -18,6 +22,18 @@ const likeComment = () => {
 const dislikeComment = () => {
   emits("dislike", props.comment);
 };
+
+// Проверяем, нужно ли показывать кнопку "Показать больше"
+const shouldShowToggle = computed(() => {
+  return props.comment.text?.length > MAX_PREVIEW_LENGTH;
+});
+
+const previewText = computed(() => {
+  if (!shouldShowToggle.value || isExpanded.value) {
+    return props.comment.text;
+  }
+  return props.comment.text?.substring(0, MAX_PREVIEW_LENGTH) + "...";
+});
 </script>
 
 <template>
@@ -53,8 +69,15 @@ const dislikeComment = () => {
         }}</span>
       </div>
       <p class="text-gray-600 dark:text-gray-300 break-words whitespace-pre-wrap">
-        {{ comment.text }}
+        {{ previewText }}
       </p>
+      <button
+        v-if="shouldShowToggle"
+        @click="isExpanded = !isExpanded"
+        class="text-[#F02C56] opacity-70 hover:opacity-100 dark:text-[#F02C56] dark:hover:text-[#F02C56] text-sm mt-1"
+      >
+        {{ isExpanded ? $t("showLess") : $t("showMore") }}
+      </button>
       <div class="flex items-start gap-2 mt-1">
         <button @click="likeComment" class="hover:text-gray-400 flex items-center gap-1">
           <IconsLike class="w-6 h-6" :class="{ 'text-red-500': comment.liked }" />

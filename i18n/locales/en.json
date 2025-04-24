@@ -84,6 +84,8 @@
   "passwordLength": "Password must be 6-15 characters",
   "nameLength": "Username must be 3-10 characters",
   "namePattern": "Username must contain only letters and numbers",
+  "showMore": "Show more",
+  "showLess": "Hide",
 
   "errors": {
     "videoNotFound": "Video not found",
