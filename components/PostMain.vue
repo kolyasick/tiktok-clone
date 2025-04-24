@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import type { IComment, IProfile, IVideo } from "~/types/user.type";
-import { ref, computed, onMounted, onUnmounted } from "vue";
-
 const { $videosStore, $authStore, $profileStore, $generalStore } = useNuxtApp();
 const { $io: socket } = useNuxtApp();
 const { addNotification } = useNotification();
@@ -13,25 +11,14 @@ type Props = {
 const props = defineProps<Props>();
 const emits = defineEmits(["toggleComments"]);
 
-const videoplay = ref<HTMLVideoElement | null>(null);
-const videoContainer = ref<HTMLElement | null>(null);
-const isMuted = ref(true);
-const volume = ref(100);
-const isLiking = ref(false);
-const isVideoLoading = ref(true);
-const isCommentsVisible = ref(false);
-const isVideoPaused = ref<boolean | undefined>();
-const isHeartShow = ref(false);
-const isFollowing = ref(false);
-const observer = ref<IntersectionObserver | null>(null);
-
-const isFollowingComputed = computed(() => {
-  return $authStore.followers.some(
-    (follower) =>
-      (follower.userId === props.video.profileId || follower.friendId === props.video.profileId) &&
-      follower.isFollowing
-  );
-});
+let videoplay = ref<HTMLVideoElement | null>(null);
+let videoContainer = ref(null);
+let isMuted = ref(true);
+let volume = ref(100);
+let isLiking = ref(false);
+let isVideoLoading = ref(true);
+let isCommentsVisible = ref(false);
+let isVideoPaused = ref<boolean | undefined>();
 
 const toggleMute = () => {
   if (videoplay.value) {
@@ -42,15 +29,15 @@ const toggleMute = () => {
 
 const handleIntersection = (entries: IntersectionObserverEntry[]) => {
   entries.forEach((entry) => {
-    if (!videoplay.value) return;
-
-    if (entry.isIntersecting) {
-      videoplay.value.play().catch((e) => console.log("Autoplay prevented:", e));
-    } else {
-      videoplay.value.pause();
-      if (!isVideoPaused.value) {
+    if (videoplay.value) {
+      if (entry.isIntersecting) {
+        videoplay.value.play();
+      } else {
+        videoplay.value.pause();
         videoplay.value.currentTime = 0;
       }
+    } else {
+      return;
     }
   });
 };
@@ -64,7 +51,6 @@ const shareVideo = async (video: IVideo) => {
       message: `Поделился вашим видео`,
     });
   }
-
   const videoUrl = `${window.location.origin}/video/${video.id}`;
   try {
     await navigator.clipboard.writeText(videoUrl);
@@ -75,11 +61,7 @@ const shareVideo = async (video: IVideo) => {
     });
   } catch (error) {
     console.error("Error copying video link:", error);
-    addNotification({
-      message: t("copyError"),
-      type: "error",
-      duration: 2000,
-    });
+    alert("Failed to copy video link");
   }
 };
 
@@ -92,6 +74,19 @@ const closeComments = () => {
   isCommentsVisible.value = false;
   emits("toggleComments");
 };
+
+onMounted(() => {
+  if (videoplay.value) {
+    videoplay.value.volume = volume.value / 100;
+    const observer = new IntersectionObserver(handleIntersection, {
+      root: null,
+      threshold: 0.5,
+    });
+    if (videoContainer.value) {
+      observer.observe(videoContainer.value);
+    }
+  }
+});
 
 const onVideoLoaded = () => {
   isVideoLoading.value = false;
@@ -112,8 +107,6 @@ const addComment = (comment: IComment) => {
 };
 
 const likeVideo = async (video: IVideo) => {
-  if (isLiking.value) return;
-
   try {
     isLiking.value = true;
     await $videosStore.toggleLike(video);
@@ -126,7 +119,6 @@ const likeVideo = async (video: IVideo) => {
       });
     }
   } catch (error) {
-    console.error("Like error:", error);
   } finally {
     setTimeout(() => {
       isLiking.value = false;
@@ -134,12 +126,24 @@ const likeVideo = async (video: IVideo) => {
   }
 };
 
+const isFollowed = (userId: number) => {
+  return computed(() => {
+    return $authStore.followers.some(
+      (follower) =>
+        (follower.userId === userId || follower.friendId === userId) && follower.isFollowing
+    );
+  });
+};
+
+const isFollowing = ref(false);
+
+isFollowing.value = isFollowed(props.video.profileId).value;
+
 const handleFollow = async () => {
   if (!$authStore.profile) {
     $generalStore.isLoginOpen = true;
     return;
   }
-
   try {
     await $profileStore.handleFriendAction("add", props.video.profile as IProfile);
     if (props.video.profileId !== $authStore.profile?.id) {
@@ -157,7 +161,7 @@ const handleFollow = async () => {
 };
 
 let lastClickTime = 0;
-let timeoutId: NodeJS.Timeout | null = null;
+let timeoutId = null as NodeJS.Timeout | null;
 
 const onDoubleClick = () => {
   const currentTime = Date.now();
@@ -183,6 +187,7 @@ const handleSingleClick = () => {
     isVideoPaused.value = videoplay.value.paused;
   }
 };
+const isHeartShow = ref(false);
 
 const handleDoubleClick = async () => {
   try {
@@ -198,63 +203,33 @@ const handleDoubleClick = async () => {
   }
 };
 
-onMounted(() => {
-  isFollowing.value = isFollowingComputed.value;
-
+const openFullscreen = () => {
   if (videoplay.value) {
-    videoplay.value.volume = volume.value / 100;
-    observer.value = new IntersectionObserver(handleIntersection, {
-      root: null,
-      rootMargin: "200px",
-      threshold: 0.1,
-    });
-
-    if (videoContainer.value) {
-      observer.value.observe(videoContainer.value);
-    }
+    videoplay.value.requestFullscreen();
   }
-
-  const handleVisibilityChange = () => {
-    if (!videoplay.value) return;
-    if (document.visibilityState === "hidden") {
-      videoplay.value.pause();
-    } else if (document.visibilityState === "visible") {
-      videoplay.value.play();
-    }
-  };
-
-  document.addEventListener("visibilitychange", handleVisibilityChange);
-});
-
-onUnmounted(() => {
-  if (observer.value) {
-    observer.value.disconnect();
-  }
-
-  if (timeoutId) {
-    clearTimeout(timeoutId);
-  }
-
-  document.removeEventListener("visibilitychange", () => {});
-});
+};
 </script>
 
 <template>
   <div ref="videoContainer" class="w-full h-full max-w-[800px] relative overflow-hidden">
+    <button
+      @click="openFullscreen"
+      class="absolute top-3 right-3 z-30 text-white opacity-60 hover:opacity-100"
+    >
+      <IconsFullScreen class="w-6 h-6" />
+    </button>
     <Transition name="slide-over">
       <div
+        class="absolute top-0 left-0 w-full h-full flex items-center justify-center z-20"
         v-if="isHeartShow"
-        class="absolute top-0 left-0 w-full h-full flex items-center justify-center z-20 pointer-events-none"
       >
         <IconsHeart class="text-red-500 w-1/4 h-1/4" />
       </div>
     </Transition>
-
     <video
-      loading="lazy"
       @click="onDoubleClick"
       ref="videoplay"
-      preload="metadata"
+      preload="auto"
       loop
       muted
       playsinline
@@ -262,49 +237,43 @@ onUnmounted(() => {
       :class="{ 'opacity-80': isHeartShow || isVideoLoading }"
       @timeupdate="onVideoLoaded"
       :src="'/upload/videos/' + video.url || ''"
-      aria-label="Video content"
-    ></video>
-
-    <ClientOnly>
-      <template v-if="!isVideoLoading">
-        <div
-          class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none"
+    />
+    <ClientOnly v-if="!isVideoLoading">
+      <div
+        class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none"
+      >
+        <span
+          v-if="isVideoPaused !== undefined && isVideoPaused === false"
+          class="bg-black bg-opacity-50 p-2 rounded-full fade-out"
         >
-          <span
-            v-if="isVideoPaused !== undefined && !isVideoPaused"
-            class="bg-black bg-opacity-50 p-2 rounded-full fade-out"
-          >
-            <IconsPlay class="w-14 h-14 text-white" />
-          </span>
-          <span
-            v-else-if="isVideoPaused !== undefined && isVideoPaused"
-            class="bg-black bg-opacity-50 p-2 rounded-full fade-out"
-          >
-            <IconsPause class="w-14 h-14 text-white" />
-          </span>
-        </div>
-      </template>
-      <template v-else>
-        <div class="absolute inset-0 flex items-center justify-center">
-          <IconsLoader class="w-24 h-24 animate-spin text-white" />
-        </div>
-      </template>
+          <IconsPlay class="w-14 h-14 text-white" />
+        </span>
+        <span
+          v-else-if="isVideoPaused !== undefined && isVideoPaused === true"
+          class="bg-black bg-opacity-50 p-2 rounded-full fade-out"
+        >
+          <IconsPause class="w-14 h-14 text-white" />
+        </span>
+      </div>
     </ClientOnly>
-
+    <ClientOnly v-else>
+      <div class="absolute inset-0 flex items-center justify-center">
+        <IconsLoader class="w-24 h-24 animate-spin text-white" />
+      </div>
+    </ClientOnly>
     <div
-      class="absolute xl:bottom-5 xl:left-5 bottom-2 left-2 grid gap-1 text-white dark:text-white pointer-events-none"
+      class="absolute xl:bottom-5 xl:left-5 bottom-2 left-2 grid gap-1 text-white dark:text-white"
     >
       <NuxtLink
         :to="$localePath(`/profile/${video.profile?.name}`)"
-        class="font-semibold text-lg hover:underline pointer-events-auto"
+        class="font-semibold text-lg hover:underline"
       >
         {{ video.profile?.name }}
       </NuxtLink>
       <p class="max-w-[200px] xl:max-w-[300px]">{{ video.title }}</p>
     </div>
-
     <div
-      class="absolute xl:bottom-5 xl:right-5 bottom-2 right-2 grid gap-2 place-items-center dark:text-white text-white pointer-events-auto"
+      class="absolute xl:bottom-5 xl:right-5 bottom-2 right-2 grid gap-2 place-items-center dark:text-white text-white"
     >
       <div class="mb-5 flex flex-col place-items-center">
         <NuxtLink
@@ -314,46 +283,40 @@ onUnmounted(() => {
           <img
             :src="'/upload/avatars/' + video.profile?.avatar"
             class="w-12 aspect-square rounded-full border"
-            alt="Profile avatar"
-            loading="lazy"
+            alt=""
           />
         </NuxtLink>
         <button
-          v-if="!isFollowing && $authStore.profile?.id !== video.profileId"
           @click="handleFollow"
-          class="bg-red-500 rounded-full -mt-2 z-10 flex items-center justify-center p-1"
-          aria-label="Follow user"
+          v-if="!isFollowing && $authStore.profile?.id !== video.profileId"
+          class="bg-red-500 rounded-full -mt-2 z-10 flex items-center justify-center"
         >
-          <IconsPlus class="w-4 h-4 text-white" />
+          <IconsPlus />
         </button>
       </div>
-
       <div class="text-center">
         <button
           :disabled="isLiking"
           @click="likeVideo(video)"
           class="rounded-full flex items-center justify-center cursor-pointer aspect-square w-8 group"
-          aria-label="Like video"
         >
           <IconsHeart
             style="filter: drop-shadow(0px 0px 1px black)"
-            :class="video.liked ? 'text-red-500' : 'text-white'"
+            :class="video.liked ? 'text-red-500' : 'text-white '"
             class="transition w-full aspect-square group-disabled:opacity-50 group-active:scale-75"
           />
         </button>
         <span
           style="filter: drop-shadow(0px 0px 1px black)"
-          class="text-xs text-white font-semibold block"
+          class="text-xs text-white font-semibold"
+          >{{ video.likes?.length }}</span
         >
-          {{ video.likes?.length || 0 }}
-        </span>
       </div>
 
       <div class="text-center">
         <button
-          @click="toggleComments"
           class="rounded-full flex items-center justify-center cursor-pointer aspect-square w-8"
-          aria-label="Toggle comments"
+          @click="toggleComments"
         >
           <IconsComment
             style="filter: drop-shadow(0px 0px 1px black)"
@@ -362,17 +325,15 @@ onUnmounted(() => {
         </button>
         <span
           style="filter: drop-shadow(0px 0px 1px black)"
-          class="text-xs text-white font-semibold block"
+          class="text-xs text-white font-semibold"
+          >{{ video.commentsCount }}</span
         >
-          {{ video.commentsCount || 0 }}
-        </span>
       </div>
 
       <div class="text-center">
         <button
           @click="shareVideo(video)"
           class="rounded-full flex items-center justify-center cursor-pointer aspect-square w-8"
-          aria-label="Share video"
         >
           <IconsShare style="filter: drop-shadow(0px 0px 1px black)" class="w-full aspect-square" />
         </button>
@@ -380,9 +341,8 @@ onUnmounted(() => {
 
       <div class="text-center mb-2">
         <button
-          @click="toggleMute"
           class="rounded-full flex items-center justify-center cursor-pointer aspect-square w-8"
-          aria-label="Toggle mute"
+          @click="toggleMute"
         >
           <IconsMute
             style="filter: drop-shadow(0px 0px 1px black)"
@@ -410,7 +370,6 @@ onUnmounted(() => {
 .slide-enter-active,
 .slide-leave-active {
   transition: transform 0.3s ease;
-  will-change: transform;
 }
 
 .slide-enter-from,
@@ -421,7 +380,6 @@ onUnmounted(() => {
 .slide-over-enter-active,
 .slide-over-leave-active {
   transition: transform 0.3s cubic-bezier(0.4, 0, 0, 1), opacity 0.2s;
-  will-change: transform, opacity;
 }
 
 .slide-over-enter-from {
@@ -433,6 +391,23 @@ onUnmounted(() => {
   transform: translateY(-100%);
 }
 
+.modal-enter-active,
+.modal-leave-active {
+  transition: all 0.3s;
+}
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal {
+  z-index: 1000;
+}
+
+.loader {
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 100;
+}
 @keyframes fade-in-out {
   0% {
     opacity: 0;
@@ -451,6 +426,5 @@ onUnmounted(() => {
 
 .fade-out {
   animation: fade-in-out 0.3s ease forwards;
-  will-change: opacity, transform;
 }
 </style>
