@@ -80,7 +80,8 @@ onMounted(() => {
     videoplay.value.volume = volume.value / 100;
     const observer = new IntersectionObserver(handleIntersection, {
       root: null,
-      threshold: 0.5,
+      threshold: 0.1,
+      rootMargin: "200px",
     });
     if (videoContainer.value) {
       observer.observe(videoContainer.value);
@@ -229,7 +230,8 @@ const openFullscreen = () => {
     <video
       @click="onDoubleClick"
       ref="videoplay"
-      preload="auto"
+      loading="lazy"
+      preload="none"
       loop
       muted
       playsinline

@@ -53,6 +53,8 @@ const isHover = (bool: boolean) => {
       <video
         v-else
         ref="videoRef"
+        loading="lazy"
+        preload="none"
         muted
         autoplay
         playsinline
