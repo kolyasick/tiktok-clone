@@ -14,26 +14,26 @@ const router = useRouter();
         class="flex w-full items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 py-2"
         @click="navigateTo($localePath('/video'))"
       >
-        <IconsHouse class="w-7 h-7 text-gray-900 dark:text-white" />
+        <IconsHouse class="w-8 h-8 text-gray-900 dark:text-white" />
       </button>
 
       <button
         class="flex w-full items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 py-2"
       >
-        <IconsPeople class="w-7 h-7 text-gray-900 dark:text-white" />
+        <IconsPeople class="w-8 h-8 text-gray-900 dark:text-white" />
       </button>
 
       <button
         class="flex w-full items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 py-2"
       >
-        <IconsCam class="w-7 h-7 text-gray-900 dark:text-white" />
+        <IconsCam class="w-8 h-8 text-gray-900 dark:text-white" />
       </button>
       <NuxtLink
-        class="flex w-full items-center justify-center hover:bg-gray-200 dark:hover:bg-neutral-800 py-2"
+        class="flex w-full items-center justify-center -ml-1 hover:bg-gray-200 dark:hover:bg-neutral-800 py-2"
         v-if="user?.role === 'admin'"
         to="/admin/dashboard"
       >
-        <IconsAdmin class="w-7 h-7 text-gray-900 dark:text-white" />
+        <IconsAdmin class="w-8 h-8 text-gray-900 dark:text-white" />
       </NuxtLink>
     </div>
   </aside>

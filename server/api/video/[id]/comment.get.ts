@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
     skip: Number(offset),
     take: Number(limit),
     orderBy: {
-      createdAt: "asc",
+      createdAt: "desc",
     },
   });
 
