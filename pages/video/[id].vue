@@ -149,7 +149,7 @@ const handleTouchMove = async (e: TouchEvent) => {
   const currentY = e.touches[0].clientY;
   const deltaY = startY - currentY;
 
-  if (Math.abs(deltaY) > 100) {
+  if (Math.abs(deltaY) > 30) {
     isScrolling = true;
     const direction = deltaY > 0 ? 1 : -1;
     const nextIndex = currentVideoIndex.value + direction;
