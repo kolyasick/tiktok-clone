@@ -260,7 +260,7 @@ onUnmounted(() => {
       playsinline
       class="aspect-video object-cover w-full h-full transition-opacity"
       :class="{ 'opacity-80': isHeartShow || isVideoLoading }"
-      @loadeddata="onVideoLoaded"
+      @timeupdate="onVideoLoaded"
       :src="'/upload/videos/' + video.url || ''"
       aria-label="Video content"
     ></video>
