@@ -90,13 +90,11 @@ watch(
 
 <template>
   <div
-    class="fixed z-40 top-0 left-0 w-full h-full bg-black bg-opacity-50"
-    @click="switchModal(false)"
-  ></div>
-
-  <Transition name="edit-modal">
+    class="fixed z-40 top-0 left-0 w-full h-full backdrop-blur-sm"
+    @click.self="switchModal(false)"
+  >
     <div
-      class="fixed z-50 bg-light dark:bg-dark top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[500px] w-full min-h-[500px] mx-auto rounded-lg"
+      class="fixed z-50 bg-light dark:bg-neutral-950 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[500px] w-full min-h-[500px] mx-auto rounded-xl border border-gray-200 dark:border-neutral-800"
     >
       <div class="w-full flex justify-end">
         <button @click="switchModal(false)" class="p-3">
@@ -175,7 +173,7 @@ watch(
       </div>
 
       <div
-        class="p-4 border-t border-gray-200 dark:border-[#ebebeb6c] absolute bottom-0 right-0 w-full"
+        class="p-4 border-t border-gray-200 dark:border-neutral-800 absolute bottom-0 right-0 w-full"
       >
         <div class="flex justify-end gap-3">
           <button
@@ -195,25 +193,12 @@ watch(
         </div>
       </div>
     </div>
-  </Transition>
 
-  <div
-    v-if="loading"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-  >
-    <IconsLoader class="animate-spin w-20 h-20 text-black dark:text-white" />
+    <div
+      v-if="loading"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+    >
+      <IconsLoader class="animate-spin w-20 h-20 text-black dark:text-white" />
+    </div>
   </div>
 </template>
-
-<style scoped>
-.edit-modal-enter-active,
-.edit-modal-leave-active {
-  transition: opacity 0.2s ease, margin 0.2s ease;
-}
-
-.edit-modal-enter-from,
-.edit-modal-leave-to {
-  opacity: 0;
-  margin: 0px 40px;
-}
-</style>

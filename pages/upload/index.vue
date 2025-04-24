@@ -170,12 +170,11 @@ useSeoMeta({
 
   <div class="w-full">
     <div class="my-5 dark:bg-neutral-800/30 bg-gray-100 shadow-lg rounded-md py-6 md:px-10 px-4">
-      <div>
+      <div class="text-center">
         <div class="text-[23px] font-semibold">{{ $t("uploadTitle") }}</div>
         <div class="text-gray-400 mt-1">{{ $t("uploadDescr") }}</div>
       </div>
-
-      <div class="mt-8 md:flex gap-6">
+      <div class="mt-8 md:flex justify-center gap-6">
         <label
           v-if="!video[0]"
           for="fileInput"

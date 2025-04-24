@@ -11,7 +11,7 @@ const toggleTheme = () => {
 <template>
   <div
     id="menu"
-    class="lg:block bg-white dark:bg-white/10 fixed left-0 top-0 h-screen shadow-xl flex flex-col w-64 pt-6"
+    class="lg:block bg-white dark:bg-dark fixed left-0 top-0 h-screen shadow-xl flex flex-col w-72 pt-6"
   >
     <div class="flex items-center mb-2">
       <NuxtLink
@@ -31,7 +31,7 @@ const toggleTheme = () => {
 
     <NuxtLink
       :to="'/profile/' + $authStore.profile?.name"
-      class="flex flex-col space-y-2 px-6 md:space-y-0 md:flex-row mb-5 items-center md:space-x-2 hover:bg-white/10 group transition duration-150 ease-linear group w-full py-3"
+      class="flex flex-col space-y-2 px-6 md:space-y-0 md:flex-row mb-5 items-center md:space-x-2 hover:bg-neutral-800 group transition duration-150 ease-linear group w-full py-3"
     >
       <div>
         <img
@@ -48,13 +48,13 @@ const toggleTheme = () => {
       </div>
     </NuxtLink>
 
-    <hr class="border-slate-700" />
+    <hr class="border-neutral-800" />
     <ul id="menu" class="flex flex-col">
       <li
         v-for="route in routes"
         :key="route.path"
-        :class="{ 'dark:bg-white/10 bg-gray-200 text-[#F02C56]': $route.fullPath === route.path }"
-        class="dark:hover:bg-white/10 hover:bg-gray-200 transition duration-150 ease-linear py-3 px-6 group"
+        :class="{ 'dark:bg-neutral-800 bg-gray-200 text-[#F02C56]': $route.fullPath === route.path }"
+        class="dark:hover:bg-neutral-800 hover:bg-gray-200 transition duration-150 ease-linear py-3 px-6 group"
       >
         <NuxtLink :to="route.path">
           <div class="flex flex-col space-y-2 md:flex-row md:space-y-0 space-x-2 items-center">
@@ -73,7 +73,7 @@ const toggleTheme = () => {
 
       <li
         @click="$authStore.logout"
-        class="hover:bg-white/10 transition duration-150 ease-linear py-3 px-6 w-full group cursor-pointer absolute bottom-10 border-t border-slate-700"
+        class="hover:bg-neutral-800 transition duration-150 ease-linear py-3 px-6 w-full group cursor-pointer absolute bottom-10 border-t border-neutral-800"
       >
         <div class="flex flex-col space-y-2 md:flex-row md:space-y-0 space-x-2 items-center">
           <IconsLogout class="group-hover:text-[#F02C56] w-6 h-6" />

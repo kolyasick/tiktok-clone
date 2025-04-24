@@ -113,18 +113,11 @@ onMounted(async () => {
   socket.on(
     "notification",
 
-    (data: {
-      to: number;
-      message: string;
-      sender?: IProfile;
-      messageType?: string;
-    }) => {
+    (data: { to: number; message: string; sender?: IProfile; messageType?: string }) => {
       if (data.to === $authStore.profile?.id) {
         addNotification({
           message:
-            data.messageType !== "message"
-              ? t(`notification.${data.messageType}`)
-              : data.message,
+            data.messageType !== "message" ? t(`notification.${data.messageType}`) : data.message,
 
           sender: data.sender,
           messageType: data.messageType,
@@ -182,7 +175,9 @@ $authStore.followers = followers.value || [];
 
   <AuthOverlay />
 
-  <EditProfileOverlay v-if="$generalStore.isEditProfileOpen" />
+  <Transition name="fade">
+    <EditProfileOverlay v-if="$generalStore.isEditProfileOpen" />
+  </Transition>
 </template>
 
 <style>
@@ -199,6 +194,15 @@ body {
 .main-pages-leave-to {
   opacity: 0;
   filter: blur(1rem);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
 html {

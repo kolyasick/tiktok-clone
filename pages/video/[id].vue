@@ -95,7 +95,7 @@ const handleScroll = async (e: WheelEvent) => {
     if (targetElement) {
       targetElement.scrollIntoView({
         behavior: "smooth",
-        block: currentVideoIndex.value === 0 ? "end" : "center",
+        block: "center",
       });
       const currentVideo = $videosStore.videos[nextIndex];
       const newUrl =
@@ -160,7 +160,7 @@ const handleTouchMove = async (e: TouchEvent) => {
       if (targetElement) {
         targetElement.scrollIntoView({
           behavior: "smooth",
-          block: currentVideoIndex.value === 0 ? "end" : "center",
+          block: "center",
         });
 
         const currentVideo = $videosStore.videos[nextIndex];
@@ -217,19 +217,19 @@ onUnmounted(() => {
     :class="isCommentsVisible ? 'overflow-y-hidden' : 'overflow-y-scroll'"
     ref="scrollContainer"
     style="scrollbar-width: none"
-    class="h-[calc(100dvh+40px)] snap-y snap-mandatory w-full"
+    class="h-[calc(100dvh-61px)] snap-y snap-mandatory w-full sm:ml-8"
   >
     <div
       v-for="(video, index) in $videosStore.videos"
       :id="`video-${index}`"
       :key="video.id"
-      class="w-full snap-start flex items-center justify-center last:mb-8"
+      class="w-full h-full snap-start flex items-center justify-center last:mb-8"
     >
-      <PostMain class="mt-8" :video="video" @toggle-comments="toggleComments" />
+      <PostMain :video="video" @toggle-comments="toggleComments" />
     </div>
     <div
       v-if="$videosStore.isLoading"
-      class="flex justify-center items-center h-[calc(100dvh+40px)] snap-start"
+      class="flex justify-center items-center h-[calc(100dvh-61px)] snap-start"
     >
       <IconsLoader class="animate-spin ml-1 w-24 h-24" />
     </div>

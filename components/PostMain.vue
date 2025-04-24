@@ -130,8 +130,7 @@ const isFollowed = (userId: number) => {
   return computed(() => {
     return $authStore.followers.some(
       (follower) =>
-        (follower.userId === userId || follower.friendId === userId) &&
-        follower.isFollowing
+        (follower.userId === userId || follower.friendId === userId) && follower.isFollowing
     );
   });
 };
@@ -146,10 +145,7 @@ const handleFollow = async () => {
     return;
   }
   try {
-    await $profileStore.handleFriendAction(
-      "add",
-      props.video.profile as IProfile
-    );
+    await $profileStore.handleFriendAction("add", props.video.profile as IProfile);
     if (props.video.profileId !== $authStore.profile?.id) {
       socket.emit("notification", {
         to: props.video.profileId,
@@ -215,10 +211,7 @@ const openFullscreen = () => {
 </script>
 
 <template>
-  <div
-    ref="videoContainer"
-    class="xl:w-[65%] md:w-[70%] w-full xl:h-[calc(100dvh-150px)] h-[80dvh] xl:max-h-[800px] max-h-[650px] relative overflow-hidden rounded-xl"
-  >
+  <div ref="videoContainer" class="w-full h-full max-w-[800px] relative overflow-hidden">
     <button
       @click="openFullscreen"
       class="absolute top-3 right-3 z-30 text-white opacity-60 hover:opacity-100"
@@ -240,7 +233,7 @@ const openFullscreen = () => {
       loop
       muted
       playsinline
-      class="rounded-xl border dark:border-neutral-800 border-gray-200 aspect-video object-cover w-full h-full transition-opacity"
+      class="aspect-video object-cover w-full h-full transition-opacity"
       :class="{ 'opacity-80': isHeartShow || isVideoLoading }"
       @timeupdate="onVideoLoaded"
       :src="'/upload/videos/' + video.url || ''"
@@ -342,10 +335,7 @@ const openFullscreen = () => {
           @click="shareVideo(video)"
           class="rounded-full flex items-center justify-center cursor-pointer aspect-square w-8"
         >
-          <IconsShare
-            style="filter: drop-shadow(0px 0px 1px black)"
-            class="w-full aspect-square"
-          />
+          <IconsShare style="filter: drop-shadow(0px 0px 1px black)" class="w-full aspect-square" />
         </button>
       </div>
 
