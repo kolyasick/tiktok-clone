@@ -13,7 +13,7 @@ const props = defineProps<Props>();
 const emits = defineEmits(["like", "dislike", "reply"]);
 
 const isExpanded = ref(false);
-const MAX_PREVIEW_LENGTH = 200; // Максимальная длина текста для предпросмотра
+const MAX_PREVIEW_LENGTH = 200;
 
 const likeComment = () => {
   emits("like", props.comment);
@@ -23,7 +23,7 @@ const dislikeComment = () => {
   emits("dislike", props.comment);
 };
 
-// Проверяем, нужно ли показывать кнопку "Показать больше"
+
 const shouldShowToggle = computed(() => {
   return props.comment.text?.length > MAX_PREVIEW_LENGTH;
 });

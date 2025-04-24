@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import type { IComment, IProfile, IVideo } from "~/types/user.type";
+import { ref, computed, onMounted, onUnmounted } from "vue";
+
 const { $videosStore, $authStore, $profileStore, $generalStore } = useNuxtApp();
 const { $io: socket } = useNuxtApp();
 const { addNotification } = useNotification();
@@ -11,14 +13,25 @@ type Props = {
 const props = defineProps<Props>();
 const emits = defineEmits(["toggleComments"]);
 
-let videoplay = ref<HTMLVideoElement | null>(null);
-let videoContainer = ref(null);
-let isMuted = ref(true);
-let volume = ref(100);
-let isLiking = ref(false);
-let isVideoLoading = ref(true);
-let isCommentsVisible = ref(false);
-let isVideoPaused = ref<boolean | undefined>();
+const videoplay = ref<HTMLVideoElement | null>(null);
+const videoContainer = ref<HTMLElement | null>(null);
+const isMuted = ref(true);
+const volume = ref(100);
+const isLiking = ref(false);
+const isVideoLoading = ref(true);
+const isCommentsVisible = ref(false);
+const isVideoPaused = ref<boolean | undefined>();
+const isHeartShow = ref(false);
+const isFollowing = ref(false);
+const observer = ref<IntersectionObserver | null>(null);
+
+const isFollowingComputed = computed(() => {
+  return $authStore.followers.some(
+    (follower) =>
+      (follower.userId === props.video.profileId || follower.friendId === props.video.profileId) &&
+      follower.isFollowing
+  );
+});
 
 const toggleMute = () => {
   if (videoplay.value) {
@@ -29,15 +42,15 @@ const toggleMute = () => {
 
 const handleIntersection = (entries: IntersectionObserverEntry[]) => {
   entries.forEach((entry) => {
-    if (videoplay.value) {
-      if (entry.isIntersecting) {
-        videoplay.value.play();
-      } else {
-        videoplay.value.pause();
+    if (!videoplay.value) return;
+
+    if (entry.isIntersecting) {
+      videoplay.value.play().catch((e) => console.log("Autoplay prevented:", e));
+    } else {
+      videoplay.value.pause();
+      if (!isVideoPaused.value) {
         videoplay.value.currentTime = 0;
       }
-    } else {
-      return;
     }
   });
 };
@@ -51,6 +64,7 @@ const shareVideo = async (video: IVideo) => {
       message: `Поделился вашим видео`,
     });
   }
+
   const videoUrl = `${window.location.origin}/video/${video.id}`;
   try {
     await navigator.clipboard.writeText(videoUrl);
@@ -61,7 +75,11 @@ const shareVideo = async (video: IVideo) => {
     });
   } catch (error) {
     console.error("Error copying video link:", error);
-    alert("Failed to copy video link");
+    addNotification({
+      message: t("copyError"),
+      type: "error",
+      duration: 2000,
+    });
   }
 };
 
@@ -74,19 +92,6 @@ const closeComments = () => {
   isCommentsVisible.value = false;
   emits("toggleComments");
 };
-
-onMounted(() => {
-  if (videoplay.value) {
-    videoplay.value.volume = volume.value / 100;
-    const observer = new IntersectionObserver(handleIntersection, {
-      root: null,
-      threshold: 0.5,
-    });
-    if (videoContainer.value) {
-      observer.observe(videoContainer.value);
-    }
-  }
-});
 
 const onVideoLoaded = () => {
   isVideoLoading.value = false;
@@ -107,6 +112,8 @@ const addComment = (comment: IComment) => {
 };
 
 const likeVideo = async (video: IVideo) => {
+  if (isLiking.value) return;
+
   try {
     isLiking.value = true;
     await $videosStore.toggleLike(video);
@@ -119,6 +126,7 @@ const likeVideo = async (video: IVideo) => {
       });
     }
   } catch (error) {
+    console.error("Like error:", error);
   } finally {
     setTimeout(() => {
       isLiking.value = false;
@@ -126,24 +134,12 @@ const likeVideo = async (video: IVideo) => {
   }
 };
 
-const isFollowed = (userId: number) => {
-  return computed(() => {
-    return $authStore.followers.some(
-      (follower) =>
-        (follower.userId === userId || follower.friendId === userId) && follower.isFollowing
-    );
-  });
-};
-
-const isFollowing = ref(false);
-
-isFollowing.value = isFollowed(props.video.profileId).value;
-
 const handleFollow = async () => {
   if (!$authStore.profile) {
     $generalStore.isLoginOpen = true;
     return;
   }
+
   try {
     await $profileStore.handleFriendAction("add", props.video.profile as IProfile);
     if (props.video.profileId !== $authStore.profile?.id) {
@@ -161,7 +157,7 @@ const handleFollow = async () => {
 };
 
 let lastClickTime = 0;
-let timeoutId = null as NodeJS.Timeout | null;
+let timeoutId: NodeJS.Timeout | null = null;
 
 const onDoubleClick = () => {
   const currentTime = Date.now();
@@ -187,7 +183,6 @@ const handleSingleClick = () => {
     isVideoPaused.value = videoplay.value.paused;
   }
 };
-const isHeartShow = ref(false);
 
 const handleDoubleClick = async () => {
   try {
@@ -203,77 +198,113 @@ const handleDoubleClick = async () => {
   }
 };
 
-const openFullscreen = () => {
+onMounted(() => {
+  isFollowing.value = isFollowingComputed.value;
+
   if (videoplay.value) {
-    videoplay.value.requestFullscreen();
+    videoplay.value.volume = volume.value / 100;
+    observer.value = new IntersectionObserver(handleIntersection, {
+      root: null,
+      rootMargin: "200px",
+      threshold: 0.1,
+    });
+
+    if (videoContainer.value) {
+      observer.value.observe(videoContainer.value);
+    }
   }
-};
+
+  const handleVisibilityChange = () => {
+    if (!videoplay.value) return;
+    if (document.visibilityState === "hidden") {
+      videoplay.value.pause();
+    } else if (document.visibilityState === "visible") {
+      videoplay.value.play();
+    }
+  };
+
+  document.addEventListener("visibilitychange", handleVisibilityChange);
+});
+
+onUnmounted(() => {
+  if (observer.value) {
+    observer.value.disconnect();
+  }
+
+  if (timeoutId) {
+    clearTimeout(timeoutId);
+  }
+
+  document.removeEventListener("visibilitychange", () => {});
+});
 </script>
 
 <template>
   <div ref="videoContainer" class="w-full h-full max-w-[800px] relative overflow-hidden">
-    <button
-      @click="openFullscreen"
-      class="absolute top-3 right-3 z-30 text-white opacity-60 hover:opacity-100"
-    >
-      <IconsFullScreen class="w-6 h-6" />
-    </button>
     <Transition name="slide-over">
       <div
-        class="absolute top-0 left-0 w-full h-full flex items-center justify-center z-20"
         v-if="isHeartShow"
+        class="absolute top-0 left-0 w-full h-full flex items-center justify-center z-20 pointer-events-none"
       >
         <IconsHeart class="text-red-500 w-1/4 h-1/4" />
       </div>
     </Transition>
+
     <video
+      loading="lazy"
       @click="onDoubleClick"
       ref="videoplay"
-      preload="auto"
+      preload="metadata"
       loop
       muted
       playsinline
       class="aspect-video object-cover w-full h-full transition-opacity"
       :class="{ 'opacity-80': isHeartShow || isVideoLoading }"
-      @timeupdate="onVideoLoaded"
+      @loadeddata="onVideoLoaded"
       :src="'/upload/videos/' + video.url || ''"
-    />
-    <ClientOnly v-if="!isVideoLoading">
-      <div
-        class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none"
-      >
-        <span
-          v-if="isVideoPaused !== undefined && isVideoPaused === false"
-          class="bg-black bg-opacity-50 p-2 rounded-full fade-out"
+      aria-label="Video content"
+    ></video>
+
+    <ClientOnly>
+      <template v-if="!isVideoLoading">
+        <div
+          class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none"
         >
-          <IconsPlay class="w-14 h-14 text-white" />
-        </span>
-        <span
-          v-else-if="isVideoPaused !== undefined && isVideoPaused === true"
-          class="bg-black bg-opacity-50 p-2 rounded-full fade-out"
-        >
-          <IconsPause class="w-14 h-14 text-white" />
-        </span>
-      </div>
+          <span
+            v-if="isVideoPaused !== undefined && !isVideoPaused"
+            class="bg-black bg-opacity-50 p-2 rounded-full fade-out"
+          >
+            <IconsPlay class="w-14 h-14 text-white" />
+          </span>
+          <span
+            v-else-if="isVideoPaused !== undefined && isVideoPaused"
+            class="bg-black bg-opacity-50 p-2 rounded-full fade-out"
+          >
+            <IconsPause class="w-14 h-14 text-white" />
+          </span>
+        </div>
+      </template>
+      <template v-else>
+        <div class="absolute inset-0 flex items-center justify-center">
+          <IconsLoader class="w-24 h-24 animate-spin text-white" />
+        </div>
+      </template>
     </ClientOnly>
-    <ClientOnly v-else>
-      <div class="absolute inset-0 flex items-center justify-center">
-        <IconsLoader class="w-24 h-24 animate-spin text-white" />
-      </div>
-    </ClientOnly>
+
     <div
-      class="absolute xl:bottom-5 xl:left-5 bottom-2 left-2 grid gap-1 text-white dark:text-white"
+      class="absolute xl:bottom-5 xl:left-5 bottom-2 left-2 grid gap-1 text-white dark:text-white pointer-events-none"
     >
       <NuxtLink
         :to="$localePath(`/profile/${video.profile?.name}`)"
-        class="font-semibold text-lg hover:underline"
+        class="font-semibold text-lg hover:underline pointer-events-auto"
       >
         {{ video.profile?.name }}
       </NuxtLink>
       <p class="max-w-[200px] xl:max-w-[300px]">{{ video.title }}</p>
     </div>
+
     <div
-      class="absolute xl:bottom-5 xl:right-5 bottom-2 right-2 grid gap-2 place-items-center dark:text-white text-white"
+      class="absolute xl:bottom-5 xl:right-5 bottom-2 right-2 grid gap-2 place-items-center dark:text-white text-white pointer-events-auto"
     >
       <div class="mb-5 flex flex-col place-items-center">
         <NuxtLink
@@ -283,40 +314,46 @@ const openFullscreen = () => {
           <img
             :src="'/upload/avatars/' + video.profile?.avatar"
             class="w-12 aspect-square rounded-full border"
-            alt=""
+            alt="Profile avatar"
+            loading="lazy"
           />
         </NuxtLink>
         <button
-          @click="handleFollow"
           v-if="!isFollowing && $authStore.profile?.id !== video.profileId"
-          class="bg-red-500 rounded-full -mt-2 z-10 flex items-center justify-center"
+          @click="handleFollow"
+          class="bg-red-500 rounded-full -mt-2 z-10 flex items-center justify-center p-1"
+          aria-label="Follow user"
         >
-          <IconsPlus />
+          <IconsPlus class="w-4 h-4 text-white" />
         </button>
       </div>
+
       <div class="text-center">
         <button
           :disabled="isLiking"
           @click="likeVideo(video)"
           class="rounded-full flex items-center justify-center cursor-pointer aspect-square w-8 group"
+          aria-label="Like video"
         >
           <IconsHeart
             style="filter: drop-shadow(0px 0px 1px black)"
-            :class="video.liked ? 'text-red-500' : 'text-white '"
+            :class="video.liked ? 'text-red-500' : 'text-white'"
             class="transition w-full aspect-square group-disabled:opacity-50 group-active:scale-75"
           />
         </button>
         <span
           style="filter: drop-shadow(0px 0px 1px black)"
-          class="text-xs text-white font-semibold"
-          >{{ video.likes?.length }}</span
+          class="text-xs text-white font-semibold block"
         >
+          {{ video.likes?.length || 0 }}
+        </span>
       </div>
 
       <div class="text-center">
         <button
-          class="rounded-full flex items-center justify-center cursor-pointer aspect-square w-8"
           @click="toggleComments"
+          class="rounded-full flex items-center justify-center cursor-pointer aspect-square w-8"
+          aria-label="Toggle comments"
         >
           <IconsComment
             style="filter: drop-shadow(0px 0px 1px black)"
@@ -325,15 +362,17 @@ const openFullscreen = () => {
         </button>
         <span
           style="filter: drop-shadow(0px 0px 1px black)"
-          class="text-xs text-white font-semibold"
-          >{{ video.commentsCount }}</span
+          class="text-xs text-white font-semibold block"
         >
+          {{ video.commentsCount || 0 }}
+        </span>
       </div>
 
       <div class="text-center">
         <button
           @click="shareVideo(video)"
           class="rounded-full flex items-center justify-center cursor-pointer aspect-square w-8"
+          aria-label="Share video"
         >
           <IconsShare style="filter: drop-shadow(0px 0px 1px black)" class="w-full aspect-square" />
         </button>
@@ -341,8 +380,9 @@ const openFullscreen = () => {
 
       <div class="text-center mb-2">
         <button
-          class="rounded-full flex items-center justify-center cursor-pointer aspect-square w-8"
           @click="toggleMute"
+          class="rounded-full flex items-center justify-center cursor-pointer aspect-square w-8"
+          aria-label="Toggle mute"
         >
           <IconsMute
             style="filter: drop-shadow(0px 0px 1px black)"
@@ -370,6 +410,7 @@ const openFullscreen = () => {
 .slide-enter-active,
 .slide-leave-active {
   transition: transform 0.3s ease;
+  will-change: transform;
 }
 
 .slide-enter-from,
@@ -380,6 +421,7 @@ const openFullscreen = () => {
 .slide-over-enter-active,
 .slide-over-leave-active {
   transition: transform 0.3s cubic-bezier(0.4, 0, 0, 1), opacity 0.2s;
+  will-change: transform, opacity;
 }
 
 .slide-over-enter-from {
@@ -391,23 +433,6 @@ const openFullscreen = () => {
   transform: translateY(-100%);
 }
 
-.modal-enter-active,
-.modal-leave-active {
-  transition: all 0.3s;
-}
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-}
-
-.modal {
-  z-index: 1000;
-}
-
-.loader {
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 100;
-}
 @keyframes fade-in-out {
   0% {
     opacity: 0;
@@ -426,5 +451,6 @@ const openFullscreen = () => {
 
 .fade-out {
   animation: fade-in-out 0.3s ease forwards;
+  will-change: opacity, transform;
 }
 </style>
