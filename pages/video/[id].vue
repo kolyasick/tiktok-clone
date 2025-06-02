@@ -31,13 +31,13 @@ const { data, refresh } = await useFetch<IVideo>(
   }
 );
 
-if (!data.value) {
-  throw createError({
-    statusCode: 404,
-    statusMessage: t("errors.videoNotFound"),
-    fatal: true,
-  });
-}
+// if (!data.value) {
+//   throw createError({
+//     statusCode: 404,
+//     statusMessage: t("errors.videoNotFound"),
+//     fatal: true,
+//   });
+// }
 
 useSeoMeta({
   title: "Clipify | " + data.value?.title,

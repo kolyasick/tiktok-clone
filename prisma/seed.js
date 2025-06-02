@@ -24,8 +24,30 @@ async function main() {
   //     };
   //   }),
   // });
-  
+
+  // await prisma.like.deleteMany()
+  // await prisma.commentLike.deleteMany()
   // await prisma.comment.deleteMany()
+  // await prisma.video.deleteMany()
+  // await prisma.follows.deleteMany()
+  // await prisma.block.deleteMany()
+  // await prisma.message.deleteMany()
+  // await prisma.chat.deleteMany()
+  // await prisma.profile.deleteMany()
+  // await prisma.user.deleteMany()
+  // console.log(await prisma.activationCode.findMany())
+  await prisma.user.update({
+    where: {
+      email: "kolya@mail.ru",
+    },
+    data: {
+      role: {
+        connect: {
+          title: "admin",
+        },
+      },
+    },
+  });
 }
 
 main()
