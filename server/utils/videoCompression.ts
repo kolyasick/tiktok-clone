@@ -34,19 +34,19 @@ export async function compressVideo(inputBuffer: Buffer): Promise<{
       ffmpeg(tempInputPath)
         .outputOptions([
           "-c:v libx264",
-          "-crf 23",
-          "-preset faster",
+          "-crf 28", // Более агрессивное сжатие
+          "-preset slow", // Лучшая оптимизация размера
           "-tune fastdecode",
-          "-x264-params ref=4:deblock=-1,-1",
+          "-x264-params ref=4:deblock=-1,-1:nal-hrd=cbr",
           "-c:a aac",
-          "-b:a 128k",
+          "-b:a 96k", // Пониженный битрейт аудио
           "-movflags +faststart",
-          "-vf scale=1080:-2:flags=lanczos",
+          "-vf scale='min(1080,iw):-2'", // Масштабирование только вниз
           "-max_muxing_queue_size 1024",
           "-threads 0",
           "-pix_fmt yuv420p",
         ])
-        //@ts-ignore
+        // @ts-ignore
         .on("end", resolve)
         .on("error", reject)
         .save(tempOutputPath);
