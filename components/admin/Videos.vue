@@ -9,8 +9,8 @@ const emit = defineEmits<{
 
 <template>
   <div id="last-incomes">
-    <h1 class="font-bold py-4 uppercase">Last uploaded videos</h1>
-    <div id="stats" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <h1 class="font-bold py-4 uppercase">{{ $t("admin.lastVideos") }}</h1>
+    <div id="stats" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4">
       <div
         @click="emit('showModerateModal', video)"
         v-for="video in $adminStore.videos"
@@ -26,13 +26,7 @@ const emit = defineEmits<{
               muted
               preload="metadata"
             />
-            <video
-              v-else
-              :src="'/upload/videos/' + video.url"
-              class="w-full h-full object-cover rounded-lg"
-              muted
-              preload="metadata"
-            ></video>
+            <video v-else :src="'/upload/videos/' + video.url" class="w-full h-full object-cover rounded-lg" muted preload="metadata"></video>
           </div>
           <div class="p-2 max-w-[200px]">
             <p class="text-xl font-bold truncate">{{ video.title }}</p>
@@ -43,7 +37,7 @@ const emit = defineEmits<{
         <div class="border-t border-white/5 p-4 flex items-center justify-between">
           <a href="#" class="inline-flex space-x-2 items-center text-center">
             <IconsInfo class="w-6 h-6" />
-            <span>Info</span>
+            <span>{{ $t("admin.info") }}</span>
           </a>
           <span
             :class="[
@@ -53,17 +47,14 @@ const emit = defineEmits<{
               },
               'font-semibold',
             ]"
-            >{{ video.status?.title }}</span
+            >{{ $t(`admin.status.${video.status?.title}`) }}</span
           >
         </div>
       </div>
     </div>
 
-    <NuxtLink
-      v-if="$route.path !== '/admin/videos'"
-      to="/admin/videos"
-      class="mt-5 inline-block font-semibold text-indigo-600"
-      >Show more</NuxtLink
-    >
+    <NuxtLink v-if="$route.path !== '/admin/videos'" to="/admin/videos" class="mt-5 inline-block font-semibold text-indigo-600">{{
+      $t("showMore")
+    }}</NuxtLink>
   </div>
 </template>

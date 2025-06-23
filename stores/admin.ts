@@ -46,29 +46,52 @@ export const useAdminStore = defineStore("admin", {
     async blockUser(userId: number, reason: string, until: Date) {
       if (!userId) return;
 
-      const user = this.users.find((u) => u.userId === userId);
-      if (user) {
-        user.user.isBlocked = true;
-        user.user.block = {
-          id: Date.now(),
-          info: "Обратитесь в поддержку за подробной информацией",
-          reason,
-          until,
-          userId,
-          updatedAt: new Date(),
-          createdAt: new Date(),
-        };
+      try {
+        const res = await $fetch("/api/admin/user/block", {
+          method: "POST",
+          body: {
+            userId,
+            reason,
+            until: new Date(until),
+            info: "Обратитесь в поддержку за подробной информацией",
+          },
+        });
+        const user = this.users.find((u) => u.userId === userId);
+        if (user) {
+          user.user.isBlocked = true;
+          user.user.block = {
+            id: Date.now(),
+            info: "Обратитесь в поддержку за подробной информацией",
+            reason,
+            until,
+            userId,
+            updatedAt: new Date(),
+            createdAt: new Date(),
+          };
+        }
+      } catch (error) {
+        console.log(error);
       }
+    },
 
-      await $fetch("/api/admin/user/block", {
-        method: "POST",
-        body: {
-          userId,
-          reason,
-          until: new Date(until),
-          info: "Обратитесь в поддержку за подробной информацией",
-        },
-      });
+    async unblockUser(userId: number) {
+      if (!userId) return;
+
+      try {
+        await $fetch("/api/admin/user/unblock", {
+          method: "POST",
+          body: {
+            userId,
+          },
+        });
+
+        const user = this.users.find((u) => u.userId === userId);
+        if (user) {
+          user.user.isBlocked = false;
+        }
+      } catch (error) {
+        console.log(error);
+      }
     },
 
     async getUsers(limit?: number) {

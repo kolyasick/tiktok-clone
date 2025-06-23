@@ -17,21 +17,17 @@ const router = useRouter();
         <IconsHouse class="w-8 h-8 text-gray-900 dark:text-white" />
       </button>
 
-      <button
-        class="flex w-full items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 py-2"
-      >
+      <button class="flex w-full items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 py-2">
         <IconsPeople class="w-8 h-8 text-gray-900 dark:text-white" />
       </button>
 
-      <button
-        class="flex w-full items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 py-2"
-      >
+      <button class="flex w-full items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 py-2">
         <IconsCam class="w-8 h-8 text-gray-900 dark:text-white" />
       </button>
       <NuxtLink
         class="flex w-full items-center justify-center -ml-1 hover:bg-gray-200 dark:hover:bg-neutral-800 py-2"
         v-if="user?.role === 'admin'"
-        to="/admin/dashboard"
+        :to="$localePath('/admin/dashboard')"
       >
         <IconsAdmin class="w-8 h-8 text-gray-900 dark:text-white" />
       </NuxtLink>

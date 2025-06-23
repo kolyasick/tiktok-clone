@@ -5,7 +5,9 @@ const localPath = useLocalePath();
 interface Props {
   video: IVideo;
 }
-defineProps<Props>();
+const props = defineProps<Props>();
+
+console.log(props.video)
 
 let videoRef = ref<HTMLVideoElement | null>(null);
 let isLoaded = ref<boolean>(false);

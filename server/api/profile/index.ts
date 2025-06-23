@@ -54,12 +54,12 @@ export default defineEventHandler(async (event) => {
   const mappedProfile = {
     ...profile,
     following: [
-      ...profile.followsAsFollower,
-      ...profile.followsAsFollowing.filter((f) => f.status == "reply"),
+      ...profile.followsAsFollower.filter((f) => f.isFollowing),
+      ...profile.followsAsFollowing.filter((f) => f.isFollowing && f.status === "accepted"),
     ],
     followers: [
-      ...profile.followsAsFollowing,
-      ...profile.followsAsFollower.filter((f) => f.status == "reply"),
+      ...profile.followsAsFollowing.filter((f) => f.isFollowing && f.status !== "rejected"),
+      ...profile.followsAsFollower.filter((f) => f.isFollowing && f.status === "accepted"),
     ],
   };
 

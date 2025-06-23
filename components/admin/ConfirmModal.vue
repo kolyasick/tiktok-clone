@@ -25,11 +25,11 @@ const onCancel = () => {
   <Transition name="modal">
     <div v-if="isVisible" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
       <div class="dark:bg-[#1a1a1a] bg-white rounded-lg p-6 w-[400px] max-w-full">
-        <h3 class="text-xl font-bold mb-4">Confirmation</h3>
-        <p class="mb-4">{{ message }}</p>
+        <h3 class="text-xl font-bold mb-4">{{ $t("admin.confirmation") }}</h3>
+        <p class="mb-4">{{  message }}</p>
         <div class="flex justify-end gap-3">
-          <button @click="onCancel" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-700 transition-colors">Cancel</button>
-          <button @click="onConfirm" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 transition-colors">Confirm</button>
+          <button @click="onCancel" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-700 transition-colors">{{ $t("admin.cancel") }}</button>
+          <button @click="onConfirm" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 transition-colors">{{ $t("admin.confirm") }}</button>
         </div>
       </div>
     </div>

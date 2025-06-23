@@ -24,7 +24,7 @@
 
   "forYou": "For you",
   "live": "Live",
-  "admin": "For admin",
+  "adminButton": "For admin",
   "seeMore": "See more",
 
   "editProfile": "Edit profile",
@@ -122,5 +122,50 @@
     "like": "Liked your video",
     "follow": "Followed on you",
     "friend": "Followed back on you"
+  },
+
+  "admin": {
+    "title": "Clipify | Admin",
+    "last24stats": "Last 24h statistics",
+    "last24users": "Last 24h users",
+    "lastVideos": "Last uploaded videos",
+    "info": "info",
+    "comments": "comments",
+    "uploaded": "Uploaded",
+    "noComments": "No comments yet",
+    "block": "Block",
+    "delete": "Delete",
+    "apply": "Apply",
+    "confirmation": "Confirmation",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+
+    "sidebar": {
+      "description": "Welcome back",
+      "dashboard": "Dashboard",
+      "dashboardDescr": "Data overview",
+      "users": "Users",
+      "usersDescr": "Manage users",
+      "videos": "Videos",
+      "videosDescr": "Manage videos",
+      "logout": "Logout",
+      "logoutDescr": "Logout of account"
+    },
+    "status": {
+      "published": "Published",
+      "blocked": "Blocked",
+      "new": "New"
+    },
+    "users": {
+      "name": "Name",
+      "email": "Email",
+      "status": "Status",
+      "signup": "Signed up",
+      "actions": "Actions"
+    },
+    "blockModal": {
+      "title": "Block user",
+      "descr": "Type a reason of blocking"
+    }
   }
 }

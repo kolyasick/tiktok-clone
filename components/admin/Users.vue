@@ -21,16 +21,16 @@ const blockUser = () => {
 
 <template>
   <div id="last-users">
-    <h1 class="font-bold py-4 uppercase">Last 24h users</h1>
-    <div class="">
-      <table class="w-full whitespace-nowrap">
+    <h1 class="font-bold py-4 uppercase">{{ $t("admin.last24users") }}</h1>
+    <div class="overflow-x-auto">
+      <table class="w-full whitespace-nowrap min-w-[600px]">
         <thead class="dark:bg-black/60 bg-white shadow-md">
           <tr>
-            <th class="text-left py-3 px-2 rounded-l-lg">Name</th>
-            <th class="text-left py-3 px-2">Email</th>
-            <th class="text-left py-3 px-2">Status</th>
-            <th class="text-left py-3 px-2">Sign-up</th>
-            <th class="text-left py-3 px-2 rounded-r-lg">Actions</th>
+            <th class="text-left py-3 px-2 rounded-l-lg">{{ $t("admin.users.name") }}</th>
+            <th class="text-left py-3 px-2">{{ $t("admin.users.email") }}</th>
+            <th class="text-left py-3 px-2">{{ $t("admin.users.status") }}</th>
+            <th class="text-left py-3 px-2">{{ $t("admin.users.signup") }}</th>
+            <th class="text-left py-3 px-2 rounded-r-lg">{{ $t("admin.users.actions") }}</th>
           </tr>
         </thead>
         <tbody>
@@ -51,14 +51,30 @@ const blockUser = () => {
             </td>
             <td class="py-3 px-2">{{ formatDate(profile.user.createdAt) }}</td>
             <td class="py-3 px-2">
-              <button @click="toggleModal(true, profile.userId)" class="dark:hover:text-white">
+              <button v-if="profile.user.isBlocked" @click="$adminStore.unblockUser(profile.userId)">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke-width="1.5"
                   stroke="currentColor"
-                  class="w-5 h-5"
+                  class="w-5 h-5 text-green-500"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M13.5 10.5V6.75a4.5 4.5 0 119 0v3.75M3.75 21.75h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
+                  />
+                </svg>
+              </button>
+              <button v-else @click="toggleModal(true, profile.userId)" class="dark:hover:text-white">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="w-5 h-5 text-red-500"
                 >
                   <path
                     stroke-linecap="round"
@@ -89,17 +105,8 @@ const blockUser = () => {
           class="w-full p-2 dark:bg-[#2a2a2a] bg-gray-200 dark:text-white text-gray-800 rounded-lg focus:outline-none"
         />
         <div class="flex justify-end gap-3 mt-4">
-          <button
-            @click="toggleModal(false)"
-            class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-700 transition-colors"
-          >
-            Отмена
-          </button>
-          <button
-            @click="blockUser"
-            :disabled="!blockReason"
-            class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 transition-colors"
-          >
+          <button @click="toggleModal(false)" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-700 transition-colors">Отмена</button>
+          <button @click="blockUser" :disabled="!blockReason" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 transition-colors">
             Заблокировать
           </button>
         </div>
