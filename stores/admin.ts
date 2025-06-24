@@ -13,6 +13,7 @@ export const useAdminStore = defineStore("admin", {
   state: () => ({
     videos: [] as IVideo[] | [],
     users: [] as UserWithProfile[] | [],
+    blockedVideos: [] as string[] | [],
     selectedVideo: null as IVideo | null,
     isEditModalVisible: false as boolean,
   }),
@@ -26,6 +27,7 @@ export const useAdminStore = defineStore("admin", {
             title: status,
           };
           video.blockReason = reason;
+         
         } else {
           const index = this.videos.findIndex((video) => video.id === videoId);
           this.videos.splice(index, 1);
