@@ -3,13 +3,13 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
-  // await prisma.role.createMany({
-  //   data: [{ title: "admin" }, { title: "user" }],
-  // });
+  await prisma.role.createMany({
+    data: [{ title: "admin" }, { title: "user" }],
+  });
 
-  // await prisma.status.createMany({
-  //   data: [{ title: "new" }, { title: "published" }, { title: "blocked" }],
-  // });
+  await prisma.status.createMany({
+    data: [{ title: "new" }, { title: "published" }, { title: "blocked" }],
+  });
   // await prisma.like.deleteMany();
 
   // await prisma.commentLike.deleteMany()
@@ -36,18 +36,18 @@ async function main() {
   // await prisma.profile.deleteMany()
   // await prisma.user.deleteMany()
   // console.log(await prisma.activationCode.findMany())
-  await prisma.user.update({
-    where: {
-      email: "kolya@mail.ru",
-    },
-    data: {
-      role: {
-        connect: {
-          title: "admin",
-        },
-      },
-    },
-  });
+  // await prisma.user.update({
+  //   where: {
+  //     email: "kolya@mail.ru",
+  //   },
+  //   data: {
+  //     role: {
+  //       connect: {
+  //         title: "admin",
+  //       },
+  //     },
+  //   },
+  // });
 }
 
 main()
